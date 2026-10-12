@@ -1,13 +1,17 @@
 import { sha256 } from '/chaine.mjs';
 import { suivreLeChoix } from '/fichier.js';
 
-suivreLeChoix(document);
-
 const $ = (id) => document.getElementById(id);
+const $fichier = () => $('fichier');
+
+if ($fichier()) suivreLeChoix(document);
+
 const NBSP = '\u00A0';
 const echapper = (t) => String(t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const TITRES = { 409: 'Ce document en ligne a déjà été lu aujourd’hui', 422: 'Le document en ligne n’a pas pu être lu', 429: 'Limite du jour atteinte, à demain' };
 const jourFr = (j) => j.split('-').reverse().join('/');
+const NATURES = { deliberation: 'Délibération', arrete: 'Arrêté', decision: 'Décision' };
+const RATTACHEMENT = { 'site-officiel': 'adresse sur son site officiel', declaree: 'déclarée' };
 
 function telecharger(recu, id) {
 	const lien = document.createElement('a');
@@ -19,10 +23,15 @@ function telecharger(recu, id) {
 
 function afficher(r) {
 	const source = r.recu.temoin ? `lu à <code>${echapper(r.recu.temoin.url)}</code>` : 'calculée sur votre appareil';
+	const acte = r.recu.acte;
+	const tete = acte
+		? `<h2>Reçu${NBSP}: ${NATURES[acte.nature]} du ${jourFr(r.recu.temoin.lu.slice(0, 10))}, ${r.recu.temoin.lu.slice(11, 16)}${NBSP}UTC</h2>
+<p>Collectivité ${echapper(acte.collectivite)}, ${RATTACHEMENT[acte.rattachement]}.</p>`
+		: `<h2>Reçu${NBSP}: document daté du ${jourFr(r.jour)}</h2>`;
 	$('resultat').innerHTML = `<article class="ok">
-<h2>Reçu${NBSP}: document daté du ${jourFr(r.jour)}</h2>
+${tete}
 ${r.recu.libelle ? `<p><strong>${echapper(r.recu.libelle)}</strong></p>` : ''}
-<p>Gardez ce reçu avec le document${NBSP}: ensemble, ils prouvent qu’il existait ce jour-là, sans modification.</p>
+<p>${acte ? `Ce fichier était servi à cette adresse à cet instant.` : `Gardez ce reçu avec le document${NBSP}: ensemble, ils prouvent qu’il existait ce jour-là, sans modification.`}</p>
 <p class="gestes"><button type="button" id="imprimer" class="principal">Imprimer le reçu</button> <button type="button" id="recu">Télécharger le reçu</button></p>
 <details>
 <summary>Détails</summary>
@@ -42,10 +51,11 @@ ${r.recu.libelle ? `<p><strong>${echapper(r.recu.libelle)}</strong></p>` : ''}
 }
 
 async function demande() {
+	const libelle = $('libelle').value.trim();
+	if ($('collectivite')) return { type: 'acte', url: $('url').value.trim(), collectivite: $('collectivite').value.trim(), nature: $('nature').value, ...(libelle ? { libelle } : {}) };
 	const fichier = $('fichier').files[0];
 	const saisie = $('empreinte').value.trim();
 	const url = $('url').value.trim();
-	const libelle = $('libelle').value.trim();
 	const corps = libelle ? { libelle } : {};
 	if (fichier) return { ...corps, sha256: await sha256(new Uint8Array(await fichier.arrayBuffer())) };
 	if (saisie) return { ...corps, sha256: saisie };

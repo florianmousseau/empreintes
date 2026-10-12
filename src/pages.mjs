@@ -1,5 +1,7 @@
 // Les pages de la surface. Elles affichent ; la methode vit dans le code.
 
+import { NATURES } from './acte.mjs';
+
 const NBSP = '\u00A0';
 const ADRESSE = 'https://empreintes.florianmousseau.com';
 const DEPOT = 'https://github.com/florianmousseau/empreintes';
@@ -9,6 +11,7 @@ export const ACTES = {
 	dater: { chemin: '/deposer', nom: 'Dater un document' },
 	verifier: { chemin: '/verifier', nom: 'Vérifier un document' },
 	journal: { chemin: '/journal', nom: 'Registre des dates' },
+	acte: { chemin: '/acte', nom: 'Dater un acte' },
 	documentation: { chemin: '/documentation', nom: 'Documentation' }
 };
 
@@ -59,7 +62,7 @@ ${script}</head>
 <main>
 ${corps}
 </main>
-<footer>${lien('documentation')}. Éditeur${NBSP}: <a href="https://florianmousseau.com">Florian Mousseau</a>. Code et journal${NBSP}: <a href="${DEPOT}">${DEPOT.replace('https://', '')}</a></footer>
+<footer>${lien('acte')}. ${lien('documentation')}. Éditeur${NBSP}: <a href="https://florianmousseau.com">Florian Mousseau</a>. Code et journal${NBSP}: <a href="${DEPOT}">${DEPOT.replace('https://', '')}</a></footer>
 </body>
 </html>
 `;
@@ -169,6 +172,34 @@ ${autresVoies(`<label for="url">Son adresse en ligne</label>
 	});
 }
 
+/** Dater un acte de collectivite : l'adresse ou il est publie, la collectivite, la nature. */
+export function pageActe() {
+	const natures = Object.entries(NATURES)
+		.map(([valeur, nom]) => `<option value="${valeur}">${nom[0].toUpperCase()}${nom.slice(1)}</option>`)
+		.join('');
+	return gabarit({
+		titre: ACTES.acte.nom,
+		description: "Dater la mise en ligne d'un acte d'une collectivité, délibération, arrêté ou décision : le service lit l'acte à son adresse et délivre un reçu.",
+		chemin: ACTES.acte.chemin,
+		script: '<script type="module" src="/deposer.js"></script>\n',
+		corps: `<h1>${ACTES.acte.nom}</h1>
+<form id="formulaire">
+<label for="url">Adresse de l’acte en ligne</label>
+<input type="text" id="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://" required>
+<label for="collectivite">Code INSEE de la commune, ou SIREN de la collectivité</label>
+<input type="text" id="collectivite" inputmode="numeric" autocomplete="off" spellcheck="false" maxlength="11" required>
+<label for="nature">Nature</label>
+<select id="nature">${natures}</select>
+<label for="libelle">Objet (facultatif)</label>
+<input type="text" id="libelle" maxlength="200" autocomplete="off">
+<p class="recoit">Le reçu atteste que ce fichier était servi à cette adresse à cet instant.</p>
+<button type="submit" class="principal">Dater cet acte</button>
+</form>
+<div id="resultat" aria-live="polite"></div>
+<p class="compte">Gratuit, sans compte, jusqu’à 20 actes par jour.</p>`
+	});
+}
+
 const jourFr = (j) => j.split('-').reverse().join('/');
 
 /** Le recu d'un depot, a son adresse : ce que la ligne publique engage, et son inscription au registre. */
@@ -231,6 +262,7 @@ export function pageDocumentation() {
 ${tableDoc('Dater', [
 	ligneDoc('POST /api/depots {"sha256": "&lt;64 hex&gt;", "libelle": "&lt;texte&gt;"}', 'une empreinte calculée par vous\u00A0; le libellé reste dans le reçu'),
 	ligneDoc('POST /api/depots {"url": "https://&lt;adresse&gt;"}', 'le service lit lui-même le document en ligne et date ses octets'),
+	ligneDoc('POST /api/depots {"type": "acte", "url": "https://&lt;adresse&gt;", "collectivite": "&lt;INSEE | SIREN&gt;", "nature": "deliberation | arrete | decision"}', 'un acte de collectivité, lu à son adresse\u00A0; reçu version 2, ligne publique inchangée'),
 	ligneDoc('201', 'le reçu, son identifiant, la ligne publique'),
 	ligneDoc('429', `20 dépôts par jour et par adresse, 2${NBSP}000 par jour, <code>retry-after</code> jusqu’à minuit UTC`),
 	ligneDoc('409', 'une même adresse en ligne lue une fois par jour'),

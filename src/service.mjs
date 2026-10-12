@@ -1,6 +1,7 @@
 // Le service de depot : la base (D1, ou toute base qui en a la forme), les
 // plafonds, le temoin et la reponse. Les Functions ne font que le brancher.
 
+import { surSiteOfficiel } from './acte.mjs';
 import { sha256 } from './chaine.mjs';
 import { cleDAdresse, idDuRecu, jourDe, ligneDe, lireDemande, plafond, recuDe, secondesAvantDemain, selAleatoire } from './depot.mjs';
 import { AGENT, DELAI_MS, cleDeLecture, estUneIp, ipsDoH, lireBorne, resolutionAdmise, sautSuivant, urlAdmise } from './temoin.mjs';
@@ -85,10 +86,26 @@ async function inserer(db, { jour, empreinte, recu }) {
 }
 
 /**
+ * Le rattachement d'un acte : `site-officiel` quand l'adresse demandee ET
+ * l'adresse lue sont sur un site que l'annuaire donne a la collectivite,
+ * `declaree` sinon, et aussi quand l'annuaire ne repond pas.
+ */
+async function rattachement({ acte, demandee, lue, annuaire }) {
+	let sites = null;
+	try {
+		sites = await annuaire(acte.collectivite);
+	} catch {
+		sites = null;
+	}
+	return surSiteOfficiel(demandee, sites) && surSiteOfficiel(lue, sites) ? 'site-officiel' : 'declaree';
+}
+
+/**
  * Un depot, de la demande a la reponse : `{ statut, corps, entetes }`.
  * `adresse` n'est jamais gardee : seul son hache sale du jour compte.
+ * `annuaire(code)` rend les sites officiels d'une collectivite, `[hote, prefixe]`.
  */
-export async function deposer({ db, corps, adresse, maintenant = new Date(), temoin = temoigner }) {
+export async function deposer({ db, corps, adresse, maintenant = new Date(), temoin = temoigner, annuaire = async () => null }) {
 	const { demande, erreurs } = lireDemande(corps);
 	if (erreurs) return refus(400, 'demande illisible', erreurs);
 	const instant = maintenant.toISOString();
@@ -114,7 +131,8 @@ export async function deposer({ db, corps, adresse, maintenant = new Date(), tem
 		empreinte = lu.sha256;
 	}
 
-	const recu = recuDe({ sha256: empreinte, instant, libelle: demande.libelle, url: demande.url, temoin: lu });
+	const acte = demande.acte ? { ...demande.acte, rattachement: await rattachement({ acte: demande.acte, demandee: demande.url, lue: lu.url, annuaire }) } : null;
+	const recu = recuDe({ sha256: empreinte, instant, libelle: demande.libelle, url: demande.url, temoin: lu, acte });
 	const id = await idDuRecu(recu);
 	const place = await inserer(db, { jour, empreinte, recu: id });
 	await faire(db, 'INSERT INTO compte (jour, adresse, n) VALUES (?, ?, 1) ON CONFLICT (jour, adresse) DO UPDATE SET n = n + 1', jour, cle);

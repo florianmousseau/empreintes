@@ -6,8 +6,11 @@
 // cles dans cet ordre, sans espace, terminee par "\n" ; `place` est le rang de
 // la ligne dans le fichier du jour, a partir de 1 ; `recu` est le sha256 du
 // recu canonique. Le libelle, l'URL et ce que le temoin a lu restent dans le
-// recu rendu au deposant, jamais sur une page publique.
+// recu rendu au deposant, jamais sur une page publique. Un acte de collectivite
+// (D-165, `src/acte.mjs`) a la MEME ligne : sa collectivite et sa nature sont
+// dans le recu, version 2, et l'entrepot refuse toute ligne elargie.
 
+import { lireActe } from './acte.mjs';
 import { sha256 } from './chaine.mjs';
 
 /** Au plus autant de depots par adresse et par jour. */
@@ -18,6 +21,8 @@ export const LIBELLE_MAX = 200;
 export const URL_MAX = 2048;
 /** La version du recu ; une forme nouvelle prend un numero nouveau. */
 export const VERSION_DU_RECU = 1;
+/** Le recu d'un acte de collectivite, qui porte en plus son champ `acte`. */
+export const VERSION_DU_RECU_ACTE = 2;
 
 const HEX64 = /^[0-9a-f]{64}$/;
 const JOUR = /^\d{4}-\d{2}-\d{2}$/;
@@ -34,17 +39,18 @@ export const jourDe = (instant) => new Date(instant).toISOString().slice(0, 10);
 export function lireDemande(corps) {
 	const erreurs = [];
 	if (!corps || typeof corps !== 'object' || Array.isArray(corps)) return { erreurs: ['corps : un objet JSON est attendu'] };
-	const inconnus = Object.keys(corps).filter((k) => !['sha256', 'url', 'libelle'].includes(k));
+	const inconnus = Object.keys(corps).filter((k) => !['sha256', 'url', 'libelle', 'type', 'collectivite', 'nature'].includes(k));
 	if (inconnus.length) erreurs.push(`champs inconnus : ${inconnus.join(', ')}`);
 	const empreinte = typeof corps.sha256 === 'string' ? corps.sha256.trim().toLowerCase() : corps.sha256;
 	const url = typeof corps.url === 'string' ? corps.url.trim() : corps.url;
-	if (empreinte === undefined && url === undefined) erreurs.push('sha256 ou url : l un des deux est requis');
+	if (empreinte === undefined && url === undefined && corps.type === undefined) erreurs.push('sha256 ou url : l un des deux est requis');
 	if (empreinte !== undefined && url !== undefined) erreurs.push('sha256 ou url : pas les deux, le temoin calcule l empreinte lui-meme');
 	if (empreinte !== undefined && !(typeof empreinte === 'string' && HEX64.test(empreinte))) erreurs.push('sha256 : 64 caracteres hexadecimaux');
 	if (url !== undefined && !(typeof url === 'string' && url.length > 0 && url.length <= URL_MAX)) erreurs.push(`url : texte de 1 a ${URL_MAX} caracteres`);
 	const libelle = lireLibelle(corps.libelle, erreurs);
-	if (erreurs.length) return { erreurs };
-	return { demande: { ...(empreinte !== undefined ? { sha256: empreinte } : { url }), ...(libelle ? { libelle } : {}) } };
+	const acte = lireActe(corps, erreurs);
+	if (erreurs.length) return { erreurs: [...new Set(erreurs)] };
+	return { demande: { ...(empreinte !== undefined ? { sha256: empreinte } : { url }), ...(libelle ? { libelle } : {}), ...(acte ? { acte } : {}) } };
 }
 
 function lireLibelle(valeur, erreurs) {
@@ -81,12 +87,14 @@ export function selAleatoire() {
  * finale, taille, type, instant de lecture) ; sans lui, l'empreinte est
  * declaree par le deposant et le recu le dit (`source`). Il ne porte pas sa
  * place : elle se donne a l'insertion, apres que le recu est fige, et c'est la
- * ligne publique qui lie les deux.
+ * ligne publique qui lie les deux. `acte` porte la collectivite, la nature et
+ * le rattachement (`site-officiel` ou `declaree`) d'un acte de collectivite.
  */
-export function recuDe({ sha256: empreinte, instant, libelle = null, url = null, temoin = null, sel = selAleatoire() }) {
+export function recuDe({ sha256: empreinte, instant, libelle = null, url = null, temoin = null, acte = null, sel = selAleatoire() }) {
 	if (!HEX64.test(empreinte)) throw new Error('recu : sha256 illisible');
+	if (acte && !temoin) throw new Error('recu : un acte est toujours lu par le temoin');
 	return {
-		version: VERSION_DU_RECU,
+		version: acte ? VERSION_DU_RECU_ACTE : VERSION_DU_RECU,
 		sha256: empreinte,
 		jour: jourDe(instant),
 		depose: new Date(instant).toISOString(),
@@ -94,6 +102,7 @@ export function recuDe({ sha256: empreinte, instant, libelle = null, url = null,
 		libelle: libelle ?? undefined,
 		url: url ?? undefined,
 		temoin: temoin ? { url: temoin.url, taille: temoin.taille, type: temoin.type ?? null, lu: temoin.lu } : undefined,
+		acte: acte ? { collectivite: acte.collectivite, nature: acte.nature, rattachement: acte.rattachement } : undefined,
 		sel
 	};
 }

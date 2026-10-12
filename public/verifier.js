@@ -69,7 +69,7 @@ async function verifier(empreinte) {
 function recuDans(octets) {
 	try {
 		const r = JSON.parse(new TextDecoder().decode(octets));
-		return r?.version === 1 && /^[0-9a-f]{64}$/.test(r.sha256) && /^[0-9a-f]{32}$/.test(r.sel) ? r : null;
+		return [1, 2].includes(r?.version) && /^[0-9a-f]{64}$/.test(r.sha256) && /^[0-9a-f]{32}$/.test(r.sel) ? r : null;
 	} catch {
 		return null;
 	}
