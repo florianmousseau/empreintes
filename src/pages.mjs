@@ -324,6 +324,8 @@ ${tableDoc('Dater', [
 	ligneDoc('POST /api/depots {"url": "https://&lt;adresse&gt;"}', 'le service lit lui-même le document en ligne et date ses octets'),
 	ligneDoc('POST /api/depots {"type": "acte", "url": "https://&lt;adresse&gt;", "collectivite": "&lt;INSEE | SIREN&gt;", "nature": "deliberation | arrete | decision"}', 'un acte de collectivité, lu à son adresse\u00A0; reçu version 2, ligne publique inchangée'),
 	ligneDoc('201', 'le reçu, son identifiant, la ligne publique'),
+	ligneDoc('POST /api/flux {"url": "https://&lt;flux RSS ou Atom&gt;"}', 'suivre un flux\u00A0: chaque heure, chaque article nouveau ou modifié est lu et daté\u00A0; rend l’identifiant du flux et son jeton'),
+	ligneDoc('DELETE /api/flux/&lt;id&gt;', 'cesser de suivre un flux, <code>authorization: Bearer &lt;jeton&gt;</code>\u00A0; les dates déjà enregistrées restent'),
 	ligneDoc('429', `20 dépôts par jour et par adresse, 2${NBSP}000 par jour, <code>retry-after</code> jusqu’à minuit UTC`),
 	ligneDoc('409', 'une même adresse en ligne lue une fois par jour'),
 	ligneDoc('422', 'lecture impossible\u00A0: 20 Mo, 30 s, 5 redirections au plus, adresses publiques seulement')

@@ -6,7 +6,7 @@
   "scripts": {
     "construire": "node scripts/construire.mjs",
     "verifier": "node scripts/verifier.mjs",
-    "check": "for f in src/*.mjs scripts/*.mjs public/*.js functions/*.js tests/*.mjs; do node --check \"$f\" || exit 1; done",
+    "check": "for f in src/*.mjs scripts/*.mjs public/*.js functions/*.js workers/*.mjs tests/*.mjs; do node --check \"$f\" || exit 1; done",
     "test": "node --test --experimental-test-coverage --test-coverage-lines=95 --test-coverage-branches=95 --test-coverage-functions=95 tests/*.test.mjs",
     "gate": "npm run check && npm run construire && npm test"
   }

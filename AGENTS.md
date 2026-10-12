@@ -48,3 +48,10 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   `dist/annuaire/<fragment>.json`) ; un export muet publie sans elle et tout
   acte reste `declaree`. Un hote partage ou une plateforme (`PLATEFORMES`,
   ecrite a la main) ne rattache que sous le chemin propre a la commune.
+- Le suivi des flux (D-170) : `src/flux.mjs` decide (lecture RSS 2.0 et Atom
+  1.0, plan du jour), pur ; `src/suivi.mjs` branche la base et le temoin ; le
+  Worker horaire `empreintes-flux` (`flux.wrangler.toml`, `workers/flux.mjs`,
+  deploye par `publier.yml` apres Pages) tourne sur la MEME base D1. Une
+  version est un depot ordinaire, ligne publique a quatre champs, hors du
+  plafond des depots exterieurs ; adresse et recu dans `version`, jamais un
+  titre. Tables nouvelles : appliquer `SCHEMA` par l'API D1 AVANT le merge.
