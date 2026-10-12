@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ACTES, ancrageDe, dateHeure, echapper, pageAccueil, pageDeposer, pageJournal, pageVerifier } from '../src/pages.mjs';
+import { ACTES, pageIntrouvable, ancrageDe, dateHeure, echapper, pageAccueil, pageDeposer, pageJournal, pageVerifier } from '../src/pages.mjs';
 
 const t = { id: '20261012T101314Z', instant: '2026-10-12T10:13:14Z', objets: 2018, racine: 'f'.repeat(64), ots: 'bitcoin', bloc: 971045, fichiers: ['20261012T101314Z.json', '20261012T101314Z.racine.ots'] };
-const pages = [pageJournal([t, { ...t, id: '20261012T121314Z', ots: 'calendrier', bloc: null }]), pageVerifier(), pageJournal([]), pageDeposer(), pageAccueil([t]), pageAccueil([])];
+const pages = [pageJournal([t, { ...t, id: '20261012T121314Z', ots: 'calendrier', bloc: null }]), pageVerifier(), pageJournal([]), pageDeposer(), pageAccueil([t]), pageAccueil([]), pageIntrouvable()];
 const texteDe = (html) => html.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<[^>]+>/g, '');
 
 test('aucun signe double ne suit une espace ordinaire dans le texte affiche', () => {
@@ -54,7 +54,7 @@ test('un acte porte un seul nom sur toutes les pages', () => {
 
 test('le choix du document est en francais, et les autres voies sont repliees', () => {
 	for (const html of [pages[1], pages[3]]) {
-		assert.match(html, /<label class="bouton" for="fichier">Choisir le document<\/label>/);
+		assert.match(html, /<label class="bouton" for="fichier">Choisir le document( ou son reçu)?<\/label>/);
 		assert.match(html, /<details>\n<summary>Pas le fichier sous la main\u00A0\?<\/summary>/);
 	}
 });

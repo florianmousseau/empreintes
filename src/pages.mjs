@@ -135,7 +135,7 @@ export function pageVerifier() {
 		script: '<script type="module" src="/verifier.js"></script>\n',
 		corps: `<h1>${ACTES.verifier.nom}</h1>
 <form id="formulaire">
-${choixDeFichier('Choisir le document')}
+${choixDeFichier('Choisir le document ou son reçu')}
 ${autresVoies(`<label for="empreinte">Son empreinte SHA-256</label>
 <input type="text" id="empreinte" autocomplete="off" spellcheck="false">`)}
 <button type="submit" class="principal">Vérifier</button>
@@ -165,5 +165,49 @@ ${autresVoies(`<label for="url">Son adresse en ligne</label>
 </form>
 <div id="resultat" aria-live="polite"></div>
 <p class="compte">Gratuit, sans compte, jusqu’à 20 documents par jour. Valeur juridique${NBSP}: un élément de preuve, que le juge apprécie librement.</p>`
+	});
+}
+
+const jourFr = (j) => j.split('-').reverse().join('/');
+
+/** Le recu d'un depot, a son adresse : ce que la ligne publique engage, et son inscription au registre. */
+export function pageRecu(ligne) {
+	return gabarit({
+		titre: `Reçu de date du ${jourFr(ligne.jour)}`,
+		description: `Reçu de date : document daté du ${jourFr(ligne.jour)}, ligne ${ligne.place}.`,
+		chemin: `/recu/${ligne.recu}`,
+		script: '<script type="module" src="/recu.js"></script>\n',
+		corps: `<h1>Reçu de date</h1>
+<article class="ok" id="recu" data-recu="${ligne.recu}">
+<h2>Document daté du ${jourFr(ligne.jour)}</h2>
+<dl>
+<div><dt>Empreinte</dt><dd><code class="racine">${ligne.sha256}</code></dd></div>
+<div><dt>Ligne</dt><dd>${ligne.place} du ${jourFr(ligne.jour)}</dd></div>
+<div><dt>Registre</dt><dd id="inscription">lecture du registre</dd></div>
+</dl>
+</article>
+<p>${lien('verifier', 'bouton')}</p>`
+	});
+}
+
+/** Une adresse de recu qui ne nomme aucun depot. */
+export function pageRecuInconnu() {
+	return gabarit({
+		titre: 'Reçu inconnu',
+		description: 'Aucun dépôt ne porte ce reçu.',
+		chemin: '/recu/',
+		corps: `<h1>Reçu inconnu</h1>
+<p>${lien('verifier', 'bouton')}</p>`
+	});
+}
+
+/** Toute adresse sans page : un vrai 404, jamais l'accueil servi a la place d'un fichier absent. */
+export function pageIntrouvable() {
+	return gabarit({
+		titre: 'Page introuvable',
+		description: 'Aucune page à cette adresse.',
+		chemin: '/404',
+		corps: `<h1>Page introuvable</h1>
+<p>${lien('dater', 'bouton principal')} ${lien('verifier', 'bouton')}</p>`
 	});
 }

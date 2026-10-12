@@ -5,7 +5,7 @@
 export const ID_DE_TOUR = /^\d{8}T\d{6}Z$/;
 
 /** Les fichiers du journal qui se publient ; tout le reste (cache, .bak) reste chez l'entrepot. */
-export const FICHIER_PUBLIE = /^(\d{8}T\d{6}Z\.(json|racine|racine\.ots|racine\.tsr)|ancrages\.json)$/;
+export const FICHIER_PUBLIE = /^(\d{8}T\d{6}Z\.(json|racine|racine\.ots|racine\.tsr)|ancrages\.json|depots\.jsonl)$/;
 
 /** Les feuilles qui sont des objets de l'archive, sans les manifestes ni les listes du tour. */
 export const estUnObjet = (f) => !/^(manifeste|liste):/.test(f.cle);
@@ -30,6 +30,7 @@ export function resumeDe(releve, ancrage, fichiers) {
 		ots: ancrage?.ots ?? null,
 		bloc: ancrage?.bloc ?? null,
 		horodatage: ancrage?.horodatage?.etat ?? null,
+		depots: Number(/^depots:(\d+)$/.exec(releve.feuilles.find((f) => f.cle.startsWith('depots:'))?.cle ?? '')?.[1] ?? 0),
 		fichiers: fichiers.filter((f) => f.startsWith(`${releve.id}.`)).sort()
 	};
 }

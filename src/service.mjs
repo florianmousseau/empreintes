@@ -10,7 +10,9 @@ export const SCHEMA = [
 	'CREATE TABLE IF NOT EXISTS depot (jour TEXT NOT NULL, place INTEGER NOT NULL, sha256 TEXT NOT NULL, recu TEXT NOT NULL, PRIMARY KEY (jour, place)) WITHOUT ROWID',
 	'CREATE TABLE IF NOT EXISTS compte (jour TEXT NOT NULL, adresse TEXT NOT NULL, n INTEGER NOT NULL, PRIMARY KEY (jour, adresse)) WITHOUT ROWID',
 	'CREATE TABLE IF NOT EXISTS lecture (cle TEXT PRIMARY KEY, jour TEXT NOT NULL) WITHOUT ROWID',
-	'CREATE TABLE IF NOT EXISTS sel (jour TEXT PRIMARY KEY, valeur TEXT NOT NULL) WITHOUT ROWID'
+	'CREATE TABLE IF NOT EXISTS sel (jour TEXT PRIMARY KEY, valeur TEXT NOT NULL) WITHOUT ROWID',
+	'CREATE INDEX IF NOT EXISTS depot_recu ON depot (recu)',
+	'CREATE INDEX IF NOT EXISTS depot_sha256 ON depot (sha256)'
 ];
 
 const JSON_UTF8 = { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', 'access-control-allow-origin': '*' };
@@ -129,4 +131,25 @@ export async function fichierDuJour({ db, nom, maintenant = new Date() }) {
 		corps: results.map(ligneDe).join(''),
 		entetes: { 'content-type': 'application/x-ndjson; charset=utf-8', 'cache-control': `public, max-age=${clos ? 3600 : 60}`, 'access-control-allow-origin': '*' }
 	};
+}
+
+const HEX64 = /^[0-9a-f]{64}$/;
+const COLONNES = 'SELECT sha256, jour, place, recu FROM depot';
+
+/** La ligne publique d'un recu, par son identifiant ; null s'il est inconnu. */
+export async function ligneDuRecu({ db, id }) {
+	if (!HEX64.test(id ?? '')) return null;
+	return un(db, `${COLONNES} WHERE recu = ?`, id);
+}
+
+/** Les lignes publiques qui portent une empreinte, dans l'ordre des jours et des places. */
+export async function lignesDeLEmpreinte({ db, empreinte }) {
+	if (!HEX64.test(empreinte ?? '')) return null;
+	return (await db.prepare(`${COLONNES} WHERE sha256 = ? ORDER BY jour, place`).bind(empreinte).all()).results;
+}
+
+/** La reponse JSON d'une lecture publique : 404 sur l'inconnu, cache court sinon. */
+export function lecturePublique(valeur) {
+	if (valeur === null) return refus(404, 'inconnu');
+	return reponse(200, valeur, { 'cache-control': 'public, max-age=60' });
 }
