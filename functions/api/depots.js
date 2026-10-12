@@ -1,4 +1,5 @@
 // POST /api/depots : deposer une empreinte, ou faire lire une URL par le temoin.
+import { annuaireDesActifs } from '../../src/annuaire.mjs';
 import { deposer } from '../../src/service.mjs';
 
 export async function onRequestPost({ request, env }) {
@@ -8,7 +9,7 @@ export async function onRequestPost({ request, env }) {
 	} catch {
 		corps = null;
 	}
-	const r = await deposer({ db: env.DEPOTS, corps, adresse: request.headers.get('cf-connecting-ip') });
+	const r = await deposer({ db: env.DEPOTS, corps, adresse: request.headers.get('cf-connecting-ip'), annuaire: annuaireDesActifs(env, request.url) });
 	return new Response(r.corps, { status: r.statut, headers: r.entetes });
 }
 

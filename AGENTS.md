@@ -41,3 +41,10 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   de truecopydev/corpus et de verites, a corriger des trois cotes). Sa ligne
   publique reste a QUATRE champs (l'entrepot refuse toute ligne elargie) : la
   collectivite, la nature et le rattachement vivent dans le recu, version 2.
+- Un acte n'est RATTACHE a sa collectivite (`rattachement: site-officiel`, une
+  ligne dans la table D1 `acte`) que si l'adresse demandee et l'adresse lue
+  sont sur un site que l'annuaire Service-Public lui donne. La table se
+  construit a la publication (`scripts/annuaire.mjs`, plancher 10 000 sites,
+  `dist/annuaire/<fragment>.json`) ; un export muet publie sans elle et tout
+  acte reste `declaree`. Un hote partage ou une plateforme (`PLATEFORMES`,
+  ecrite a la main) ne rattache que sous le chemin propre a la commune.

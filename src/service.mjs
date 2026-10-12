@@ -13,6 +13,8 @@ export const SCHEMA = [
 	'CREATE TABLE IF NOT EXISTS lecture (cle TEXT PRIMARY KEY, jour TEXT NOT NULL) WITHOUT ROWID',
 	'CREATE TABLE IF NOT EXISTS sel (jour TEXT PRIMARY KEY, valeur TEXT NOT NULL) WITHOUT ROWID',
 	'CREATE TABLE IF NOT EXISTS bilan (jour TEXT PRIMARY KEY, depots INTEGER NOT NULL, deposants INTEGER NOT NULL) WITHOUT ROWID',
+	'CREATE TABLE IF NOT EXISTS acte (recu TEXT PRIMARY KEY, collectivite TEXT NOT NULL, nature TEXT NOT NULL) WITHOUT ROWID',
+	'CREATE INDEX IF NOT EXISTS acte_collectivite ON acte (collectivite)',
 	'CREATE INDEX IF NOT EXISTS depot_recu ON depot (recu)',
 	'CREATE INDEX IF NOT EXISTS depot_sha256 ON depot (sha256)'
 ];
@@ -135,6 +137,8 @@ export async function deposer({ db, corps, adresse, maintenant = new Date(), tem
 	const recu = recuDe({ sha256: empreinte, instant, libelle: demande.libelle, url: demande.url, temoin: lu, acte });
 	const id = await idDuRecu(recu);
 	const place = await inserer(db, { jour, empreinte, recu: id });
+	// La serie d'une collectivite ne tient que les actes lus sur son site officiel ; un acte declare reste dans son recu.
+	if (acte?.rattachement === 'site-officiel') await faire(db, 'INSERT INTO acte (recu, collectivite, nature) VALUES (?, ?, ?)', id, acte.collectivite, acte.nature);
 	await faire(db, 'INSERT INTO compte (jour, adresse, n) VALUES (?, ?, 1) ON CONFLICT (jour, adresse) DO UPDATE SET n = n + 1', jour, cle);
 	return reponse(201, { jour, place, ligne: ligneDe({ sha256: empreinte, jour, place, recu: id }).trim(), id, recu });
 }
