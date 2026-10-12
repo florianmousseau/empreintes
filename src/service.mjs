@@ -192,3 +192,21 @@ export async function bilanPublic({ db }) {
 	const jours = results.map((r) => ({ jour: r.jour, depots: Number(r.depots), deposants: Number(r.deposants) }));
 	return { jours, deposantsAuMoins: Math.max(0, ...jours.map((j) => j.deposants)) };
 }
+
+/** Au plus tant d'actes sur la page d'une collectivite ; le compte dit les autres. */
+export const SERIE_MAX = 500;
+
+/**
+ * La serie publique d'une collectivite : ses actes rattaches, du plus recent au
+ * plus ancien, sous chacun de ses codes (INSEE et SIREN). Rien que la ligne
+ * publique et la nature : ni l'adresse lue, ni le libelle.
+ */
+export async function serieDeLaCollectivite({ db, codes, limite = SERIE_MAX }) {
+	const marques = codes.map(() => '?').join(', ');
+	const total = Number((await un(db, `SELECT COUNT(*) AS n FROM acte WHERE collectivite IN (${marques})`, ...codes)).n);
+	const { results } = await db
+		.prepare(`SELECT d.jour, d.place, d.sha256, d.recu, a.nature FROM acte a JOIN depot d ON d.recu = a.recu WHERE a.collectivite IN (${marques}) ORDER BY d.jour DESC, d.place DESC LIMIT ?`)
+		.bind(...codes, limite)
+		.all();
+	return { total, actes: results };
+}
