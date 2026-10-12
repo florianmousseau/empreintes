@@ -1,0 +1,92 @@
+// Ce que la surface tire des fichiers du journal : la liste des tours,
+// l'index des empreintes et le verdict de fraicheur. Pur : ni disque, ni reseau.
+
+/** Un identifiant de tour, tel que l'entrepot le nomme. */
+export const ID_DE_TOUR = /^\d{8}T\d{6}Z$/;
+
+/** Les fichiers du journal qui se publient ; tout le reste (cache, .bak) reste sur la Box. */
+export const FICHIER_PUBLIE = /^(\d{8}T\d{6}Z\.(json|racine|racine\.ots|racine\.tsr)|ancrages\.json)$/;
+
+/** Un fichier qui ne change jamais une fois ecrit : un ecart de taille est une anomalie, pas une mise a jour. */
+export const IMMUABLE = /^\d{8}T\d{6}Z\.(json|racine)$/;
+
+/** Les feuilles qui sont des objets de l'archive, sans les manifestes ni les listes du tour. */
+export const estUnObjet = (f) => !/^(manifeste|liste):/.test(f.cle);
+
+/** L'instant d'un tour, en ISO, depuis son identifiant. */
+export function instantDe(id) {
+	const m = /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/.exec(id);
+	if (!m) throw new Error(`identifiant de tour illisible : ${id}`);
+	return `${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}Z`;
+}
+
+/** Le resume d'un tour : ce que la page et le verificateur lisent sans ouvrir le releve. */
+export function resumeDe(releve, ancrage, fichiers) {
+	return {
+		id: releve.id,
+		instant: instantDe(releve.id),
+		feuilles: releve.feuilles.length,
+		objets: releve.feuilles.filter(estUnObjet).length,
+		precedente: releve.precedente,
+		arbre: releve.arbre,
+		racine: releve.racine,
+		ots: ancrage?.ots ?? null,
+		bloc: ancrage?.bloc ?? null,
+		horodatage: ancrage?.horodatage?.etat ?? null,
+		fichiers: fichiers.filter((f) => f.startsWith(`${releve.id}.`)).sort()
+	};
+}
+
+/**
+ * L'index des empreintes, tour par tour dans l'ordre : pour chaque sha256,
+ * chaque cle qui l'a porte, son jour et le premier et le dernier tour qui
+ * l'ont vu. Partage par les deux premiers caracteres hexadecimaux.
+ */
+export function indexDesEmpreintes(releves) {
+	const parSha = new Map();
+	for (const releve of releves) {
+		for (const f of releve.feuilles) {
+			if (!estUnObjet(f)) continue;
+			const parCle = parSha.get(f.sha256) ?? new Map();
+			const vu = parCle.get(f.cle) ?? { cle: f.cle, jour: f.jour, premier: releve.id };
+			vu.dernier = releve.id;
+			parCle.set(f.cle, vu);
+			parSha.set(f.sha256, parCle);
+		}
+	}
+	const parts = {};
+	for (const [sha, parCle] of [...parSha].sort(([a], [b]) => (a < b ? -1 : 1))) {
+		(parts[sha.slice(0, 2)] ??= {})[sha] = [...parCle.values()];
+	}
+	return parts;
+}
+
+const HEURE = 3600 * 1000;
+/** Au-dela, le dernier tour est vieux : l'entrepot tourne plusieurs fois par jour. */
+export const SEUIL_ATTENTION_H = 12;
+export const SEUIL_ROUGE_H = 36;
+/** Une preuve encore aux calendriers apres ce delai n'atteindra plus Bitcoin seule. */
+export const SEUIL_CALENDRIER_H = 48;
+
+/** Le verdict de la sonde : `ok`, `attention` ou `rouge`, avec ses constats. */
+export function verdict(tours, maintenant = new Date()) {
+	if (tours.length === 0) return { alerte: 'rouge', constats: ['aucun tour publie'] };
+	const constats = [];
+	let alerte = 'ok';
+	const monter = (niveau) => {
+		if (niveau === 'rouge' || alerte === 'ok') alerte = niveau;
+	};
+	const dernier = tours.at(-1);
+	const age = (maintenant - new Date(dernier.instant)) / HEURE;
+	if (age > SEUIL_ROUGE_H) monter('rouge');
+	else if (age > SEUIL_ATTENTION_H) monter('attention');
+	if (age > SEUIL_ATTENTION_H) constats.push(`dernier tour ${dernier.id}, il y a ${Math.round(age)} h`);
+	for (const t of tours) {
+		const enAttente = t.ots !== 'bitcoin' && (maintenant - new Date(t.instant)) / HEURE > SEUIL_CALENDRIER_H;
+		if (enAttente) {
+			monter('attention');
+			constats.push(`${t.id} : preuve ${t.ots ?? 'absente'} depuis plus de ${SEUIL_CALENDRIER_H} h`);
+		}
+	}
+	return { alerte, constats };
+}

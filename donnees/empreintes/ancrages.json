@@ -1,0 +1,84 @@
+{
+ "dernier": "20261012T101314Z",
+ "tours": {
+  "20261011T041935Z": {
+   "ots": "bitcoin",
+   "detail": "https://a.pool.opentimestamps.org https://b.pool.opentimestamps.org https://a.pool.eternitywall.com https://ots.btc.catallaxy.com",
+   "racine": "5787aa81cd7c759e06561887c74a38580453edcf7e4aaf1d091bda32f147319b",
+   "feuilles": 1826,
+   "maj": "2026-10-11T14:34:21.151Z",
+   "bloc": 970908
+  },
+  "20261011T143135Z": {
+   "ots": "bitcoin",
+   "detail": "https://a.pool.opentimestamps.org https://b.pool.opentimestamps.org https://a.pool.eternitywall.com https://ots.btc.catallaxy.com",
+   "racine": "fb21221e5ec563da86a86684b439daabcad2bd4501645886730cb97e5bbfdbf4",
+   "feuilles": 1973,
+   "maj": "2026-10-11T16:13:24.794Z",
+   "bloc": 970944
+  },
+  "20261011T161013Z": {
+   "ots": "bitcoin",
+   "detail": "https://a.pool.opentimestamps.org https://b.pool.opentimestamps.org https://a.pool.eternitywall.com https://ots.btc.catallaxy.com",
+   "racine": "a7e8eeb192edb0df8da96327a35922505fefa5a2b446d923b3f54b162059a6dd",
+   "feuilles": 1974,
+   "maj": "2026-10-11T18:37:35.792Z",
+   "bloc": 970957
+  },
+  "20261011T164051Z": {
+   "ots": "bitcoin",
+   "detail": "https://a.pool.opentimestamps.org https://b.pool.opentimestamps.org https://a.pool.eternitywall.com https://ots.btc.catallaxy.com",
+   "racine": "3203a507777511f2f7c473169d6a31ef495b2bd5dd74355d2767e5743d7c1e48",
+   "feuilles": 1974,
+   "maj": "2026-10-11T18:37:35.792Z",
+   "bloc": 970961
+  },
+  "20261011T171442Z": {
+   "ots": "bitcoin",
+   "detail": "https://a.pool.opentimestamps.org https://b.pool.opentimestamps.org https://a.pool.eternitywall.com https://ots.btc.catallaxy.com",
+   "racine": "4b6a2193661b571a292c4783869d44b37efe0883dadcf17d7a3170b4b05e9c53",
+   "feuilles": 1974,
+   "maj": "2026-10-11T18:37:35.792Z",
+   "bloc": 970964
+  },
+  "20261011T183516Z": {
+   "ots": "bitcoin",
+   "detail": "https://a.pool.opentimestamps.org https://b.pool.opentimestamps.org https://a.pool.eternitywall.com https://ots.btc.catallaxy.com",
+   "racine": "db43fffa43692391c2d6ef3bf4abc4fbe41130240dd31b8b7f8eef7f156d4bfc",
+   "feuilles": 1974,
+   "maj": "2026-10-11T22:17:09.060Z",
+   "bloc": 970976
+  },
+  "20261011T193932Z": {
+   "ots": "bitcoin",
+   "detail": "https://a.pool.opentimestamps.org https://b.pool.opentimestamps.org https://a.pool.eternitywall.com https://ots.btc.catallaxy.com",
+   "racine": "30f7ab3518ec2200b881a35b0883426ed03877aaa952d49b263105fb5151906b",
+   "feuilles": 1977,
+   "maj": "2026-10-11T22:17:09.060Z",
+   "bloc": 970976
+  },
+  "20261011T221346Z": {
+   "ots": "bitcoin",
+   "detail": "https://a.pool.opentimestamps.org https://b.pool.opentimestamps.org https://a.pool.eternitywall.com https://ots.btc.catallaxy.com",
+   "racine": "103a12d5f582c1c8de8884eaf3126d27efe7b5fac4eaf56c457d80b62424d338",
+   "feuilles": 1977,
+   "maj": "2026-10-12T04:42:45.805Z",
+   "bloc": 970990
+  },
+  "20261012T041617Z": {
+   "ots": "bitcoin",
+   "detail": "https://a.pool.opentimestamps.org https://b.pool.opentimestamps.org https://a.pool.eternitywall.com https://ots.btc.catallaxy.com",
+   "racine": "12cbbf25389ed9185beebe9c193dee3ad49744ae72bd448007b70d901a59f4a4",
+   "feuilles": 2025,
+   "maj": "2026-10-12T10:17:52.618Z",
+   "bloc": 971045
+  },
+  "20261012T101314Z": {
+   "ots": "calendrier",
+   "detail": "https://a.pool.opentimestamps.org https://b.pool.opentimestamps.org https://a.pool.eternitywall.com https://ots.btc.catallaxy.com",
+   "racine": "4fce0df1946f7ca9c9ce35b2070736df494ffa8ad94de61f80ea0d734c766f07",
+   "feuilles": 2031,
+   "maj": "2026-10-12T10:17:52.618Z"
+  }
+ }
+}

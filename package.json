@@ -1,0 +1,14 @@
+{
+  "name": "empreintes",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "recuperer": "node scripts/recuperer.mjs",
+    "construire": "node scripts/construire.mjs",
+    "verifier": "node scripts/verifier.mjs",
+    "check": "for f in src/*.mjs scripts/*.mjs public/*.js functions/*.js tests/*.mjs; do node --check \"$f\" || exit 1; done",
+    "test": "node --test --experimental-test-coverage --test-coverage-lines=90 --test-coverage-branches=90 --test-coverage-functions=90 tests/*.test.mjs",
+    "gate": "npm run check && npm run construire && npm test"
+  }
+}
