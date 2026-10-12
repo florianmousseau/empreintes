@@ -110,11 +110,14 @@ input[type='text']:focus, select:focus { outline: none; border-color: var(--encr
 .avertir { margin: 0.8rem 0 0; padding: 0.6rem 0.8rem; border-radius: 0.55rem; background: color-mix(in srgb, var(--sceau) 8%, var(--surface)); font-size: 0.92rem; }
 .recoit { margin: 0.5rem 0 0; color: var(--doux); font-size: 0.9rem; }
 
-/* Document ou acte */
-.onglets { display: grid; grid-template-columns: 1fr 1fr; gap: 0.25rem; margin-bottom: 0.9rem; padding: 0.25rem; border-radius: 0.65rem; background: var(--fond); border: 1px solid var(--trait); }
-.onglets a, .onglets span { padding: 0.55rem 0.5rem; border-radius: 0.5rem; text-align: center; font-weight: 600; font-size: 0.95rem; text-decoration: none; color: var(--doux); }
-.onglets a:hover { color: var(--encre); background: var(--surface); }
-.onglets [aria-current] { background: var(--surface); color: var(--texte); box-shadow: 0 1px 3px rgb(24 32 46 / 0.12); }
+/* Un lien, et l'acte qu'il peut etre */
+.ou { display: flex; align-items: center; gap: 0.8rem; margin: 0.6rem 0 0; color: var(--doux); font-size: 0.9rem; }
+.ou::before, .ou::after { content: ''; flex: 1; border-top: 1px solid var(--trait); }
+.acte { display: grid; gap: 0.35rem; margin-top: 0.6rem; padding: 0.9rem 1rem 1rem; border-radius: 0.7rem; border: 1px solid color-mix(in srgb, var(--encre) 30%, var(--trait)); background: color-mix(in srgb, var(--encre) 6%, var(--surface)); }
+.acte[hidden] { display: none; }
+.acte-titre { margin: 0; font-size: 1.05rem; }
+.acte label { margin-top: 0.2rem; }
+.acte .avertir { margin-top: 0.4rem; }
 
 /* La zone de depot */
 .masque { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
@@ -226,7 +229,6 @@ footer { margin-top: 2rem; background: var(--surface); border-top: 1px solid var
 	.une { margin-bottom: -1.8rem; }
 	.une h1 { font-size: 1.7rem; }
 	.chapeau { font-size: 1rem; }
-	.onglets { margin-bottom: 0.7rem; }
 	.etapes { grid-template-columns: 1fr; gap: 1.1rem; }
 	.etapes li { grid-template-columns: 2rem 1fr; column-gap: 0.8rem; }
 	.etapes li::before { grid-row: span 2; margin: 0; }
@@ -243,7 +245,7 @@ footer { margin-top: 2rem; background: var(--surface); border-top: 1px solid var
 }
 
 @media print {
-	header, footer, form, .onglets, .compte, .suite, .etapes, h1, .gestes, summary { display: none !important; }
+	header, footer, form, .compte, .suite, .etapes, h1, .gestes, summary { display: none !important; }
 	body { background: #fff; color: #000; }
 	article { border: 2px solid #000; box-shadow: none; }
 	code { word-break: break-all; }

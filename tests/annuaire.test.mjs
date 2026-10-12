@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { baseDeTest } from './d1.mjs';
-import { PLATEFORMES, SITES_MIN, adresseDeSite, annuaireDesActifs, fragmentDe, fragments, sitesDe, sitesDeLaFiche, tableDesSites } from '../src/annuaire.mjs';
+import { PLATEFORMES, SITES_MIN, adresseDeSite, annuaireDesActifs, communeDeLAdresse, fragmentDe, fragmentDeLHote, fragments, hotesCandidats, sitesDe, sitesDeLaFiche, tableDesHotes, tableDesSites } from '../src/annuaire.mjs';
 import { deposer } from '../src/service.mjs';
 
 // Une fiche telle que l'export de l'annuaire la donne : les champs imbriques sont du JSON en texte.
@@ -84,4 +84,26 @@ test('seul un acte lu sur le site officiel entre dans la serie de sa collectivit
 	const declare = JSON.parse((await deposerActe('https://ailleurs.fr/a.pdf', '17133', 'b')).corps);
 	assert.equal(declare.recu.acte.rattachement, 'declaree');
 	assert.deepEqual(db.sqlite.prepare('SELECT recu, collectivite, nature FROM acte').all().map((r) => ({ ...r })), [{ recu: officiel.id, collectivite: '17133', nature: 'arrete' }]);
+});
+
+test("l'index des hotes retrouve la commune d'une adresse collee, sous-domaine compris, jamais deux", async () => {
+	const table = { 17133: [['cravans.fr', '']], 211701339: [['cravans.fr', '']], 17001: [['intramuros.org', '/aigrefeuille']], 17002: [['partage.fr', '/a']], 17003: [['partage.fr', '/a']] };
+	const hotes = tableDesHotes(table);
+	assert.deepEqual(hotes['cravans.fr'], [['', '17133']], 'le SIREN ne double pas la commune');
+	assert.deepEqual(hotesCandidats('docs.mairie.cravans.fr'), ['docs.mairie.cravans.fr', 'mairie.cravans.fr', 'cravans.fr']);
+	assert.equal(fragmentDeLHote('cravans.fr'), 'hote-cra');
+	assert.equal(fragmentDeLHote('xn--ve-xa.fr'), 'hote-xn-');
+	const parts = {};
+	for (const [hote, entrees] of Object.entries(hotes)) (parts[fragmentDeLHote(hote)] ??= {})[hote] = entrees;
+	const lire = async (chemin) => {
+		const nom = chemin.match(/hotes\/(.+)\.json$/)[1];
+		return parts[nom] ? new Response(JSON.stringify(parts[nom])) : new Response('', { status: 404 });
+	};
+	assert.equal(await communeDeLAdresse('https://www.cravans.fr/pv/budget.pdf', lire), '17133');
+	assert.equal(await communeDeLAdresse('https://docs.cravans.fr/a.pdf', lire), '17133');
+	assert.equal(await communeDeLAdresse('https://intramuros.org/aigrefeuille/actes/1.pdf', lire), '17001');
+	assert.equal(await communeDeLAdresse('https://intramuros.org/autre/1.pdf', lire), null, 'une plateforme hors du chemin de la commune');
+	assert.equal(await communeDeLAdresse('https://partage.fr/a/1.pdf', lire), null, 'deux communes au meme chemin : personne');
+	assert.equal(await communeDeLAdresse('https://exemple.com/x.pdf', lire), null);
+	assert.equal(await communeDeLAdresse('pas une adresse', lire), null);
 });

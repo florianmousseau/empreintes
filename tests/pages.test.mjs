@@ -41,7 +41,7 @@ test("l'accueil dit a quoi sert le service et mene aux deux gestes, sans le voca
 	assert.match(accueil, /id="zone"/, "l'accueil porte la zone de depot");
 	assert.match(accueil, /<script type="module" src="\/deposer.js">/);
 	assert.match(accueil, /2\u00A0018 dates enregistrées/);
-	assert.match(accueil, /Le document ne quitte jamais votre appareil/);
+	assert.match(accueil, /Un fichier déposé ne quitte jamais votre appareil/);
 	assert.ok(!texteDe(accueil).includes('documents publics'));
 	const texte = texteDe(accueil.slice(accueil.indexOf('<main>')));
 	for (const mot of ['racine', 'tour', 'ancrage', 'bloc', '.ots', 'miroir', 'SHA']) assert.ok(!texte.includes(mot), mot);
@@ -50,7 +50,7 @@ test("l'accueil dit a quoi sert le service et mene aux deux gestes, sans le voca
 test('un acte porte un seul nom sur toutes les pages, et le menu ne garde que trois gestes', () => {
 	for (const html of pages) {
 		for (const acte of Object.values(ACTES)) {
-			for (const m of html.matchAll(new RegExp(`href="${acte.chemin}"[^>]*>([^<]+)<`, 'g'))) assert.ok([acte.nom, acte.titre, acte.onglet].includes(m[1]), m[1]);
+			for (const m of html.matchAll(new RegExp(`href="${acte.chemin}"[^>]*>([^<]+)<`, 'g'))) assert.ok([acte.nom, acte.titre].includes(m[1]), m[1]);
 		}
 		const menu = html.match(/<nav aria-label="Principal">(.*)<\/nav>/)[1];
 		assert.deepEqual([...menu.matchAll(/>([^<]+)<\/a>/g)].map((m) => m[1]), ['Dater', 'Vérifier', 'Registre']);
@@ -64,14 +64,14 @@ test('la marque porte son sceau, le meme que l icone', () => {
 	assert.ok(icone.includes(SCEAU.replace(/<svg[^>]*>/, '').replace('</svg>', '')), "l'icone dessine le sceau");
 });
 
-test('le choix du document est une zone de depot en francais, et les autres voies sont repliees', () => {
+test('le choix du document est une zone de depot en francais, le lien a cote, l empreinte repliee', () => {
 	for (const html of [pages[1], pages[3], pages[4]]) {
 		assert.match(html, /<input type="file" id="fichier" class="masque">\n<label class="zone" for="fichier" id="zone">/);
 		assert.match(html, /<span class="zone-titre">Déposez le document( à dater| ou son reçu)<\/span>/);
 	}
 	assert.match(pages[1], /<details>\n<summary>Pas le fichier sous la main\u00A0\?<\/summary>/);
-	assert.match(pages[3], /<details>\n<summary>Pas le fichier sous la main\u00A0\? Donnez son lien.<\/summary>/);
-	assert.match(pages[3], /<label for="url">Son lien \(adresse web\)<\/label>/);
+	assert.match(pages[3], /<details>\n<summary>Une empreinte SHA-256\u00A0\?<\/summary>/);
+	assert.ok(!pages[4].includes('id="empreinte"'), "l'accueil ne demande pas d'empreinte");
 });
 
 test("le registre s'appelle Registre dans les liens et Registre des dates en titre, et dater dit ce qu'on recoit et ce qui est publie", () => {
@@ -81,7 +81,7 @@ test("le registre s'appelle Registre dans les liens et Registre des dates en tit
 	assert.match(pages[0], /<h1>Registre des dates<\/h1>\n<p class="sous-titre">La liste publique des dates, sans les documents.<\/p>/);
 	const dater = pages[3];
 	assert.ok(dater.indexOf('reçu à imprimer ou à télécharger') > dater.indexOf('Dater ce document</button>'), 'la promesse suit le bouton, au plus pres');
-	assert.match(dater, /Le document ne quitte jamais votre appareil/);
+	assert.match(dater, /Un fichier déposé ne quitte jamais votre appareil/);
 	assert.ok(!/qualifi/i.test(pages.join('')), 'le mot qualifie n apparait nulle part');
 });
 
@@ -105,8 +105,12 @@ test("dater un acte demande l'adresse, la collectivite et la nature, et ne dit q
 	assert.match(html, /ce fichier était en ligne à cette adresse à cet instant/);
 	assert.ok(html.indexOf('reçu à imprimer ou à télécharger') > html.indexOf('Dater cet acte</button>'));
 	assert.match(html, /Lien du fichier de l’acte \(le PDF\)/);
-	for (const html of [pageDeposer(), pages[4]]) assert.match(html, /<div class="onglets"><span aria-current="page">Un document<\/span><a href="\/acte">Un acte de collectivité<\/a><\/div>/, "l'acte se choisit au premier ecran");
-	assert.match(html, /<div class="onglets"><a href="\/deposer">Un document<\/a><span aria-current="page">Un acte de collectivité<\/span><\/div>/);
+	for (const dater of [pageDeposer(), pages[4]]) {
+		assert.match(dater, /<label for="url">Le lien d’un document en ligne<\/label>/, 'le lien est au premier ecran, pas replie');
+		assert.match(dater, /<div id="acte" class="acte" hidden>/, "un lien sur le site d'une commune propose l'acte");
+		assert.match(dater, /<select id="nature"><option value="">Non, un autre document<\/option><option value="deliberation">/);
+		assert.match(dater, /<input type="hidden" id="collectivite">/);
+	}
 	assert.match(html, /<a href="\/deposer" aria-current="page">Dater<\/a>/, 'dater un acte reste sous Dater dans le menu');
 	assert.ok(!/servi/.test(texteDe(html) + readFileSync(new URL('../public/deposer.js', import.meta.url), 'utf8')), 'un mot de tous les jours');
 	assert.ok(!html.includes('id="fichier"'), 'un acte ne se date que par son adresse');

@@ -9,10 +9,10 @@ export const MARQUE = 'Témoin public';
 
 /** Les actes du site : un nom court pour chaque lien, partout, et le titre de sa page. */
 export const ACTES = {
-	dater: { chemin: '/deposer', nom: 'Dater', titre: 'Dater un document', onglet: 'Un document' },
+	dater: { chemin: '/deposer', nom: 'Dater', titre: 'Dater un document' },
 	verifier: { chemin: '/verifier', nom: 'Vérifier', titre: 'Vérifier un document' },
 	journal: { chemin: '/journal', nom: 'Registre', titre: 'Registre des dates' },
-	acte: { chemin: '/acte', nom: 'Acte de collectivité', titre: 'Dater la mise en ligne d’un acte', onglet: 'Un acte de collectivité' },
+	acte: { chemin: '/acte', nom: 'Acte de collectivité', titre: 'Dater la mise en ligne d’un acte' },
 	documentation: { chemin: '/documentation', nom: 'Documentation', titre: 'Documentation' },
 	mentions: { chemin: '/mentions-legales', nom: 'Mentions légales', titre: 'Mentions légales' }
 };
@@ -125,29 +125,46 @@ ${corps}
 `;
 }
 
-/** Ce qu'on date : un document ou un acte, le courant sans lien. */
-const ongletsDater = (courant) => `<div class="onglets">${['dater', 'acte']
-	.map((a) => (a === courant ? `<span aria-current="page">${ACTES[a].onglet}</span>` : `<a href="${ACTES[a].chemin}">${ACTES[a].onglet}</a>`))
-	.join('')}</div>`;
+const champEmpreinte = `<details>
+<summary>Une empreinte SHA-256${NBSP}?</summary>
+<label for="empreinte">Son empreinte SHA-256</label>
+<input type="text" id="empreinte" autocomplete="off" spellcheck="false">
+</details>`;
 
-const champEmpreinte = `
-<label for="empreinte">Ou son empreinte SHA-256</label>
-<input type="text" id="empreinte" autocomplete="off" spellcheck="false">`;
+const optionsDeNature = () =>
+	Object.entries(NATURES)
+		.map(([valeur, nom]) => `<option value="${valeur}">${majuscule(nom)}</option>`)
+		.join('');
 
-/** Le formulaire de datation, le meme a l'accueil et sur sa page : le fichier d'abord, le lien replie ; l'empreinte nue hors de l'accueil. */
+/** Le bloc qui s'ouvre quand le lien est sur le site officiel d'une commune : il en fait un acte. */
+const blocActe = () => `<div id="acte" class="acte" hidden>
+<p class="acte-titre">Un acte de <strong id="acte-commune"></strong>${NBSP}?</p>
+<input type="hidden" id="collectivite">
+<label for="nature">Nature</label>
+<select id="nature"><option value="">Non, un autre document</option>${optionsDeNature()}</select>
+<p class="avertir">À faire le jour de la mise en ligne${NBSP}: la date prouvée est celle du dépôt.</p>
+</div>`;
+
+/**
+ * Le formulaire de datation, le meme a l'accueil et sur sa page : un fichier, ou
+ * un lien ; un lien sur le site d'une commune propose d'en faire un acte.
+ * L'empreinte nue hors de l'accueil.
+ */
 const formulaireDater = (avecEmpreinte = true) => `<form id="formulaire" class="carte">
-${ongletsDater('dater')}
 ${choixDeFichier('Déposez le document à dater')}
 <p id="deja" class="deja" aria-live="polite" hidden></p>
-${autresVoies(`<label for="url">Son lien (adresse web)</label>
-<input type="text" id="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://">${avecEmpreinte ? champEmpreinte : ''}`, ' Donnez son lien.')}
+<p class="ou"><span>ou</span></p>
+<label for="url">Le lien d’un document en ligne</label>
+<input type="text" id="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://www.ma-commune.fr/deliberation.pdf">
+${blocActe()}
 <details>
 <summary>Lui donner un nom (facultatif)</summary>
-<label for="libelle">Un nom pour vous en souvenir</label>
+<label for="libelle">Un nom, ou l’objet de l’acte</label>
 <input type="text" id="libelle" maxlength="200" autocomplete="off">
 </details>
+${avecEmpreinte ? champEmpreinte : ''}
 <button type="submit" class="principal large-bouton">Dater ce document</button>
-<p class="recoit">Vous recevez un reçu à imprimer ou à télécharger, à garder avec le document. Le document ne quitte jamais votre appareil.</p>
+<p class="recoit">Vous recevez un reçu à imprimer ou à télécharger, à garder avec le document. Un fichier déposé ne quitte jamais votre appareil.</p>
 </form>
 <div id="resultat" aria-live="polite"></div>`;
 
@@ -261,9 +278,6 @@ ${formulaireDater()}
 
 /** Dater un acte de collectivite : l'adresse ou il est publie, la collectivite, la nature. */
 export function pageActe() {
-	const natures = Object.entries(NATURES)
-		.map(([valeur, nom]) => `<option value="${valeur}">${nom[0].toUpperCase()}${nom.slice(1)}</option>`)
-		.join('');
 	return gabarit({
 		titre: ACTES.acte.titre,
 		description: "Dater la mise en ligne d'un acte d'une collectivité, délibération, arrêté ou décision : le service lit l'acte à son adresse et délivre un reçu.",
@@ -271,13 +285,12 @@ export function pageActe() {
 		script: '<script type="module" src="/deposer.js"></script>\n',
 		corps: `<section class="une une-page"><h1>${ACTES.acte.titre}</h1></section>
 <form id="formulaire" class="carte">
-${ongletsDater('acte')}
 <label for="url">Lien du fichier de l’acte (le PDF)</label>
 <input type="text" id="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://" required>
 <label for="collectivite">Code INSEE de la commune, ou SIREN de la collectivité</label>
 <input type="text" id="collectivite" inputmode="numeric" autocomplete="off" spellcheck="false" maxlength="11" required>
 <label for="nature">Nature</label>
-<select id="nature">${natures}</select>
+<select id="nature">${optionsDeNature()}</select>
 <label for="libelle">Objet (facultatif)</label>
 <input type="text" id="libelle" maxlength="200" autocomplete="off">
 <p class="avertir">À faire le jour de la mise en ligne${NBSP}: la date prouvée est celle du dépôt.</p>

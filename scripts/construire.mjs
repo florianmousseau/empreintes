@@ -51,6 +51,6 @@ ecrire('deposer.html', pageDeposer());
 ecrire('acte.html', pageActe());
 ecrire('mentions-legales.html', pageMentions());
 ecrire('sitemap.xml', planDuSite());
-for (const m of ['chaine.mjs', 'depot.mjs', 'acte.mjs', 'personne.mjs']) ecrire(m, fs.readFileSync(path.join(RACINE, 'src', m)));
+for (const m of ['chaine.mjs', 'depot.mjs', 'acte.mjs', 'personne.mjs', 'annuaire.mjs']) ecrire(m, fs.readFileSync(path.join(RACINE, 'src', m)));
 for (const f of fs.readdirSync(path.join(RACINE, 'public'))) ecrire(f, fs.readFileSync(path.join(RACINE, 'public', f)));
 console.log(`${tours.length} tours, ${fichiers.length} fichiers du journal, dist/ ecrit`);

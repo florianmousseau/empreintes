@@ -1,5 +1,6 @@
 import { sha256 } from '/chaine.mjs';
 import { suivreLeChoix } from '/fichier.js';
+import { communeDe, communeDeLAdresse } from '/annuaire.mjs';
 
 const $ = (id) => document.getElementById(id);
 const $fichier = () => $('fichier');
@@ -35,6 +36,55 @@ const echapper = (t) => String(t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<
 const TITRES = { 409: 'Ce document en ligne a déjà été lu aujourd’hui', 422: 'Le document en ligne n’a pas pu être lu', 429: 'Limite du jour atteinte, à demain' };
 const jourFr = (j) => j.split('-').reverse().join('/');
 if ($('deja')) $fichier().addEventListener('change', dejaDate);
+
+// Un lien sur le site officiel d'une commune : on propose d'en faire un acte, la commune deja reconnue.
+let lecture = 0;
+async function reconnaitreLaCommune() {
+	const url = $('url').value.trim();
+	const numero = ++lecture;
+	let insee = null;
+	let commune = null;
+	if (/^https?:\/\/[^/]+\.[^/]+/i.test(url)) {
+		try {
+			insee = await communeDeLAdresse(url, (c) => fetch(c));
+			commune = insee ? await communeDe(insee, (c) => fetch(c)) : null;
+		} catch {
+			insee = null;
+		}
+	}
+	if (numero !== lecture) return;
+	const bloc = $('acte');
+	if (bloc) {
+		bloc.hidden = !insee;
+		$('collectivite').value = insee ?? '';
+		$('acte-commune').textContent = commune?.nom ?? `la commune ${insee}`;
+		if (!insee && $('nature').value) {
+			$('nature').value = '';
+			$('nature').dispatchEvent(new Event('change'));
+		}
+	} else if (insee && !$('collectivite').value) $('collectivite').value = insee;
+}
+
+// Le bouton dit ce qui sera date.
+$('acte') && $('nature').addEventListener('change', () => {
+	$('formulaire').querySelector('button[type=submit]').textContent = $('nature').value ? 'Dater cet acte' : 'Dater ce document';
+});
+
+let attente;
+$('url')?.addEventListener('input', () => {
+	if ($fichier()?.files.length && $('url').value.trim()) {
+		$fichier().value = '';
+		$fichier().dispatchEvent(new Event('change'));
+	}
+	clearTimeout(attente);
+	attente = setTimeout(reconnaitreLaCommune, 350);
+});
+// Un fichier choisi remplace le lien : un seul document par depot.
+$fichier()?.addEventListener('change', () => {
+	if (!$fichier().files.length || !$('url').value) return;
+	$('url').value = '';
+	reconnaitreLaCommune();
+});
 
 const NATURES = { deliberation: 'Délibération', arrete: 'Arrêté', decision: 'Décision' };
 const RATTACHEMENT = { 'site-officiel': 'adresse sur son site officiel', declaree: 'déclarée' };
@@ -82,10 +132,10 @@ ${r.recu.libelle ? `<p><strong>${echapper(r.recu.libelle)}</strong></p>` : ''}
 
 async function demande() {
 	const libelle = $('libelle').value.trim();
-	if ($('collectivite')) return { type: 'acte', url: $('url').value.trim(), collectivite: $('collectivite').value.trim(), nature: $('nature').value, ...(libelle ? { libelle } : {}) };
-	const fichier = $('fichier').files[0];
+	if ($('nature')?.value && $('collectivite').value) return { type: 'acte', url: $('url').value.trim(), collectivite: $('collectivite').value.trim(), nature: $('nature').value, ...(libelle ? { libelle } : {}) };
+	const fichier = $fichier()?.files[0];
 	const saisie = $('empreinte')?.value.trim();
-	const url = $('url').value.trim();
+	const url = $('url')?.value.trim();
 	const corps = libelle ? { libelle } : {};
 	if (fichier) return { ...corps, sha256: await empreinteDe(fichier) };
 	if (saisie) return { ...corps, sha256: saisie };

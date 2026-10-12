@@ -48,6 +48,11 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   `dist/annuaire/<fragment>.json`) ; un export muet publie sans elle et tout
   acte reste `declaree`. Un hote partage ou une plateforme (`PLATEFORMES`,
   ecrite a la main) ne rattache que sous le chemin propre a la commune.
+- Un lien colle dans Dater sur le site officiel d'une commune propose d'en
+  faire un acte, la commune deja reconnue : `communeDeLAdresse`
+  (`src/annuaire.mjs`) lit l'index inverse `dist/annuaire/hotes/hote-<3
+  premiers caracteres>.json`, ecrit par `scripts/annuaire.mjs`. Une adresse a
+  deux communes n'en propose aucune. Le rattachement reste juge par le serveur.
 - Le suivi des flux (D-170) : `src/flux.mjs` decide (lecture RSS 2.0 et Atom
   1.0, plan du jour), pur ; `src/suivi.mjs` branche la base et le temoin ; le
   Worker horaire `empreintes-flux` (`flux.wrangler.toml`, `workers/flux.mjs`,

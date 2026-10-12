@@ -9,7 +9,7 @@
 // donne a plusieurs communes ne rattache personne. Jamais devine : une
 // collectivite absente reste « declaree ».
 
-import { estUnInsee, estUnSiren, hoteDe } from './acte.mjs';
+import { estUnInsee, estUnSiren, hoteDe, surSiteOfficiel } from './acte.mjs';
 
 /** En dessous, l'export est tronque : la table est refusee plutot que de rattacher une commune sur deux. */
 export const SITES_MIN = 10000;
@@ -161,3 +161,45 @@ export const annuaireDesActifs = (env, base) => (code) => sitesDe(code, (chemin)
 
 /** La lecture des noms publies avec le site, par la liaison `ASSETS` d'une Function. */
 export const communeDesActifs = (env, base) => (code) => communeDe(code, (chemin) => env.ASSETS.fetch(new URL(chemin, base)));
+
+/** Le fragment de l'index des hotes qui porte un hote : `hote-mai` pour mairie-x.fr. */
+export const fragmentDeLHote = (hote) => `hote-${hote.slice(0, 3).replace(/[^a-z0-9-]/g, '_')}`;
+
+/**
+ * L'index inverse de la table, hote vers `[[prefixe, insee], ...]`, sur les seuls
+ * codes INSEE : il sert a reconnaitre la commune d'une adresse collee.
+ */
+export function tableDesHotes(table) {
+	const hotes = {};
+	for (const [code, sites] of Object.entries(table)) {
+		if (!estUnInsee(code)) continue;
+		for (const [hote, prefixe] of sites) (hotes[hote] ??= []).push([prefixe, code]);
+	}
+	return hotes;
+}
+
+/** L'hote et ses domaines parents, du plus long au plus court : un sous-domaine reste sur le site. */
+export function hotesCandidats(hote) {
+	const parties = hote.split('.');
+	return parties.slice(0, -1).map((_, i) => parties.slice(i).join('.'));
+}
+
+/**
+ * Le code INSEE de la commune dont le site officiel porte cette adresse, ou null
+ * quand aucune ou plusieurs communes y repondent. `lire(chemin)` rend une reponse fetch.
+ */
+export async function communeDeLAdresse(url, lire) {
+	let hote;
+	try {
+		hote = hoteDe(url);
+	} catch {
+		return null;
+	}
+	const codes = new Set();
+	for (const candidat of hotesCandidats(hote)) {
+		const r = await lire(`/annuaire/hotes/${fragmentDeLHote(candidat)}.json`);
+		const entrees = r.ok ? ((await r.json())[candidat] ?? []) : [];
+		for (const [prefixe, code] of entrees) if (surSiteOfficiel(url, [[candidat, prefixe]])) codes.add(code);
+	}
+	return codes.size === 1 ? [...codes][0] : null;
+}
