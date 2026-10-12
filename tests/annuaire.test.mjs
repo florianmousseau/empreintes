@@ -79,7 +79,7 @@ test('seul un acte lu sur le site officiel entre dans la serie de sa collectivit
 	const midi = new Date('2026-10-12T12:00:00Z');
 	const annuaire = async (code) => (code === '17133' ? [['cravans.fr', '']] : null);
 	const deposerActe = (url, collectivite, adresse) =>
-		deposer({ db, corps: { type: 'acte', url, collectivite, nature: 'arrete' }, adresse, maintenant: midi, annuaire, temoin: async () => ({ url, taille: 1, type: 'application/pdf', lu: midi.toISOString(), sha256: 'c'.repeat(64) }) });
+		deposer({ db, corps: { type: 'acte', url, collectivite, nature: 'arrete', libelle: 'Voirie' }, adresse, maintenant: midi, annuaire, temoin: async () => ({ url, taille: 1, type: 'application/pdf', lu: midi.toISOString(), sha256: 'c'.repeat(64) }) });
 	const officiel = JSON.parse((await deposerActe('https://www.cravans.fr/a.pdf', '17133', 'a')).corps);
 	const declare = JSON.parse((await deposerActe('https://ailleurs.fr/a.pdf', '17133', 'b')).corps);
 	assert.equal(declare.recu.acte.rattachement, 'declaree');

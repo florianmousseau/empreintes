@@ -66,8 +66,11 @@ async function reconnaitreLaCommune() {
 }
 
 // Le bouton dit ce qui sera date.
+// Un acte se date avec son objet.
 $('acte') && $('nature').addEventListener('change', () => {
-	$('formulaire').querySelector('button[type=submit]').textContent = $('nature').value ? 'Dater cet acte' : 'Dater ce document';
+	const acte = Boolean($('nature').value);
+	$('formulaire').querySelector('button[type=submit]').textContent = acte ? 'Dater cet acte' : 'Dater ce document';
+	$('objet').required = acte;
 });
 
 let attente;
@@ -130,9 +133,11 @@ ${r.recu.libelle ? `<p><strong>${echapper(r.recu.libelle)}</strong></p>` : ''}
 	});
 }
 
+const valeur = (id) => $(id)?.value.trim() ?? '';
+
 async function demande() {
-	const libelle = $('libelle').value.trim();
-	if ($('nature')?.value && $('collectivite').value) return { type: 'acte', url: $('url').value.trim(), collectivite: $('collectivite').value.trim(), nature: $('nature').value, ...(libelle ? { libelle } : {}) };
+	if ($('nature')?.value && $('collectivite').value) return { type: 'acte', url: valeur('url'), collectivite: valeur('collectivite'), nature: $('nature').value, libelle: valeur('objet') };
+	const libelle = valeur('libelle');
 	const fichier = $fichier()?.files[0];
 	const saisie = $('empreinte')?.value.trim();
 	const url = $('url')?.value.trim();

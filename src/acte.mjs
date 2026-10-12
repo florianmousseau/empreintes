@@ -33,7 +33,8 @@ const texte = (v) => (typeof v === 'string' ? v.trim() : v);
 
 /**
  * Lit les champs propres a un acte. Rend `{ collectivite, nature }`, ou null
- * quand la demande n'est pas un acte ; chaque defaut s'ajoute a `erreurs`.
+ * quand la demande n'est pas un acte ; chaque defaut s'ajoute a `erreurs`. Son
+ * objet (`libelle`) est requis : un acte sans objet ne se retrouve pas.
  */
 export function lireActe(corps, erreurs) {
 	const type = texte(corps.type);
@@ -52,7 +53,9 @@ export function lireActe(corps, erreurs) {
 	const code = typeof collectivite === 'string' ? collectivite.toUpperCase().replace(/\s/g, '') : collectivite;
 	if (!(typeof code === 'string' && (estUnInsee(code) || estUnSiren(code)))) erreurs.push('collectivite : code commune INSEE (5 caracteres) ou SIREN (9 chiffres)');
 	if (!Object.hasOwn(NATURES, nature ?? '')) erreurs.push(`nature : ${Object.keys(NATURES).join(', ')}`);
-	if (typeof corps.libelle === 'string' && nommeUnePersonne(corps.libelle)) erreurs.push('libelle : aucun nom de personne');
+	const objet = typeof corps.libelle === 'string' ? corps.libelle.trim() : '';
+	if (!objet) erreurs.push('objet : requis pour un acte');
+	else if (nommeUnePersonne(objet)) erreurs.push('libelle : aucun nom de personne');
 	return { collectivite: code, nature };
 }
 

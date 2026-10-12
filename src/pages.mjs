@@ -117,7 +117,7 @@ ${corps}
 </main>
 <footer><div class="pied">
 <p class="pied-marque">${SCEAU}<span>${MARQUE}</span></p>
-<p class="pied-liens">${lien('dater')} ${lien('verifier')} ${lien('journal')} ${lien('acte')} ${lien('documentation')} ${lien('mentions')} <a href="${DEPOT}">Code source</a></p>
+<p class="pied-liens">${lien('dater')} ${lien('verifier')} ${lien('journal')} ${lien('documentation')} ${lien('mentions')} <a href="${DEPOT}">Code source</a></p>
 <p>Éditeur${NBSP}: <a href="https://florianmousseau.com">Florian Mousseau</a></p>
 </div></footer>
 </body>
@@ -142,6 +142,8 @@ const blocActe = () => `<div id="acte" class="acte" hidden>
 <input type="hidden" id="collectivite">
 <label for="nature">Nature</label>
 <select id="nature"><option value="">Non, un autre document</option>${optionsDeNature()}</select>
+<label for="objet">Objet de l’acte</label>
+<input type="text" id="objet" maxlength="200" autocomplete="off">
 <p class="avertir">À faire le jour de la mise en ligne${NBSP}: la date prouvée est celle du dépôt.</p>
 </div>`;
 
@@ -159,7 +161,7 @@ ${choixDeFichier('Déposez le document à dater')}
 ${blocActe()}
 <details>
 <summary>Lui donner un nom (facultatif)</summary>
-<label for="libelle">Un nom, ou l’objet de l’acte</label>
+<label for="libelle">Un nom</label>
 <input type="text" id="libelle" maxlength="200" autocomplete="off">
 </details>
 ${avecEmpreinte ? champEmpreinte : ''}
@@ -291,8 +293,8 @@ export function pageActe() {
 <input type="text" id="collectivite" inputmode="numeric" autocomplete="off" spellcheck="false" maxlength="11" required>
 <label for="nature">Nature</label>
 <select id="nature">${optionsDeNature()}</select>
-<label for="libelle">Objet (facultatif)</label>
-<input type="text" id="libelle" maxlength="200" autocomplete="off">
+<label for="objet">Objet de l’acte</label>
+<input type="text" id="objet" maxlength="200" autocomplete="off" required>
 <p class="avertir">À faire le jour de la mise en ligne${NBSP}: la date prouvée est celle du dépôt.</p>
 <button type="submit" class="principal large-bouton">Dater cet acte</button>
 <p class="recoit">Vous recevez un reçu à imprimer ou à télécharger. Il atteste que ce fichier était en ligne à cette adresse à cet instant.</p>
@@ -347,7 +349,7 @@ ${coupe(serie)}`
 <p class="sous-titre">${codes}</p>
 <h2>${titreDeSerie(serie.total)}</h2>
 ${tableau}
-<p class="compte">Actes lus sur le site officiel de la commune.</p>
+<p class="compte">${serie.depuis ? `Actes suivis depuis le ${jourFr(serie.depuis)}, lus` : 'Actes lus'} sur le site officiel de la commune.</p>
 <p><a class="bouton principal" href="${ACTES.acte.chemin}">${ACTES.acte.titre}</a></p>`
 	});
 }
@@ -462,7 +464,7 @@ export function pageDocumentation() {
 ${tableDoc('Dater', [
 	ligneDoc('POST /api/depots {"sha256": "&lt;64 hex&gt;", "libelle": "&lt;texte&gt;"}', 'une empreinte calculée par vous\u00A0; le libellé reste dans le reçu'),
 	ligneDoc('POST /api/depots {"url": "https://&lt;adresse&gt;"}', 'le service lit lui-même le document en ligne et date ses octets'),
-	ligneDoc('POST /api/depots {"type": "acte", "url": "https://&lt;adresse&gt;", "collectivite": "&lt;INSEE | SIREN&gt;", "nature": "deliberation | arrete | decision"}', 'un acte de collectivité, lu à son adresse\u00A0; reçu version 2, ligne publique inchangée'),
+	ligneDoc('POST /api/depots {"type": "acte", "url": "https://&lt;adresse&gt;", "collectivite": "&lt;INSEE | SIREN&gt;", "nature": "deliberation | arrete | decision", "libelle": "&lt;objet&gt;"}', 'un acte de collectivité, lu à son adresse, avec son objet\u00A0; reçu version 2, ligne publique inchangée'),
 	ligneDoc('201', 'le reçu, son identifiant, la ligne publique'),
 	ligneDoc('POST /api/flux {"url": "https://&lt;flux RSS ou Atom&gt;"}', 'suivre un flux\u00A0: chaque heure, chaque article nouveau ou modifié est lu et daté\u00A0; rend l’identifiant du flux et son jeton'),
 	ligneDoc('GET /editeur/&lt;id&gt;', 'le registre public d’un flux\u00A0: chaque version datée, sans adresse ni titre\u00A0; avec <code>#&lt;jeton&gt;</code>, les adresses et les reçus'),

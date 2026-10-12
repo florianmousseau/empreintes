@@ -7,7 +7,7 @@ import { deposer, fichierDuJour } from '../src/service.mjs';
 
 const midi = new Date('2026-10-12T12:00:00Z');
 const corpsDe = (r) => JSON.parse(r.corps);
-const acte = (autres = {}) => ({ type: 'acte', url: 'https://www.cravans.fr/wp-content/uploads/deliberation-12.pdf', collectivite: '17133', nature: 'deliberation', ...autres });
+const acte = (autres = {}) => ({ type: 'acte', url: 'https://www.cravans.fr/wp-content/uploads/deliberation-12.pdf', collectivite: '17133', nature: 'deliberation', libelle: 'Budget primitif 2026', ...autres });
 
 test('un code de collectivite est un INSEE a 5 caracteres ou un SIREN a cle de Luhn juste', () => {
 	for (const c of ['17133', '01001', '2A004', '2B033', '97411', '98735']) assert.ok(estUnInsee(c), c);
@@ -18,7 +18,7 @@ test('un code de collectivite est un INSEE a 5 caracteres ou un SIREN a cle de L
 });
 
 test('la demande d un acte exige le temoin d URL, un code juste et une nature connue', () => {
-	assert.deepEqual(lireDemande(acte()).demande, { url: acte().url, acte: { collectivite: '17133', nature: 'deliberation' } });
+	assert.deepEqual(lireDemande(acte()).demande, { url: acte().url, libelle: 'Budget primitif 2026', acte: { collectivite: '17133', nature: 'deliberation' } });
 	assert.equal(lireDemande(acte({ collectivite: ' 2a004 ' })).demande.acte.collectivite, '2A004');
 	assert.equal(lireDemande(acte({ collectivite: '211701339', nature: 'arrete' })).demande.acte.nature, 'arrete');
 	const erreurs = (corps) => lireDemande(corps).erreurs?.join(' | ') ?? '';
@@ -34,7 +34,9 @@ test('la demande d un acte exige le temoin d URL, un code juste et une nature co
 	assert.deepEqual(Object.keys(NATURES), ['deliberation', 'arrete', 'decision']);
 });
 
-test('le libelle d un acte ne nomme personne', () => {
+test("un acte se depose avec son objet, et l'objet ne nomme personne", () => {
+	for (const libelle of [undefined, '', '   ']) assert.match(lireDemande(acte({ libelle })).erreurs.join(), /objet : requis pour un acte/);
+	assert.doesNotMatch(lireDemande(acte({ libelle: '' })).erreurs.join(), /aucun nom de personne/);
 	assert.match(lireDemande(acte({ libelle: 'Arrete de M. Dupont, maire' })).erreurs.join(), /aucun nom de personne/);
 	assert.match(lireDemande(acte({ libelle: 'Permis accorde a Jean Martin' })).erreurs.join(), /aucun nom de personne/);
 	assert.equal(lireDemande(acte({ libelle: 'Budget primitif 2026, rue Jean Jaures' })).demande.libelle, 'Budget primitif 2026, rue Jean Jaures');

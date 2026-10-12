@@ -59,7 +59,9 @@ async function baseAvecActes() {
 		});
 	};
 	await deposerActe(1, 'https://www.cravans.fr/pv-1.pdf', '17133', 'deliberation', '2026-10-11');
-	await deposerActe(2, 'https://www.cravans.fr/arrete-2.pdf', '211701339', 'arrete', '2026-10-12', null);
+	await deposerActe(2, 'https://www.cravans.fr/arrete-2.pdf', '211701339', 'arrete', '2026-10-12', 'Voirie');
+	// Un acte d'avant l'objet obligatoire.
+	db.sqlite.prepare("UPDATE acte SET objet = NULL WHERE nature = 'arrete'").run();
 	await deposerActe(3, 'https://ailleurs.fr/pv-3.pdf', '17133', 'decision', '2026-10-12');
 	return db;
 }
@@ -79,6 +81,7 @@ test("la page d'une commune liste ses actes rattaches, sous ses deux codes, du p
 	assert.ok(!r.corps.includes('Décision'), 'un acte declare reste hors de la serie');
 	assert.match(r.corps, /<a href="\/recu\/[0-9a-f]{64}">Reçu<\/a>/);
 	for (const absent of ['Service-Public', 'noindex', '1111111111111111']) assert.ok(!r.corps.includes(absent), absent);
+	assert.match(r.corps, /<p class="compte">Actes suivis depuis le 11\/10\/2026, lus sur le site officiel de la commune.<\/p>/);
 	assert.match(r.corps, /<a class="bouton principal" href="\/acte">Dater la mise en ligne d’un acte<\/a>/);
 });
 
@@ -113,6 +116,7 @@ test('une page par commune : le SIREN et les minuscules renvoient au code INSEE,
 	assert.equal(inconnue.statut, 200);
 	assert.match(inconnue.corps, /<h1>Collectivité 17999<\/h1>/);
 	assert.match(inconnue.corps, /Aucun acte daté/);
+	assert.match(inconnue.corps, /<p class="compte">Actes lus sur le site officiel de la commune.<\/p>/);
 	assert.match(inconnue.corps, /<meta name="robots" content="noindex">/);
 });
 
