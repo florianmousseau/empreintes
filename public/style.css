@@ -120,3 +120,8 @@ th, td { white-space: normal; }
 @media print {
 	.imprime { display: block; }
 }
+.une p { font-size: 1rem; }
+.une h1 { font-size: 2.4rem; }
+@media (max-width: 34rem) {
+	.une h1 { font-size: 2.1rem; }
+}
