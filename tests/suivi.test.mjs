@@ -2,11 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { baseDeTest } from './d1.mjs';
-import { FLUX_MAX, inscrireFlux, retirerFlux, tourneeDesFlux, idDuFlux } from '../src/suivi.mjs';
+import { FLUX_MAX, inscrireFlux, registreDeLEditeur, registrePrive, retirerFlux, tourneeDesFlux, idDuFlux } from '../src/suivi.mjs';
+import { pageEditeur } from '../src/pages.mjs';
+import { onRequestGet as pageDeLEditeur } from '../functions/editeur/[id].js';
 import { deposer, fichierDuJour, temoigner } from '../src/service.mjs';
 import { lireFichierDuJour } from '../src/depot.mjs';
 import { onRequestPost, onRequestOptions } from '../functions/api/flux.js';
-import { onRequestDelete } from '../functions/api/flux/[id].js';
+import { onRequestDelete, onRequestGet as apiFlux } from '../functions/api/flux/[id].js';
 import worker from '../workers/flux.mjs';
 
 const FLUX = 'https://blog.example.fr/rss.xml';
@@ -156,4 +158,43 @@ test('les Functions et le Worker branchent le suivi', async () => {
 	await worker.scheduled({}, { DEPOTS: db }, { waitUntil: (p) => attendus.push(p) });
 	await Promise.all(attendus);
 	assert.equal(attendus.length, 1);
+});
+
+test("le registre public d'un editeur liste ses versions sans adresse ni titre ; le prive, par jeton, donne les adresses et les recus", async () => {
+	const w = web({ [FLUX]: rss([[A, 'Titre secret'], [B, 'Deux']]), [A]: 'v1', [B]: 'b' });
+	const { db, id, jeton, prive, registre } = await inscrit(w);
+	assert.deepEqual([registre, prive], [`/editeur/${id}`, `/editeur/${id}#${jeton}`]);
+	await tourneeDesFlux({ db, maintenant: jour(12), temoin: w.temoin });
+	w.pages[A] = 'v2';
+	await tourneeDesFlux({ db, maintenant: jour(19), temoin: w.temoin });
+	const r = await registreDeLEditeur({ db, id });
+	assert.equal(r.total, 3);
+	assert.deepEqual(r.versions.map((v) => v.jour), ['2026-10-19', '2026-10-12', '2026-10-12']);
+	const html = pageEditeur(r);
+	assert.match(html, /<h2>3 versions, 2 articles<\/h2>/);
+	assert.match(html, /Suivi depuis le 12\/10\/2026/);
+	for (const interdit of ['blog.example.fr', 'Titre secret', 'noindex']) assert.ok(!html.includes(interdit), interdit);
+	assert.match(html, /<td class="n">2<\/td><td><a href="\/recu\/[0-9a-f]{64}">19\/10\/2026<\/a><\/td>/);
+	assert.match(pageEditeur({ ...r, versions: r.versions.slice(0, 1) }), /Les 1 plus récentes sur 3\./);
+	assert.equal(await registreDeLEditeur({ db, id: 'inconnu' }), null);
+	const page = await pageDeLEditeur({ params: { id }, env: { DEPOTS: db } });
+	assert.equal(page.status, 200);
+	assert.equal((await pageDeLEditeur({ params: { id: 'x' }, env: { DEPOTS: db } })).status, 404);
+
+	const lire = (j) => apiFlux({ request: new Request(`https://e/api/flux/${id}`, { headers: j ? { authorization: `Bearer ${j}` } : {} }), params: { id }, env: { DEPOTS: db } });
+	assert.equal((await lire(null)).status, 403);
+	assert.equal((await lire('faux')).status, 403);
+	assert.equal((await registrePrive({ db, id: 'x', jeton })).statut, 404);
+	const p = await (await lire(jeton)).json();
+	assert.equal(p.flux.url, FLUX);
+	assert.equal(p.flux.jeton, undefined, 'le hache du jeton ne sort pas');
+	assert.deepEqual(p.articles.map((a) => a.lien).sort(), [A, B]);
+	assert.equal(p.recus.length, 3);
+	assert.ok(p.recus.every((x) => x.recu.url && !JSON.stringify(x).includes('Titre secret')));
+
+	await retirerFlux({ db, id, jeton, maintenant: jour(20) });
+	assert.match(pageEditeur(await registreDeLEditeur({ db, id })), /Suivi du 12\/10\/2026 au 20\/10\/2026/);
+	const vide = pageEditeur({ flux: { id: 'f', inscrit: '2026-10-12T00:00:00Z', retire: null }, total: 0, versions: [] });
+	assert.match(vide, /Aucune version datée/);
+	assert.match(vide, /noindex/);
 });
