@@ -205,10 +205,10 @@ export function pageActe() {
 const jourFr = (j) => j.split('-').reverse().join('/');
 
 const majuscule = (t) => `${t[0].toUpperCase()}${t.slice(1)}`;
-const s = (n) => (n > 1 ? 's' : '');
+const marqueDuPluriel = (n) => (n > 1 ? 's' : '');
 
 /** Le titre d'une serie : le compte et la nature. */
-const titreDeSerie = (n) => (n ? `${nombre(n)} acte${s(n)} daté${s(n)}` : 'Aucun acte daté');
+const titreDeSerie = (n) => (n ? `${nombre(n)} acte${marqueDuPluriel(n)} daté${marqueDuPluriel(n)}` : 'Aucun acte daté');
 
 /** La ligne qui dit qu'une serie est coupee, vide sinon. */
 const coupe = (serie) => (serie.total > serie.actes.length ? `<p class="compte">Les ${nombre(serie.actes.length)} plus récents sur ${nombre(serie.total)}.</p>` : '');
