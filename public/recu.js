@@ -1,6 +1,7 @@
 import { inscriptionDuRecu } from '/chaine.mjs';
 
 const NBSP = '\u00A0';
+document.getElementById('imprimer')?.addEventListener('click', () => window.print());
 const cible = document.getElementById('inscription');
 const recu = document.getElementById('recu').dataset.recu;
 const heure = (id) => `${id.slice(6, 8)}/${id.slice(4, 6)}/${id.slice(0, 4)} ${id.slice(9, 11)}:${id.slice(11, 13)}${NBSP}UTC`;
