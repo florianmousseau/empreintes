@@ -71,3 +71,7 @@ footer { margin-top: 3rem; padding-top: 1rem; padding-bottom: 2rem; border-top: 
 @media (max-width: 34rem) {
 	article dl div { grid-template-columns: 1fr; gap: 0; }
 }
+.chapeau { font-size: 1.1rem; max-width: 40rem; }
+button.principal, .bouton.principal { background: var(--accent); color: var(--fond); }
+button:disabled { opacity: 0.6; cursor: progress; }
+nav a + a { margin-left: 0.9rem; }

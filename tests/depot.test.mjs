@@ -51,21 +51,21 @@ test('la forme canonique trie les cles a chaque niveau et omet les absents', () 
 
 test('un recu declare et un recu de temoin, et leur ligne publique', async () => {
 	const instant = '2026-10-12T13:45:00.123Z';
-	const declare = recuDe({ sha256: H, instant, place: 3, libelle: 'PV du conseil', sel: '0'.repeat(32) });
+	const declare = recuDe({ sha256: H, instant, libelle: 'PV du conseil', sel: '0'.repeat(32) });
 	assert.equal(declare.source, 'declare');
 	assert.equal(declare.jour, '2026-10-12');
 	assert.equal(declare.temoin, undefined);
 	const id = await idDuRecu(declare);
 	assert.equal(id, sha(canonique(declare)));
-	assert.equal(await ligneDuRecu(declare), `{"sha256":"${H}","jour":"2026-10-12","place":3,"recu":"${id}"}\n`);
-	assert.ok(!(await ligneDuRecu(declare)).includes('PV du conseil'), 'le libelle ne sort jamais du recu');
-	const temoin = recuDe({ sha256: B, instant, place: 4, url: 'https://x.fr/a', temoin: { url: 'https://x.fr/b', taille: 10, lu: instant } });
+	assert.equal(await ligneDuRecu(declare, 3), `{"sha256":"${H}","jour":"2026-10-12","place":3,"recu":"${id}"}\n`);
+	assert.ok(!(await ligneDuRecu(declare, 3)).includes('PV du conseil'), 'le libelle ne sort jamais du recu');
+	const temoin = recuDe({ sha256: B, instant, url: 'https://x.fr/a', temoin: { url: 'https://x.fr/b', taille: 10, lu: instant } });
 	assert.equal(temoin.source, 'temoin');
 	assert.deepEqual(temoin.temoin, { url: 'https://x.fr/b', taille: 10, type: null, lu: instant });
 	assert.match(temoin.sel, /^[0-9a-f]{32}$/);
 	assert.notEqual(selAleatoire(), selAleatoire());
-	assert.throws(() => recuDe({ sha256: 'x', instant, place: 1 }), /sha256 illisible/);
-	assert.throws(() => recuDe({ sha256: H, instant, place: 0 }), /place entiere/);
+	assert.throws(() => recuDe({ sha256: 'x', instant }), /sha256 illisible/);
+	assert.equal(declare.place, undefined);
 });
 
 test('une ligne refuse ce qui sortirait du format', () => {

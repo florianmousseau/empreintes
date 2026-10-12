@@ -29,3 +29,9 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   change que par une version de recu nouvelle, jamais en place. Les gardes du
   temoin d'URL sont dans `src/temoin.mjs`, pures ; la Function ne fait que les
   brancher.
+- Le depot vit dans une Function (`functions/api/depots.js`, POST) et la base
+  D1 `empreintes-depots` (liaison `DEPOTS`, `wrangler.toml`) ; le schema est
+  `SCHEMA` dans `src/service.mjs`, rejouable, applique par l'API D1 `query`.
+  `functions/depots/[fichier].js` sert `/depots/<jour>.jsonl`. L'adresse d'un
+  deposant n'est jamais ecrite : son hache sale du jour, sel jete le lendemain.
+  Les tests jouent le vrai SQL sur `node:sqlite` (`tests/d1.mjs`).

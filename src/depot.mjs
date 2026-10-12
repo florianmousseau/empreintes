@@ -79,16 +79,16 @@ export function selAleatoire() {
 /**
  * Le recu d'un depot. `temoin` porte ce que le service a lu lui-meme (url
  * finale, taille, type, instant de lecture) ; sans lui, l'empreinte est
- * declaree par le deposant et le recu le dit (`source`).
+ * declaree par le deposant et le recu le dit (`source`). Il ne porte pas sa
+ * place : elle se donne a l'insertion, apres que le recu est fige, et c'est la
+ * ligne publique qui lie les deux.
  */
-export function recuDe({ sha256: empreinte, instant, place, libelle = null, url = null, temoin = null, sel = selAleatoire() }) {
+export function recuDe({ sha256: empreinte, instant, libelle = null, url = null, temoin = null, sel = selAleatoire() }) {
 	if (!HEX64.test(empreinte)) throw new Error('recu : sha256 illisible');
-	if (!Number.isInteger(place) || place < 1) throw new Error('recu : place entiere a partir de 1');
 	return {
 		version: VERSION_DU_RECU,
 		sha256: empreinte,
 		jour: jourDe(instant),
-		place,
 		depose: new Date(instant).toISOString(),
 		source: temoin ? 'temoin' : 'declare',
 		libelle: libelle ?? undefined,
@@ -109,9 +109,9 @@ export function ligneDe({ sha256: empreinte, jour, place, recu }) {
 	return `${JSON.stringify({ sha256: empreinte, jour, place, recu })}\n`;
 }
 
-/** La ligne publique d'un recu, celle que le recu engage. */
-export async function ligneDuRecu(recu) {
-	return ligneDe({ sha256: recu.sha256, jour: recu.jour, place: recu.place, recu: await idDuRecu(recu) });
+/** La ligne publique d'un recu a sa place. */
+export async function ligneDuRecu(recu, place) {
+	return ligneDe({ sha256: recu.sha256, jour: recu.jour, place, recu: await idDuRecu(recu) });
 }
 
 /**

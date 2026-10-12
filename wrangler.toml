@@ -1,0 +1,8 @@
+name = "empreintes"
+pages_build_output_dir = "dist"
+compatibility_date = "2025-09-01"
+
+[[d1_databases]]
+binding = "DEPOTS"
+database_name = "empreintes-depots"
+database_id = "8bbe0459-1c54-41eb-a38a-c946f6b2f5b7"
