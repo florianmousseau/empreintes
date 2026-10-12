@@ -44,8 +44,8 @@ ${r.recu.libelle ? `<p><strong>${echapper(r.recu.libelle)}</strong></p>` : ''}
 <div><dt>Reçu</dt><dd><code class="racine">${r.id}</code>, ligne ${r.place} du ${jourFr(r.jour)}</dd></div>
 </dl>
 </details>
-<p>Adresse du reçu${NBSP}: <a href="/recu/${r.id}">empreintes.florianmousseau.com/recu/${r.id.slice(0, 12)}</a></p>
-<p class="imprime">empreintes.florianmousseau.com/recu/${r.id}<br>Émis le ${jourFr(r.recu.depose.slice(0, 10))} à ${r.recu.depose.slice(11, 16)}${NBSP}UTC.</p>
+<p>Adresse du reçu${NBSP}: <a href="/recu/${r.id}">temoinpublic.fr/recu/${r.id.slice(0, 12)}</a></p>
+<p class="imprime">temoinpublic.fr/recu/${r.id}<br>Émis le ${jourFr(r.recu.depose.slice(0, 10))} à ${r.recu.depose.slice(11, 16)}${NBSP}UTC.</p>
 </article>`;
 	$('recu').addEventListener('click', () => telecharger(r.recu, r.id));
 	$('imprimer').addEventListener('click', () => {

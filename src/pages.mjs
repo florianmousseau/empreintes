@@ -3,17 +3,47 @@
 import { NATURES } from './acte.mjs';
 
 const NBSP = '\u00A0';
-const ADRESSE = 'https://empreintes.florianmousseau.com';
+const ADRESSE = 'https://temoinpublic.fr';
 const DEPOT = 'https://github.com/florianmousseau/empreintes';
+export const MARQUE = 'Témoin public';
 
 /** Les trois actes du site, chacun sous un seul nom partout. */
 export const ACTES = {
 	dater: { chemin: '/deposer', nom: 'Dater un document' },
 	verifier: { chemin: '/verifier', nom: 'Vérifier un document' },
 	journal: { chemin: '/journal', nom: 'Registre des dates' },
-	acte: { chemin: '/acte', nom: 'Dater un acte' },
-	documentation: { chemin: '/documentation', nom: 'Documentation' }
+	acte: { chemin: '/acte', nom: 'Dater la mise en ligne d’un acte' },
+	documentation: { chemin: '/documentation', nom: 'Documentation' },
+	mentions: { chemin: '/mentions-legales', nom: 'Mentions légales' }
 };
+
+/** Les pages statiques que les moteurs lisent, dans l'ordre du plan du site. */
+export const PLAN = ['/', ACTES.dater.chemin, ACTES.verifier.chemin, ACTES.acte.chemin, ACTES.journal.chemin, ACTES.documentation.chemin, ACTES.mentions.chemin];
+
+/** Le plan du site, au format sitemaps.org. */
+export const planDuSite = (chemins = PLAN) => `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${chemins.map((c) => `<url><loc>${ADRESSE}${c}</loc></url>`).join('\n')}
+</urlset>
+`;
+
+/** Le service decrit pour les moteurs : gratuit, sans compte, en francais. */
+export const DONNEES_STRUCTUREES = {
+	'@context': 'https://schema.org',
+	'@type': 'WebApplication',
+	name: MARQUE,
+	url: `${ADRESSE}/`,
+	description: "Prouver gratuitement qu'un document existait à une date, sans modification : son empreinte est inscrite dans un registre public ancré dans Bitcoin.",
+	applicationCategory: 'UtilitiesApplication',
+	operatingSystem: 'Web',
+	inLanguage: 'fr',
+	isAccessibleForFree: true,
+	offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
+	author: { '@type': 'Person', name: 'Florian Mousseau', url: 'https://florianmousseau.com' }
+};
+
+/** Un bloc JSON-LD sur, meme si une chaine contient `</script>`. */
+const jsonLd = (objet) => `<script type="application/ld+json">${JSON.stringify(objet).replace(/</g, '\\u003c')}</script>\n`;
 
 /** Echappe un texte pour le HTML. */
 export const echapper = (t) => String(t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -45,24 +75,32 @@ export const choixDeFichier = (texte) => `<div class="choix">
 <span id="nom-fichier">Aucun document choisi</span>
 </div>`;
 
-function gabarit({ titre, description, chemin, corps, script = '', indexer = true }) {
+function gabarit({ titre, description, chemin, corps, script = '', indexer = true, structure = null }) {
+	const titreComplet = `${titre} | ${MARQUE}`;
 	return `<!doctype html>
 <html lang="fr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${titre}</title>
+<title>${titreComplet}</title>
 <meta name="description" content="${description}">
 <link rel="canonical" href="${ADRESSE}${chemin}">${indexer ? '' : '\n<meta name="robots" content="noindex">'}
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="${MARQUE}">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:title" content="${titreComplet}">
+<meta property="og:description" content="${description}">
+<meta property="og:url" content="${ADRESSE}${chemin}">
+${structure ? jsonLd(structure) : ''}
 <link rel="stylesheet" href="/style.css">
 <link rel="icon" href="/icone.svg" type="image/svg+xml">
 ${script}</head>
 <body>
-<header><a class="marque" href="/">Empreintes</a><nav>${lien('dater')} ${lien('verifier')} ${lien('journal')}</nav></header>
+<header><a class="marque" href="/">Témoin public</a><nav>${lien('dater')} ${lien('acte')} ${lien('verifier')} ${lien('journal')}</nav></header>
 <main>
 ${corps}
 </main>
-<footer>${lien('acte')}. ${lien('documentation')}. Éditeur${NBSP}: <a href="https://florianmousseau.com">Florian Mousseau</a>. Code et journal${NBSP}: <a href="${DEPOT}">${DEPOT.replace('https://', '')}</a></footer>
+<footer>${lien('documentation')}. ${lien('mentions')}. Éditeur${NBSP}: <a href="https://florianmousseau.com">Florian Mousseau</a>. Code et journal${NBSP}: <a href="${DEPOT}">${DEPOT.replace('https://', '')}</a></footer>
 </body>
 </html>
 `;
@@ -76,10 +114,11 @@ export function pageAccueil(tours) {
 		titre: 'Prouver la date d’un document',
 		description: "Prouvez gratuitement qu'un document existait à une date, sans modification. Sans compte ; seule son empreinte est publiée, jamais le document.",
 		chemin: '/',
+		structure: DONNEES_STRUCTUREES,
 		corps: `<section class="une">
 <h1>Prouvez qu’un document existait à une date, sans modification.</h1>
-<p>Gratuit, sans compte. Seule son empreinte, un code de 64 caractères, est publiée${NBSP}: jamais le document.</p>
-<p class="gestes">${lien('dater', 'bouton principal')} ${lien('verifier', 'bouton')}</p>
+<p>Gratuit, sans compte. Le document reste chez vous${NBSP}: vous recevez un reçu daté, à garder avec lui.</p>
+<p class="gestes">${lien('dater', 'bouton principal')} ${lien('acte', 'bouton')} ${lien('verifier', 'bouton')}</p>
 </section>
 ${compte}`
 	});
@@ -276,7 +315,7 @@ ${lignesDActe(acte)}<div><dt>Empreinte</dt><dd><code class="racine">${ligne.sha2
 <div><dt>Ligne</dt><dd>${ligne.place} du ${jourFr(ligne.jour)}</dd></div>
 <div><dt>Registre</dt><dd id="inscription">lecture du registre</dd></div>
 </dl>
-<p class="imprime">empreintes.florianmousseau.com/recu/${ligne.recu}</p>
+<p class="imprime">temoinpublic.fr/recu/${ligne.recu}</p>
 </article>
 <p class="gestes"><button type="button" id="imprimer" class="principal">Imprimer le reçu</button> ${lien('verifier', 'bouton')}</p>`
 	});
@@ -395,5 +434,23 @@ ${tableDoc('Vérifier sans ce site', [
 	ligneDoc('Bitcoin', '<code>ots verify &lt;tour&gt;.racine.ots</code>'),
 	ligneDoc('script', '<a href="https://github.com/florianmousseau/empreintes/blob/main/scripts/verifier.mjs">node scripts/verifier.mjs &lt;document | --chaine&gt;</a>')
 ])}`
+	});
+}
+
+/** Les mentions legales : l'editeur, l'hebergeur, et ce que le service garde. */
+export function pageMentions() {
+	return gabarit({
+		titre: ACTES.mentions.nom,
+		description: `Éditeur, hébergeur et données conservées par ${MARQUE}.`,
+		chemin: ACTES.mentions.chemin,
+		corps: `<h1>${ACTES.mentions.nom}</h1>
+<h2>Éditeur</h2>
+<p><a href="https://florianmousseau.com">Florian Mousseau</a>, directeur de la publication. Contact${NBSP}: <a href="mailto:contact@florianmousseau.com">contact@florianmousseau.com</a></p>
+<h2>Hébergeur</h2>
+<p>Cloudflare, Inc., 101 Townsend St, San Francisco, CA 94107, États-Unis.</p>
+<h2>Données</h2>
+<p>Aucun document n’est reçu ni conservé, seulement son empreinte. Le libellé et l’adresse d’un dépôt restent dans le reçu. L’adresse IP d’un déposant n’est jamais écrite${NBSP}: seul son haché salé du jour sert au plafond, et le sel est effacé le lendemain. Aucun cookie.</p>
+<h2>Code</h2>
+<p><a href="${DEPOT}">${DEPOT.replace('https://', '')}</a></p>`
 	});
 }

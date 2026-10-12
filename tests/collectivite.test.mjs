@@ -79,7 +79,7 @@ test("la page d'une commune liste ses actes rattaches, sous ses deux codes, du p
 	assert.ok(!r.corps.includes('Décision'), 'un acte declare reste hors de la serie');
 	assert.match(r.corps, /<a href="\/recu\/[0-9a-f]{64}">Reçu<\/a>/);
 	for (const absent of ['Service-Public', 'noindex', '1111111111111111']) assert.ok(!r.corps.includes(absent), absent);
-	assert.match(r.corps, /<a class="bouton principal" href="\/acte">Dater un acte<\/a>/);
+	assert.match(r.corps, /<a class="bouton principal" href="\/acte">Dater la mise en ligne d’un acte<\/a>/);
 });
 
 test("le recu d'un acte rattache dit l'acte, sa commune et son jour en ligne ; un acte d'avant l'objet reste sans objet ni lien", async () => {

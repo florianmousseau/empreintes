@@ -5,7 +5,7 @@
 import { sha256 } from './chaine.mjs';
 
 /** L'agent nomme qui lit pour le deposant. */
-export const AGENT = 'empreintes-temoin (+https://empreintes.florianmousseau.com)';
+export const AGENT = 'empreintes-temoin (+https://temoinpublic.fr)';
 export const SAUTS_MAX = 5;
 export const OCTETS_MAX = 20 * 1024 * 1024;
 export const DELAI_MS = 30 * 1000;
