@@ -20,9 +20,10 @@ function telecharger(recu, id) {
 function afficher(r) {
 	const source = r.recu.temoin ? `lu à <code>${echapper(r.recu.temoin.url)}</code>` : 'calculée sur votre appareil';
 	$('resultat').innerHTML = `<article class="ok">
-<h2>Document daté du ${jourFr(r.jour)}</h2>
+<h2>Reçu${NBSP}: document daté du ${jourFr(r.jour)}</h2>
+${r.recu.libelle ? `<p><strong>${echapper(r.recu.libelle)}</strong></p>` : ''}
 <p>Gardez ce reçu avec le document${NBSP}: ensemble, ils prouvent qu’il existait ce jour-là, sans modification.</p>
-<p><button type="button" id="recu" class="principal">Télécharger le reçu</button></p>
+<p class="gestes"><button type="button" id="imprimer" class="principal">Imprimer le reçu</button> <button type="button" id="recu">Télécharger le reçu</button></p>
 <details>
 <summary>Détails</summary>
 <dl>
@@ -30,8 +31,13 @@ function afficher(r) {
 <div><dt>Reçu</dt><dd><code class="racine">${r.id}</code>, ligne ${r.place} du ${jourFr(r.jour)}</dd></div>
 </dl>
 </details>
+<p class="imprime">Émis par empreintes.florianmousseau.com le ${jourFr(r.recu.depose.slice(0, 10))} à ${r.recu.depose.slice(11, 16)}${NBSP}UTC.</p>
 </article>`;
 	$('recu').addEventListener('click', () => telecharger(r.recu, r.id));
+	$('imprimer').addEventListener('click', () => {
+		for (const d of document.querySelectorAll('#resultat details')) d.open = true;
+		window.print();
+	});
 }
 
 async function demande() {

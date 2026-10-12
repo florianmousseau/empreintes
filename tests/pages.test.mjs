@@ -37,7 +37,9 @@ test("l'accueil dit a quoi sert le service et mene aux deux gestes, sans le voca
 	const accueil = pages[4];
 	assert.match(accueil, /<h1>Prouvez qu’un document existait à une date, sans modification.<\/h1>/);
 	assert.match(accueil, /href="\/deposer">Dater un document</);
-	assert.match(accueil, /2\u00A0018 documents publics déjà datés/);
+	assert.match(accueil, /2\u00A0018 dates enregistrées/);
+	assert.match(accueil, /jamais le document/);
+	assert.ok(!texteDe(accueil).includes('documents publics'));
 	const texte = texteDe(accueil.slice(accueil.indexOf('<main>')));
 	for (const mot of ['racine', 'tour', 'ancrage', 'bloc', '.ots', 'miroir', 'SHA']) assert.ok(!texte.includes(mot), mot);
 });
@@ -55,4 +57,14 @@ test('le choix du document est en francais, et les autres voies sont repliees', 
 		assert.match(html, /<label class="bouton" for="fichier">Choisir le document<\/label>/);
 		assert.match(html, /<details>\n<summary>Pas le fichier sous la main\u00A0\?<\/summary>/);
 	}
+});
+
+test("le registre s'appelle partout Registre des dates, et dater dit ce qu'on recoit et ce qui est publie", () => {
+	assert.equal(ACTES.journal.nom, 'Registre des dates');
+	for (const html of pages) assert.ok(!html.includes('Journal public'));
+	assert.match(pages[0], /<h1>Registre des dates<\/h1>/);
+	const dater = pages[3];
+	assert.ok(dater.indexOf('reçu à imprimer ou à télécharger') < dater.indexOf('Dater ce document</button>'));
+	assert.match(dater, /Seule son empreinte est publiée, jamais le document/);
+	assert.ok(!/qualifi/i.test(pages.join('')), 'le mot qualifie n apparait nulle part');
 });
