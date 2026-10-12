@@ -144,7 +144,7 @@ const blocActe = () => `<div id="acte" class="acte" hidden>
 <select id="nature"><option value="">Non, un autre document</option>${optionsDeNature()}</select>
 <label for="objet">Objet de l’acte</label>
 <input type="text" id="objet" maxlength="200" autocomplete="off">
-<p class="avertir">À faire le jour de la mise en ligne${NBSP}: la date prouvée est celle du dépôt.</p>
+<p class="avertir">À faire le jour de la mise en ligne${NBSP}: le reçu porte le jour où vous cliquez.</p>
 </div>`;
 
 /**
@@ -295,7 +295,7 @@ export function pageActe() {
 <select id="nature">${optionsDeNature()}</select>
 <label for="objet">Objet de l’acte</label>
 <input type="text" id="objet" maxlength="200" autocomplete="off" required>
-<p class="avertir">À faire le jour de la mise en ligne${NBSP}: la date prouvée est celle du dépôt.</p>
+<p class="avertir">À faire le jour de la mise en ligne${NBSP}: le reçu porte le jour où vous cliquez.</p>
 <button type="submit" class="principal large-bouton">Dater cet acte</button>
 <p class="recoit">Vous recevez un reçu à imprimer ou à télécharger. Il atteste que ce fichier était en ligne à cette adresse à cet instant.</p>
 </form>
@@ -349,7 +349,7 @@ ${coupe(serie)}`
 <p class="sous-titre">${codes}</p>
 <h2>${titreDeSerie(serie.total)}</h2>
 ${tableau}
-<p class="compte">${serie.depuis ? `Actes suivis depuis le ${jourFr(serie.depuis)}, lus` : 'Actes lus'} sur le site officiel de la commune.</p>
+<p class="compte">${serie.depuis ? `Actes datés ici depuis le ${jourFr(serie.depuis)}, lus` : 'Actes lus'} sur le site officiel de la commune.</p>
 <p><a class="bouton principal" href="${ACTES.acte.chemin}">${ACTES.acte.titre}</a></p>`
 	});
 }

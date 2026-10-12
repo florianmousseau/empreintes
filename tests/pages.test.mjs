@@ -113,6 +113,7 @@ test("dater un acte demande l'adresse, la collectivite et la nature, et ne dit q
 		assert.match(dater, /<label for="objet">Objet de l’acte<\/label>\n<input type="text" id="objet" maxlength="200" autocomplete="off">/);
 	}
 	assert.match(html, /<a href="\/deposer" aria-current="page">Dater<\/a>/, 'dater un acte reste sous Dater dans le menu');
+	assert.doesNotMatch(texteDe(html) + texteDe(pageDeposer()), /celle du dépôt/, 'un mot lu de travers par une secretaire de mairie');
 	assert.ok(!/servi/.test(texteDe(html) + readFileSync(new URL('../public/deposer.js', import.meta.url), 'utf8')), 'un mot de tous les jours');
 	assert.ok(!html.includes('id="fichier"'), 'un acte ne se date que par son adresse');
 	assert.match(html, /<label for="objet">Objet de l’acte<\/label>\n<input type="text" id="objet" maxlength="200" autocomplete="off" required>/, "un acte se date avec son objet");
