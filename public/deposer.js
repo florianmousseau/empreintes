@@ -6,10 +6,36 @@ const $fichier = () => $('fichier');
 
 if ($fichier()) suivreLeChoix(document);
 
+// L'empreinte du document choisi, calculee une fois : elle sert a dire s'il est deja date, puis au depot.
+let choisi = null;
+const empreinteDe = async (fichier) => {
+	if (choisi?.fichier !== fichier) choisi = { fichier, sha256: sha256(new Uint8Array(await fichier.arrayBuffer())) };
+	return choisi.sha256;
+};
+
+async function dejaDate() {
+	const deja = $('deja');
+	const fichier = $fichier()?.files[0];
+	deja.hidden = true;
+	if (!fichier) return;
+	try {
+		const r = await fetch(`/api/depots/${await empreinteDe(fichier)}`);
+		const lignes = r.ok ? await r.json() : [];
+		if (!lignes.length || $fichier().files[0] !== fichier) return;
+		const premier = lignes[0];
+		deja.innerHTML = `Déjà daté le ${jourFr(premier.jour)}. <a href="/recu/${premier.recu}">Voir le reçu</a>`;
+		deja.hidden = false;
+	} catch {
+		// Une lecture manquee ne bloque pas le depot.
+	}
+}
+
 const NBSP = '\u00A0';
 const echapper = (t) => String(t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const TITRES = { 409: 'Ce document en ligne a déjà été lu aujourd’hui', 422: 'Le document en ligne n’a pas pu être lu', 429: 'Limite du jour atteinte, à demain' };
 const jourFr = (j) => j.split('-').reverse().join('/');
+if ($('deja')) $fichier().addEventListener('change', dejaDate);
+
 const NATURES = { deliberation: 'Délibération', arrete: 'Arrêté', decision: 'Décision' };
 const RATTACHEMENT = { 'site-officiel': 'adresse sur son site officiel', declaree: 'déclarée' };
 
@@ -58,10 +84,10 @@ async function demande() {
 	const libelle = $('libelle').value.trim();
 	if ($('collectivite')) return { type: 'acte', url: $('url').value.trim(), collectivite: $('collectivite').value.trim(), nature: $('nature').value, ...(libelle ? { libelle } : {}) };
 	const fichier = $('fichier').files[0];
-	const saisie = $('empreinte').value.trim();
+	const saisie = $('empreinte')?.value.trim();
 	const url = $('url').value.trim();
 	const corps = libelle ? { libelle } : {};
-	if (fichier) return { ...corps, sha256: await sha256(new Uint8Array(await fichier.arrayBuffer())) };
+	if (fichier) return { ...corps, sha256: await empreinteDe(fichier) };
 	if (saisie) return { ...corps, sha256: saisie };
 	if (url) return { ...corps, url };
 	return null;

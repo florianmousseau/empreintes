@@ -89,8 +89,7 @@ async function verifierLeFichier(fichier) {
 	return recu ? verifierLeRecu(recu) : verifier(await sha256(octets));
 }
 
-$('formulaire')?.addEventListener('submit', async (e) => {
-	e.preventDefault();
+const lancer = async () => {
 	const fichier = $('fichier').files[0];
 	const saisie = $('empreinte').value.trim().toLowerCase();
 	try {
@@ -100,7 +99,14 @@ $('formulaire')?.addEventListener('submit', async (e) => {
 	} catch (erreur) {
 		$('resultat').innerHTML = `<article class="ko"><h2>Erreur</h2><p>${echapper(erreur.message)}</p></article>`;
 	}
+};
+
+$('formulaire')?.addEventListener('submit', (e) => {
+	e.preventDefault();
+	lancer();
 });
+// Le document depose se verifie aussitot : le bouton ne sert qu'a l'empreinte saisie.
+$('fichier')?.addEventListener('change', () => $('fichier').files[0] && lancer());
 
 $('chaine')?.addEventListener('click', async () => {
 	const sortie = $('resultat-chaine');

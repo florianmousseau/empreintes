@@ -7,14 +7,14 @@ const ADRESSE = 'https://temoinpublic.fr';
 const DEPOT = 'https://github.com/florianmousseau/empreintes';
 export const MARQUE = 'Témoin public';
 
-/** Les trois actes du site, chacun sous un seul nom partout. */
+/** Les actes du site : un nom court pour chaque lien, partout, et le titre de sa page. */
 export const ACTES = {
-	dater: { chemin: '/deposer', nom: 'Dater un document' },
-	verifier: { chemin: '/verifier', nom: 'Vérifier un document' },
-	journal: { chemin: '/journal', nom: 'Registre des dates' },
-	acte: { chemin: '/acte', nom: 'Dater la mise en ligne d’un acte' },
-	documentation: { chemin: '/documentation', nom: 'Documentation' },
-	mentions: { chemin: '/mentions-legales', nom: 'Mentions légales' }
+	dater: { chemin: '/deposer', nom: 'Dater', titre: 'Dater un document', onglet: 'Un document' },
+	verifier: { chemin: '/verifier', nom: 'Vérifier', titre: 'Vérifier un document' },
+	journal: { chemin: '/journal', nom: 'Registre', titre: 'Registre des dates' },
+	acte: { chemin: '/acte', nom: 'Acte de collectivité', titre: 'Dater la mise en ligne d’un acte', onglet: 'Un acte de collectivité' },
+	documentation: { chemin: '/documentation', nom: 'Documentation', titre: 'Documentation' },
+	mentions: { chemin: '/mentions-legales', nom: 'Mentions légales', titre: 'Mentions légales' }
 };
 
 /** Les pages statiques que les moteurs lisent, dans l'ordre du plan du site. */
@@ -68,12 +68,27 @@ const LIBELLE = { json: 'relevé', racine: 'racine', 'racine.ots': '.ots', 'raci
 const liensDe = (t) =>
 	t.fichiers.map((f) => `<a href="/empreintes/${echapper(f)}">${LIBELLE[f.slice(t.id.length + 1)] ?? echapper(f)}</a>`).join(' ');
 
-/** Le choix d'un fichier, en francais : le bouton natif parle la langue du navigateur. */
-export const choixDeFichier = (texte) => `<div class="choix">
-<label class="bouton" for="fichier">${texte}</label>
-<input type="file" id="fichier" class="masque">
-<span id="nom-fichier">Aucun document choisi</span>
-</div>`;
+/** Le sceau de la marque, dessine a la main : un cachet et sa coche. */
+export const SCEAU = `<svg class="sceau" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#b42318"/><circle cx="16" cy="16" r="11.6" fill="none" stroke="#fff" stroke-width="1.1" stroke-dasharray="1.8 1.5"/><path d="M10.6 16.4l3.7 3.7 7.2-7.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+const ICONE_DOCUMENT = `<svg class="zone-icone" viewBox="0 0 48 48" aria-hidden="true"><path d="M13 5h15l10 10v26a2 2 0 0 1-2 2H13a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M28 5v10h10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M24 35V22m-5.5 5.5L24 22l5.5 5.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+/** La zone de depot : glisser le document, ou le choisir ; le bouton natif parle la langue du navigateur. */
+export const choixDeFichier = (texte) => `<input type="file" id="fichier" class="masque">
+<label class="zone" for="fichier" id="zone">
+${ICONE_DOCUMENT}
+<span class="zone-titre">${texte}</span>
+<span class="zone-aide"><span class="souris">Glissez-le ici, ou </span><span class="lien">choisissez-le sur votre appareil</span></span>
+<span id="nom-fichier" class="zone-nom">Aucun document choisi</span>
+</label>`;
+
+/** Les trois gestes du menu, le courant marque pour les lecteurs d'ecran ; dater un acte reste dater. */
+const navigation = (chemin) => {
+	const courant = chemin === ACTES.acte.chemin ? ACTES.dater.chemin : chemin;
+	return ['dater', 'verifier', 'journal']
+		.map((a) => `<a href="${ACTES[a].chemin}"${ACTES[a].chemin === courant ? ' aria-current="page"' : ''}>${ACTES[a].nom}</a>`)
+		.join(' ');
+};
 
 function gabarit({ titre, description, chemin, corps, script = '', indexer = true, structure = null }) {
 	const titreComplet = `${titre} | ${MARQUE}`;
@@ -96,17 +111,53 @@ ${structure ? jsonLd(structure) : ''}
 <link rel="icon" href="/icone.svg" type="image/svg+xml">
 ${script}</head>
 <body>
-<header><a class="marque" href="/">Témoin public</a><nav>${lien('dater')} ${lien('acte')} ${lien('verifier')} ${lien('journal')}</nav></header>
+<header><div class="barre"><a class="marque" href="/">${SCEAU}<span>${MARQUE}</span></a><nav aria-label="Principal">${navigation(chemin)}</nav></div></header>
 <main>
 ${corps}
 </main>
-<footer>${lien('documentation')}. ${lien('mentions')}. Éditeur${NBSP}: <a href="https://florianmousseau.com">Florian Mousseau</a>. Code et journal${NBSP}: <a href="${DEPOT}">${DEPOT.replace('https://', '')}</a></footer>
+<footer><div class="pied">
+<p class="pied-marque">${SCEAU}<span>${MARQUE}</span></p>
+<p class="pied-liens">${lien('dater')} ${lien('verifier')} ${lien('journal')} ${lien('acte')} ${lien('documentation')} ${lien('mentions')} <a href="${DEPOT}">Code source</a></p>
+<p>Éditeur${NBSP}: <a href="https://florianmousseau.com">Florian Mousseau</a></p>
+</div></footer>
 </body>
 </html>
 `;
 }
 
-/** L'accueil : a quoi sert le service, et les deux gestes. */
+/** Ce qu'on date : un document ou un acte, le courant sans lien. */
+const ongletsDater = (courant) => `<div class="onglets">${['dater', 'acte']
+	.map((a) => (a === courant ? `<span aria-current="page">${ACTES[a].onglet}</span>` : `<a href="${ACTES[a].chemin}">${ACTES[a].onglet}</a>`))
+	.join('')}</div>`;
+
+const champEmpreinte = `
+<label for="empreinte">Ou son empreinte SHA-256</label>
+<input type="text" id="empreinte" autocomplete="off" spellcheck="false">`;
+
+/** Le formulaire de datation, le meme a l'accueil et sur sa page : le fichier d'abord, le lien replie ; l'empreinte nue hors de l'accueil. */
+const formulaireDater = (avecEmpreinte = true) => `<form id="formulaire" class="carte">
+${ongletsDater('dater')}
+${choixDeFichier('Déposez le document à dater')}
+<p id="deja" class="deja" aria-live="polite" hidden></p>
+${autresVoies(`<label for="url">Son lien (adresse web)</label>
+<input type="text" id="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://">${avecEmpreinte ? champEmpreinte : ''}`, ' Donnez son lien.')}
+<details>
+<summary>Lui donner un nom (facultatif)</summary>
+<label for="libelle">Un nom pour vous en souvenir</label>
+<input type="text" id="libelle" maxlength="200" autocomplete="off">
+</details>
+<button type="submit" class="principal large-bouton">Dater ce document</button>
+<p class="recoit">Vous recevez un reçu à imprimer ou à télécharger, à garder avec le document. Le document ne quitte jamais votre appareil.</p>
+</form>
+<div id="resultat" aria-live="polite"></div>`;
+
+const ETAPES = `<ol class="etapes">
+<li><strong>Déposez</strong><span>Un devis, un contrat, une photo, un PDF.</span></li>
+<li><strong>Gardez le reçu</strong><span>Daté, à imprimer, avec le document.</span></li>
+<li><strong>Vérifiez</strong><span>N’importe qui, à tout moment, sans compte.</span></li>
+</ol>`;
+
+/** L'accueil : le geste de dater, tout de suite. */
 export function pageAccueil(tours) {
 	const dernier = tours.at(-1);
 	const compte = dernier ? `<p class="compte">${nombre(dernier.objets)} dates enregistrées depuis le ${dateHeure(tours[0].instant).split(' ')[0]}.</p>` : '';
@@ -115,11 +166,14 @@ export function pageAccueil(tours) {
 		description: "Prouvez gratuitement qu'un document existait à une date, sans modification. Sans compte ; seule son empreinte est publiée, jamais le document.",
 		chemin: '/',
 		structure: DONNEES_STRUCTUREES,
+		script: '<script type="module" src="/deposer.js"></script>\n',
 		corps: `<section class="une">
 <h1>Prouvez qu’un document existait à une date, sans modification.</h1>
-<p>Gratuit, sans compte. Le document reste chez vous${NBSP}: vous recevez un reçu daté, à garder avec lui.</p>
-<p class="gestes">${lien('dater', 'bouton principal')} ${lien('acte', 'bouton')} ${lien('verifier', 'bouton')}</p>
+<p class="chapeau">Gratuit, sans compte. Vérifiable par tous, même sans ce site.</p>
 </section>
+${formulaireDater(false)}
+<p class="suite">Déjà daté${NBSP}? ${lien('verifier')}.</p>
+${ETAPES}
 ${compte}`
 	});
 }
@@ -140,27 +194,31 @@ export function pageJournal(tours) {
 <div><dt>Tours</dt><dd>${nombre(tours.length)}</dd></div>
 <div><dt>Depuis le</dt><dd>${dateHeure(tours[0].instant).split(' ')[0]}</dd></div>
 </dl>
+<section class="carte">
 <h2>Dernière racine, ${dateHeure(dernier.instant)}</h2>
 <p><code class="racine">${dernier.racine}</code></p>
-<p>${ancrageDe(dernier)}</p>`
+<p>${ancrageDe(dernier)}</p>
+<p><button type="button" id="chaine">Vérifier la chaîne</button></p>
+<div id="resultat-chaine" aria-live="polite"></div>
+</section>`
 		: '<p>Aucun tour publié.</p>';
 	return gabarit({
-		titre: ACTES.journal.nom,
+		titre: ACTES.journal.titre,
 		description: 'Chaque tour du journal des empreintes : documents, racine chaînée, ancrage Bitcoin, fichiers de preuve.',
 		chemin: '/journal',
 		script: '<script type="module" src="/verifier.js"></script>\n',
-		corps: `<h1>${ACTES.journal.nom}</h1>
+		corps: `<h1>${ACTES.journal.titre}</h1>
 <p class="sous-titre">La liste publique des dates, sans les documents.</p>
 ${tete}
-<p><button type="button" id="chaine">Vérifier la chaîne</button></p>
-<div id="resultat-chaine" aria-live="polite"></div>
 <h2>${nombre(tours.length)} tours</h2>
+<div class="defile">
 <table>
 <thead><tr><th>Tour</th><th class="n">Documents</th><th class="large">Racine</th><th>Bitcoin</th><th class="large">Fichiers</th></tr></thead>
 <tbody>
 ${lignes}
 </tbody>
 </table>
+</div>
 <p><a href="${DEPOT}/blob/main/scripts/verifier.mjs">Script de vérification</a></p>`
 	});
 }
@@ -173,16 +231,16 @@ ${champs}
 /** Verifier : un document, ou son empreinte. */
 export function pageVerifier() {
 	return gabarit({
-		titre: ACTES.verifier.nom,
+		titre: ACTES.verifier.titre,
 		description: "Vérifier qu'un document est identique à celui qui a été daté, et à quelle date.",
 		chemin: '/verifier',
 		script: '<script type="module" src="/verifier.js"></script>\n',
-		corps: `<h1>${ACTES.verifier.nom}</h1>
-<form id="formulaire">
-${choixDeFichier('Choisir le document ou son reçu')}
+		corps: `<section class="une une-page"><h1>${ACTES.verifier.titre}</h1></section>
+<form id="formulaire" class="carte">
+${choixDeFichier('Déposez le document ou son reçu')}
 ${autresVoies(`<label for="empreinte">Son empreinte SHA-256</label>
 <input type="text" id="empreinte" autocomplete="off" spellcheck="false">`)}
-<button type="submit" class="principal">Vérifier</button>
+<button type="submit" class="principal large-bouton">Vérifier</button>
 </form>
 <div id="resultat" aria-live="polite"></div>`
 	});
@@ -191,25 +249,13 @@ ${autresVoies(`<label for="empreinte">Son empreinte SHA-256</label>
 /** Dater : le fichier par defaut, les deux autres voies repliees. */
 export function pageDeposer() {
 	return gabarit({
-		titre: ACTES.dater.nom,
+		titre: ACTES.dater.titre,
 		description: "Dater gratuitement un document, ancré dans Bitcoin, et recevoir un reçu à imprimer. Seule son empreinte est publiée, jamais le document.",
 		chemin: '/deposer',
 		script: '<script type="module" src="/deposer.js"></script>\n',
-		corps: `<h1>${ACTES.dater.nom}</h1>
-<form id="formulaire">
-${choixDeFichier('Choisir le document')}
-${autresVoies(`<label for="url">Son lien (adresse web)</label>
-<input type="text" id="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://">
-<label for="empreinte">Ou son empreinte SHA-256</label>
-<input type="text" id="empreinte" autocomplete="off" spellcheck="false">`, ' Donnez son lien.')}
-<label for="libelle">Un nom pour vous en souvenir (facultatif)</label>
-<input type="text" id="libelle" maxlength="200" autocomplete="off">
-<p class="recoit">Vous recevez un reçu à imprimer ou à télécharger, à garder avec le document. Seule son empreinte est publiée, jamais le document.</p>
-<button type="submit" class="principal">Dater ce document</button>
-</form>
-<div id="resultat" aria-live="polite"></div>
-<p class="compte">Gratuit, sans compte, jusqu’à 20 documents par jour. Valeur juridique${NBSP}: un élément de preuve, que le juge apprécie librement.</p>
-<p class="compte">Un acte de collectivité${NBSP}? ${lien('acte')}</p>`
+		corps: `<section class="une une-page"><h1>${ACTES.dater.titre}</h1></section>
+${formulaireDater()}
+<p class="compte">Gratuit, sans compte, jusqu’à 20 documents par jour. Valeur juridique${NBSP}: un élément de preuve, que le juge apprécie librement.</p>`
 	});
 }
 
@@ -219,12 +265,13 @@ export function pageActe() {
 		.map(([valeur, nom]) => `<option value="${valeur}">${nom[0].toUpperCase()}${nom.slice(1)}</option>`)
 		.join('');
 	return gabarit({
-		titre: ACTES.acte.nom,
+		titre: ACTES.acte.titre,
 		description: "Dater la mise en ligne d'un acte d'une collectivité, délibération, arrêté ou décision : le service lit l'acte à son adresse et délivre un reçu.",
 		chemin: ACTES.acte.chemin,
 		script: '<script type="module" src="/deposer.js"></script>\n',
-		corps: `<h1>${ACTES.acte.nom}</h1>
-<form id="formulaire">
+		corps: `<section class="une une-page"><h1>${ACTES.acte.titre}</h1></section>
+<form id="formulaire" class="carte">
+${ongletsDater('acte')}
 <label for="url">Lien du fichier de l’acte (le PDF)</label>
 <input type="text" id="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://" required>
 <label for="collectivite">Code INSEE de la commune, ou SIREN de la collectivité</label>
@@ -233,11 +280,12 @@ export function pageActe() {
 <select id="nature">${natures}</select>
 <label for="libelle">Objet (facultatif)</label>
 <input type="text" id="libelle" maxlength="200" autocomplete="off">
+<p class="avertir">À faire le jour de la mise en ligne${NBSP}: la date prouvée est celle du dépôt.</p>
+<button type="submit" class="principal large-bouton">Dater cet acte</button>
 <p class="recoit">Vous recevez un reçu à imprimer ou à télécharger. Il atteste que ce fichier était en ligne à cette adresse à cet instant.</p>
-<button type="submit" class="principal">Dater cet acte</button>
 </form>
 <div id="resultat" aria-live="polite"></div>
-<p class="compte">Gratuit, sans compte, jusqu’à 20 actes par jour. Un autre document${NBSP}? ${lien('dater')}</p>`
+<p class="compte">Gratuit, sans compte, jusqu’à 20 actes par jour.</p>`
 	});
 }
 
@@ -287,7 +335,7 @@ ${coupe(serie)}`
 <h2>${titreDeSerie(serie.total)}</h2>
 ${tableau}
 <p class="compte">Actes lus sur le site officiel de la commune.</p>
-<p>${lien('acte', 'bouton principal')}</p>`
+<p><a class="bouton principal" href="${ACTES.acte.chemin}">${ACTES.acte.titre}</a></p>`
 	});
 }
 
@@ -308,7 +356,7 @@ export function pageRecu(ligne, acte = null) {
 		chemin: `/recu/${ligne.recu}`,
 		script: '<script type="module" src="/recu.js"></script>\n',
 		corps: `<h1>Reçu de date</h1>
-<article class="ok" id="recu" data-recu="${ligne.recu}">
+<article class="ok recu" id="recu" data-recu="${ligne.recu}">
 <h2>${tete}</h2>
 <dl>
 ${lignesDActe(acte)}<div><dt>Empreinte</dt><dd><code class="racine">${ligne.sha256}</code></dd></div>
@@ -394,10 +442,10 @@ ${lignes.join('\n')}
 /** La documentation : les adresses, les limites et les formules, pour verifier sans ce site. */
 export function pageDocumentation() {
 	return gabarit({
-		titre: ACTES.documentation.nom,
+		titre: ACTES.documentation.titre,
 		description: 'Adresses, limites et formules du registre des dates : dater, lire et vérifier sans ce site.',
 		chemin: ACTES.documentation.chemin,
-		corps: `<h1>${ACTES.documentation.nom}</h1>
+		corps: `<h1>${ACTES.documentation.titre}</h1>
 ${tableDoc('Dater', [
 	ligneDoc('POST /api/depots {"sha256": "&lt;64 hex&gt;", "libelle": "&lt;texte&gt;"}', 'une empreinte calculée par vous\u00A0; le libellé reste dans le reçu'),
 	ligneDoc('POST /api/depots {"url": "https://&lt;adresse&gt;"}', 'le service lit lui-même le document en ligne et date ses octets'),
@@ -440,10 +488,10 @@ ${tableDoc('Vérifier sans ce site', [
 /** Les mentions legales : l'editeur, l'hebergeur, et ce que le service garde. */
 export function pageMentions() {
 	return gabarit({
-		titre: ACTES.mentions.nom,
+		titre: ACTES.mentions.titre,
 		description: `Éditeur, hébergeur et données conservées par ${MARQUE}.`,
 		chemin: ACTES.mentions.chemin,
-		corps: `<h1>${ACTES.mentions.nom}</h1>
+		corps: `<h1>${ACTES.mentions.titre}</h1>
 <h2>Éditeur</h2>
 <p><a href="https://florianmousseau.com">Florian Mousseau</a>, directeur de la publication. Contact${NBSP}: <a href="mailto:contact@florianmousseau.com">contact@florianmousseau.com</a></p>
 <h2>Hébergeur</h2>
