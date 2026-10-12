@@ -2,7 +2,7 @@
 
 > Service gratuit, sans compte, qui prouve qu'un document existait à une date sans modification. Seule l'empreinte SHA-256 du document est publiée, jamais le document. Le registre est public, chaîné et ancré dans Bitcoin par OpenTimestamps.
 
-- Dater un document : https://temoinpublic.fr/deposer (empreinte calculée dans le navigateur, ou adresse publique lue par le service)
+- Dater un document : https://temoinpublic.fr/deposer (empreinte calculée dans le navigateur, ou adresse publique lue par le service ; un lien sur le site officiel d’une commune propose d’en faire un acte)
 - Dater la mise en ligne d’un acte de collectivité (délibération, arrêté, décision), lu à son adresse : https://temoinpublic.fr/acte
 - Vérifier un document ou un reçu : https://temoinpublic.fr/verifier
 - Registre public des dates : https://temoinpublic.fr/journal
