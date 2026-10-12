@@ -213,19 +213,25 @@ const titreDeSerie = (n) => (n ? `${nombre(n)} acte${marqueDuPluriel(n)} daté${
 /** La ligne qui dit qu'une serie est coupee, vide sinon. */
 const coupe = (serie) => (serie.total > serie.actes.length ? `<p class="compte">Les ${nombre(serie.actes.length)} plus récents sur ${nombre(serie.total)}.</p>` : '');
 
-/** La serie d'une collectivite : ses actes lus sur son site officiel, sans adresse ni libelle. */
+/** L'objet d'un acte, lie a l'acte en ligne quand son adresse est connue. */
+const objetDe = (a) => {
+	const objet = a.objet ? echapper(a.objet) : 'Sans objet';
+	return a.url ? `<a href="${echapper(a.url)}">${objet}</a>` : objet;
+};
+
+/** La serie d'une collectivite : ses actes lus sur son site officiel, chacun avec son reçu. */
 export function pageCollectivite({ code, commune, serie }) {
 	const nom = commune ? echapper(commune.nom) : `Collectivité ${code}`;
 	const codes = commune?.siren ? `Code INSEE ${code}, SIREN ${commune.siren}` : `Code ${code}`;
 	const lignes = serie.actes
 		.map(
 			(a) =>
-				`<tr><td><a href="/recu/${a.recu}">${jourFr(a.jour)}</a></td><td>${majuscule(NATURES[a.nature] ?? a.nature)}</td><td><code title="${a.sha256}">${a.sha256.slice(0, 16)}</code></td></tr>`
+				`<tr><td>${jourFr(a.jour)}</td><td>${majuscule(NATURES[a.nature] ?? a.nature)}</td><td>${objetDe(a)}</td><td><a href="/recu/${a.recu}">Reçu</a></td></tr>`
 		)
 		.join('\n');
 	const tableau = serie.actes.length
 		? `<table>
-<thead><tr><th>Daté le</th><th>Nature</th><th>Empreinte</th></tr></thead>
+<thead><tr><th>En ligne le</th><th>Nature</th><th>Objet</th><th>Preuve</th></tr></thead>
 <tbody>
 ${lignes}
 </tbody>
@@ -234,35 +240,45 @@ ${coupe(serie)}`
 		: '';
 	return gabarit({
 		titre: `${nom}, actes datés`,
-		description: `Actes de ${nom} datés à leur adresse sur le site officiel de la commune${NBSP}: date, nature, empreinte.`,
+		description: `Actes de ${nom} datés à leur adresse sur le site officiel de la commune${NBSP}: date de mise en ligne, nature, objet, reçu.`,
 		chemin: `/collectivite/${code}`,
 		indexer: serie.total > 0,
 		corps: `<h1>${nom}</h1>
 <p class="sous-titre">${codes}</p>
 <h2>${titreDeSerie(serie.total)}</h2>
 ${tableau}
-<p class="compte">Actes lus sur le site officiel de la commune, d’après l’annuaire Service-Public.</p>
+<p class="compte">Actes lus sur le site officiel de la commune.</p>
 <p>${lien('acte', 'bouton principal')}</p>`
 	});
 }
 
+/** Les lignes propres a un acte rattache, dans son reçu. */
+const lignesDActe = (acte) =>
+	acte
+		? `<div><dt>Acte</dt><dd>${majuscule(NATURES[acte.nature] ?? acte.nature)}, ${objetDe(acte)}</dd></div>
+<div><dt>Collectivité</dt><dd><a href="/collectivite/${echapper(acte.collectivite)}">${echapper(acte.collectivite)}</a></dd></div>
+`
+		: '';
+
 /** Le recu d'un depot, a son adresse : ce que la ligne publique engage, et son inscription au registre. */
-export function pageRecu(ligne) {
+export function pageRecu(ligne, acte = null) {
+	const tete = acte ? `En ligne le ${jourFr(ligne.jour)}` : `Document daté du ${jourFr(ligne.jour)}`;
 	return gabarit({
 		titre: `Reçu de date du ${jourFr(ligne.jour)}`,
-		description: `Reçu de date : document daté du ${jourFr(ligne.jour)}, ligne ${ligne.place}.`,
+		description: `Reçu de date${NBSP}: ${acte ? 'acte en ligne' : 'document daté'} le ${jourFr(ligne.jour)}, ligne ${ligne.place}.`,
 		chemin: `/recu/${ligne.recu}`,
 		script: '<script type="module" src="/recu.js"></script>\n',
 		corps: `<h1>Reçu de date</h1>
 <article class="ok" id="recu" data-recu="${ligne.recu}">
-<h2>Document daté du ${jourFr(ligne.jour)}</h2>
+<h2>${tete}</h2>
 <dl>
-<div><dt>Empreinte</dt><dd><code class="racine">${ligne.sha256}</code></dd></div>
+${lignesDActe(acte)}<div><dt>Empreinte</dt><dd><code class="racine">${ligne.sha256}</code></dd></div>
 <div><dt>Ligne</dt><dd>${ligne.place} du ${jourFr(ligne.jour)}</dd></div>
 <div><dt>Registre</dt><dd id="inscription">lecture du registre</dd></div>
 </dl>
+<p class="imprime">empreintes.florianmousseau.com/recu/${ligne.recu}</p>
 </article>
-<p>${lien('verifier', 'bouton')}</p>`
+<p class="gestes"><button type="button" id="imprimer" class="principal">Imprimer le reçu</button> ${lien('verifier', 'bouton')}</p>`
 	});
 }
 

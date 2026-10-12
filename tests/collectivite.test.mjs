@@ -4,7 +4,8 @@ import { baseDeTest } from './d1.mjs';
 import { communeDe, communeDesActifs, fragments, nomsDesCommunes } from '../src/annuaire.mjs';
 import { reponseCollectivite } from '../src/collectivite.mjs';
 import { pageCollectivite } from '../src/pages.mjs';
-import { deposer, serieDeLaCollectivite } from '../src/service.mjs';
+import { acteDuRecu, adressePublique, deposer, ligneDuRecu, serieDeLaCollectivite } from '../src/service.mjs';
+import { pageRecu } from '../src/pages.mjs';
 import { onRequestGet } from '../functions/collectivite/[code].js';
 
 const fiche = (nom, insee, siren = null, type = 'mairie') => ({ nom, code_insee_commune: insee, siren, pivot: JSON.stringify([{ type_service_local: type, code_insee_commune: [insee] }]) });
@@ -46,11 +47,11 @@ test('le nom se relit dans son fragment ; absent ou illisible, il manque sans fa
 async function baseAvecActes() {
 	const db = baseDeTest();
 	const annuaire = async (code) => (['17133', '211701339'].includes(code) ? [['cravans.fr', '']] : null);
-	const deposerActe = (n, url, collectivite, nature, jour) => {
+	const deposerActe = (n, url, collectivite, nature, jour, libelle = 'Budget primitif') => {
 		const maintenant = new Date(`${jour}T12:00:00Z`);
 		return deposer({
 			db,
-			corps: { type: 'acte', url, collectivite, nature, libelle: 'Budget primitif' },
+			corps: { type: 'acte', url, collectivite, nature, ...(libelle ? { libelle } : {}) },
 			adresse: `a${n}`,
 			maintenant,
 			annuaire,
@@ -58,12 +59,12 @@ async function baseAvecActes() {
 		});
 	};
 	await deposerActe(1, 'https://www.cravans.fr/pv-1.pdf', '17133', 'deliberation', '2026-10-11');
-	await deposerActe(2, 'https://www.cravans.fr/arrete-2.pdf', '211701339', 'arrete', '2026-10-12');
+	await deposerActe(2, 'https://www.cravans.fr/arrete-2.pdf', '211701339', 'arrete', '2026-10-12', null);
 	await deposerActe(3, 'https://ailleurs.fr/pv-3.pdf', '17133', 'decision', '2026-10-12');
 	return db;
 }
 
-test("la page d'une commune liste ses actes rattaches, sous ses deux codes, du plus recent au plus ancien, sans adresse ni libelle", async () => {
+test("la page d'une commune liste ses actes rattaches, sous ses deux codes, du plus recent au plus ancien, chacun avec son objet, son lien et son recu", async () => {
 	const db = await baseAvecActes();
 	const r = await reponseCollectivite({ db, code: '17133', commune });
 	assert.equal(r.statut, 200);
@@ -71,13 +72,34 @@ test("la page d'une commune liste ses actes rattaches, sous ses deux codes, du p
 	assert.match(r.corps, /<h1>Cravans<\/h1>/);
 	assert.match(r.corps, /Code INSEE 17133, SIREN 211701339/);
 	assert.match(r.corps, /<h2>2 actes datés<\/h2>/);
+	assert.match(r.corps, /<th>En ligne le<\/th><th>Nature<\/th><th>Objet<\/th><th>Preuve<\/th>/);
 	assert.ok(r.corps.indexOf('12/10/2026') < r.corps.indexOf('11/10/2026'));
-	assert.match(r.corps, /<td>Arrêté<\/td>/);
-	assert.match(r.corps, /<td>Délibération<\/td>/);
+	assert.match(r.corps, /<td>Arrêté<\/td><td><a href="https:\/\/www.cravans.fr\/arrete-2.pdf">Sans objet<\/a><\/td>/);
+	assert.match(r.corps, /<td>Délibération<\/td><td><a href="https:\/\/www.cravans.fr\/pv-1.pdf">Budget primitif<\/a><\/td>/);
 	assert.ok(!r.corps.includes('Décision'), 'un acte declare reste hors de la serie');
-	for (const absent of ['cravans.fr/', 'Budget', 'noindex']) assert.ok(!r.corps.includes(absent), absent);
-	assert.match(r.corps, /href="\/recu\/[0-9a-f]{64}">12\/10\/2026</);
+	assert.match(r.corps, /<a href="\/recu\/[0-9a-f]{64}">Reçu<\/a>/);
+	for (const absent of ['Service-Public', 'noindex', '1111111111111111']) assert.ok(!r.corps.includes(absent), absent);
 	assert.match(r.corps, /<a class="bouton principal" href="\/acte">Dater un acte<\/a>/);
+});
+
+test("le recu d'un acte rattache dit l'acte, sa commune et son jour en ligne ; un acte d'avant l'objet reste sans objet ni lien", async () => {
+	const db = await baseAvecActes();
+	const { recu } = db.sqlite.prepare("SELECT recu FROM acte WHERE nature = 'deliberation'").get();
+	const acte = await acteDuRecu({ db, id: recu });
+	const html = pageRecu(await ligneDuRecu({ db, id: recu }), acte);
+	assert.match(html, /<h2>En ligne le 11\/10\/2026<\/h2>/);
+	assert.match(html, /<dd>Délibération, <a href="https:\/\/www.cravans.fr\/pv-1.pdf">Budget primitif<\/a><\/dd>/);
+	assert.match(html, /<a href="\/collectivite\/17133">17133<\/a>/);
+	assert.match(html, /<button type="button" id="imprimer" class="principal">Imprimer le reçu<\/button>/);
+	assert.equal(await acteDuRecu({ db, id: 'x' }), null);
+	assert.match(pageRecu({ sha256: 'a'.repeat(64), jour: '2026-10-12', place: 1, recu: 'b'.repeat(64) }), /<h2>Document daté du 12\/10\/2026<\/h2>/);
+	assert.match(pageRecu({ sha256: 'a'.repeat(64), jour: '2026-10-12', place: 1, recu: 'b'.repeat(64) }, { collectivite: '17133', nature: 'arrete', objet: null, url: null }), /<dd>Arrêté, Sans objet<\/dd>/);
+});
+
+test("l'adresse d'un acte ne se montre pas quand son chemin nomme une personne", () => {
+	assert.equal(adressePublique('https://www.cravans.fr/wp-content/uploads/2026/10/PV-03.09.2026.pdf'), 'https://www.cravans.fr/wp-content/uploads/2026/10/PV-03.09.2026.pdf');
+	assert.equal(adressePublique('https://www.cravans.fr/arretes/arrete-de-M.-Jean-Dupont.pdf'), null);
+	assert.equal(adressePublique('pas une adresse'), null);
 });
 
 test('une page par commune : le SIREN et les minuscules renvoient au code INSEE, un code illisible est introuvable', async () => {

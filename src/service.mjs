@@ -2,6 +2,7 @@
 // plafonds, le temoin et la reponse. Les Functions ne font que le brancher.
 
 import { surSiteOfficiel } from './acte.mjs';
+import { nommeUnePersonne } from './personne.mjs';
 import { sha256 } from './chaine.mjs';
 import { cleDAdresse, idDuRecu, jourDe, ligneDe, lireDemande, plafond, recuDe, secondesAvantDemain, selAleatoire } from './depot.mjs';
 import { AGENT, DELAI_MS, cleDeLecture, estUneIp, ipsDoH, lireBorne, resolutionAdmise, sautSuivant, urlAdmise } from './temoin.mjs';
@@ -13,7 +14,8 @@ export const SCHEMA = [
 	'CREATE TABLE IF NOT EXISTS lecture (cle TEXT PRIMARY KEY, jour TEXT NOT NULL) WITHOUT ROWID',
 	'CREATE TABLE IF NOT EXISTS sel (jour TEXT PRIMARY KEY, valeur TEXT NOT NULL) WITHOUT ROWID',
 	'CREATE TABLE IF NOT EXISTS bilan (jour TEXT PRIMARY KEY, depots INTEGER NOT NULL, deposants INTEGER NOT NULL) WITHOUT ROWID',
-	'CREATE TABLE IF NOT EXISTS acte (recu TEXT PRIMARY KEY, collectivite TEXT NOT NULL, nature TEXT NOT NULL) WITHOUT ROWID',
+	// `objet` et `url` ajoutes le 2026-10-12 par ALTER TABLE sur la base en service ; null pour les actes d'avant.
+	'CREATE TABLE IF NOT EXISTS acte (recu TEXT PRIMARY KEY, collectivite TEXT NOT NULL, nature TEXT NOT NULL, objet TEXT, url TEXT) WITHOUT ROWID',
 	'CREATE INDEX IF NOT EXISTS acte_collectivite ON acte (collectivite)',
 	'CREATE INDEX IF NOT EXISTS depot_recu ON depot (recu)',
 	'CREATE INDEX IF NOT EXISTS depot_sha256 ON depot (sha256)'
@@ -102,6 +104,17 @@ async function rattachement({ acte, demandee, lue, annuaire }) {
 	return surSiteOfficiel(demandee, sites) && surSiteOfficiel(lue, sites) ? 'site-officiel' : 'declaree';
 }
 
+/** L'adresse lue d'un acte, montree sur la page de sa collectivite ; null quand son chemin nomme une personne. */
+export function adressePublique(url) {
+	let chemin;
+	try {
+		chemin = decodeURIComponent(new URL(url).pathname);
+	} catch {
+		return null;
+	}
+	return nommeUnePersonne(chemin.replace(/[/_.-]+/g, ' ')) ? null : url;
+}
+
 /**
  * Un depot, de la demande a la reponse : `{ statut, corps, entetes }`.
  * `adresse` n'est jamais gardee : seul son hache sale du jour compte.
@@ -138,7 +151,8 @@ export async function deposer({ db, corps, adresse, maintenant = new Date(), tem
 	const id = await idDuRecu(recu);
 	const place = await inserer(db, { jour, empreinte, recu: id });
 	// La serie d'une collectivite ne tient que les actes lus sur son site officiel ; un acte declare reste dans son recu.
-	if (acte?.rattachement === 'site-officiel') await faire(db, 'INSERT INTO acte (recu, collectivite, nature) VALUES (?, ?, ?)', id, acte.collectivite, acte.nature);
+	if (acte?.rattachement === 'site-officiel')
+		await faire(db, 'INSERT INTO acte (recu, collectivite, nature, objet, url) VALUES (?, ?, ?, ?, ?)', id, acte.collectivite, acte.nature, demande.libelle ?? null, adressePublique(lu.url));
 	await faire(db, 'INSERT INTO compte (jour, adresse, n) VALUES (?, ?, 1) ON CONFLICT (jour, adresse) DO UPDATE SET n = n + 1', jour, cle);
 	return reponse(201, { jour, place, ligne: ligneDe({ sha256: empreinte, jour, place, recu: id }).trim(), id, recu });
 }
@@ -198,15 +212,21 @@ export const SERIE_MAX = 500;
 
 /**
  * La serie publique d'une collectivite : ses actes rattaches, du plus recent au
- * plus ancien, sous chacun de ses codes (INSEE et SIREN). Rien que la ligne
- * publique et la nature : ni l'adresse lue, ni le libelle.
+ * plus ancien, sous chacun de ses codes (INSEE et SIREN) : la ligne publique,
+ * la nature, l'objet donne au depot et l'adresse lue sur le site officiel.
  */
 export async function serieDeLaCollectivite({ db, codes, limite = SERIE_MAX }) {
 	const marques = codes.map(() => '?').join(', ');
 	const total = Number((await un(db, `SELECT COUNT(*) AS n FROM acte WHERE collectivite IN (${marques})`, ...codes)).n);
 	const { results } = await db
-		.prepare(`SELECT d.jour, d.place, d.sha256, d.recu, a.nature FROM acte a JOIN depot d ON d.recu = a.recu WHERE a.collectivite IN (${marques}) ORDER BY d.jour DESC, d.place DESC LIMIT ?`)
+		.prepare(`SELECT d.jour, d.place, d.sha256, d.recu, a.nature, a.objet, a.url FROM acte a JOIN depot d ON d.recu = a.recu WHERE a.collectivite IN (${marques}) ORDER BY d.jour DESC, d.place DESC LIMIT ?`)
 		.bind(...codes, limite)
 		.all();
 	return { total, actes: results };
+}
+
+/** L'acte rattache que porte un recu, `{ collectivite, nature, objet, url }` ; null pour tout autre depot. */
+export async function acteDuRecu({ db, id }) {
+	if (!HEX64.test(id ?? '')) return null;
+	return un(db, 'SELECT collectivite, nature, objet, url FROM acte WHERE recu = ?', id);
 }
