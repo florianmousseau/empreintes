@@ -36,6 +36,12 @@ export function adresseDeSite(valeur) {
 	}
 }
 
+function sansBarreFinale(chemin) {
+	let c = chemin;
+	while (c.endsWith('/')) c = c.slice(0, -1);
+	return c;
+}
+
 /** Les sites d'une fiche mairie : `{ insee, siren, hote, chemin }`, un par adresse. */
 export function sitesDeLaFiche(fiche) {
 	const mairie = tableau(fiche.pivot).find((p) => p.type_service_local === 'mairie');
@@ -45,7 +51,7 @@ export function sitesDeLaFiche(fiche) {
 	return tableau(fiche.site_internet)
 		.map((s) => adresseDeSite(s.valeur))
 		.filter(Boolean)
-		.map((u) => ({ insee, siren, hote: hoteDe(u.href), chemin: u.pathname.replace(/\/+$/, '') }));
+		.map((u) => ({ insee, siren, hote: hoteDe(u.href), chemin: sansBarreFinale(u.pathname) }));
 }
 
 function compter(sites, cle) {
@@ -88,7 +94,11 @@ export const fragmentDe = (code) => (code.length === 9 ? `siren-${code.slice(0, 
 /** La table coupee en fragments, pour qu'une lecture ne charge que le sien. */
 export function fragments(table) {
 	const parts = {};
-	for (const code of Object.keys(table).sort()) (parts[fragmentDe(code)] ??= {})[code] = table[code];
+	for (const code of Object.keys(table).sort((a, b) => a.localeCompare(b))) {
+		const nom = fragmentDe(code);
+		parts[nom] ??= {};
+		parts[nom][code] = table[code];
+	}
 	return parts;
 }
 
