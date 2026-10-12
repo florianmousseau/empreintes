@@ -299,7 +299,7 @@ export function pageEditeur({ flux, total, versions }) {
 ${lignes}
 </tbody>
 </table>
-${total > versions.length ? `<p class="compte">Les ${nombre(versions.length)} plus récentes sur ${nombre(total)}.</p>` : ''}`
+${coupeDesVersions(versions.length, total)}`
 		: '';
 	const etat = flux.retire ? `Suivi du ${jourFr(flux.inscrit.slice(0, 10))} au ${jourFr(flux.retire.slice(0, 10))}` : `Suivi depuis le ${jourFr(flux.inscrit.slice(0, 10))}`;
 	return gabarit({
@@ -315,6 +315,9 @@ ${tableau}
 <section id="prive" data-flux="${flux.id}" hidden></section>`
 	});
 }
+
+/** La ligne qui dit qu'un registre est coupe, vide sinon. */
+const coupeDesVersions = (montrees, total) => (total > montrees ? `<p class="compte">Les ${nombre(montrees)} plus récentes sur ${nombre(total)}.</p>` : '');
 
 const titreDeVersions = (articles, versions) =>
 	versions ? `${nombre(versions)} version${marqueDuPluriel(versions)}, ${nombre(articles)} article${marqueDuPluriel(articles)}` : 'Aucune version datée';

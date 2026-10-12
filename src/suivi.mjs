@@ -179,6 +179,6 @@ export async function registrePrive({ db, id, jeton }) {
 	if (!jeton || (await sha256(jeton)) !== flux.jeton) return refus(403, 'jeton refuse');
 	const articles = await tous(db, 'SELECT id, lien, lu FROM article WHERE flux = ? ORDER BY id', flux.id);
 	const recus = await tous(db, 'SELECT recu, article, contenu FROM version WHERE flux = ? ORDER BY jour, recu', flux.id);
-	const { jeton: _hache, ...public_ } = flux;
+	const public_ = { id: flux.id, url: flux.url, inscrit: flux.inscrit, retire: flux.retire, lu: flux.lu, etat: flux.etat };
 	return reponse(200, { flux: public_, articles, recus: recus.map((r) => ({ id: r.recu, article: r.article, recu: JSON.parse(r.contenu) })) });
 }
