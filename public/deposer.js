@@ -13,6 +13,10 @@ const jourFr = (j) => j.split('-').reverse().join('/');
 const NATURES = { deliberation: 'Délibération', arrete: 'Arrêté', decision: 'Décision' };
 const RATTACHEMENT = { 'site-officiel': 'adresse sur son site officiel', declaree: 'déclarée' };
 
+// Seul un acte lu sur le site officiel entre dans la serie publique de sa collectivite.
+const collectivite = (acte) =>
+	acte.rattachement === 'site-officiel' ? `<a href="/collectivite/${encodeURIComponent(acte.collectivite)}">${echapper(acte.collectivite)}</a>` : echapper(acte.collectivite);
+
 function telecharger(recu, id) {
 	const lien = document.createElement('a');
 	lien.href = URL.createObjectURL(new Blob([`${JSON.stringify(recu, null, 1)}\n`], { type: 'application/json' }));
@@ -26,7 +30,7 @@ function afficher(r) {
 	const acte = r.recu.acte;
 	const tete = acte
 		? `<h2>Reçu${NBSP}: ${NATURES[acte.nature]} du ${jourFr(r.recu.temoin.lu.slice(0, 10))}, ${r.recu.temoin.lu.slice(11, 16)}${NBSP}UTC</h2>
-<p>Collectivité ${echapper(acte.collectivite)}, ${RATTACHEMENT[acte.rattachement]}.</p>`
+<p>Collectivité ${collectivite(acte)}, ${RATTACHEMENT[acte.rattachement]}.</p>`
 		: `<h2>Reçu${NBSP}: document daté du ${jourFr(r.jour)}</h2>`;
 	$('resultat').innerHTML = `<article class="ok">
 ${tete}

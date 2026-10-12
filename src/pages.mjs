@@ -45,7 +45,7 @@ export const choixDeFichier = (texte) => `<div class="choix">
 <span id="nom-fichier">Aucun document choisi</span>
 </div>`;
 
-function gabarit({ titre, description, chemin, corps, script = '' }) {
+function gabarit({ titre, description, chemin, corps, script = '', indexer = true }) {
 	return `<!doctype html>
 <html lang="fr">
 <head>
@@ -53,7 +53,7 @@ function gabarit({ titre, description, chemin, corps, script = '' }) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${titre}</title>
 <meta name="description" content="${description}">
-<link rel="canonical" href="${ADRESSE}${chemin}">
+<link rel="canonical" href="${ADRESSE}${chemin}">${indexer ? '' : '\n<meta name="robots" content="noindex">'}
 <link rel="stylesheet" href="/style.css">
 <link rel="icon" href="/icone.svg" type="image/svg+xml">
 ${script}</head>
@@ -111,6 +111,7 @@ export function pageJournal(tours) {
 		chemin: '/journal',
 		script: '<script type="module" src="/verifier.js"></script>\n',
 		corps: `<h1>${ACTES.journal.nom}</h1>
+<p class="sous-titre">La liste publique des dates, sans les documents.</p>
 ${tete}
 <p><button type="button" id="chaine">Vérifier la chaîne</button></p>
 <div id="resultat-chaine" aria-live="polite"></div>
@@ -125,8 +126,8 @@ ${lignes}
 	});
 }
 
-const autresVoies = (champs) => `<details>
-<summary>Pas le fichier sous la main${NBSP}?</summary>
+const autresVoies = (champs, suite = '') => `<details>
+<summary>Pas le fichier sous la main${NBSP}?${suite}</summary>
 ${champs}
 </details>`;
 
@@ -158,10 +159,10 @@ export function pageDeposer() {
 		corps: `<h1>${ACTES.dater.nom}</h1>
 <form id="formulaire">
 ${choixDeFichier('Choisir le document')}
-${autresVoies(`<label for="url">Son adresse en ligne</label>
+${autresVoies(`<label for="url">Son lien (adresse web)</label>
 <input type="text" id="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://">
 <label for="empreinte">Ou son empreinte SHA-256</label>
-<input type="text" id="empreinte" autocomplete="off" spellcheck="false">`)}
+<input type="text" id="empreinte" autocomplete="off" spellcheck="false">`, ' Donnez son lien.')}
 <label for="libelle">Un nom pour vous en souvenir (facultatif)</label>
 <input type="text" id="libelle" maxlength="200" autocomplete="off">
 <p class="recoit">Vous recevez un reçu à imprimer ou à télécharger, à garder avec le document. Seule son empreinte est publiée, jamais le document.</p>
@@ -185,7 +186,7 @@ export function pageActe() {
 		script: '<script type="module" src="/deposer.js"></script>\n',
 		corps: `<h1>${ACTES.acte.nom}</h1>
 <form id="formulaire">
-<label for="url">Adresse du fichier de l’acte (le PDF)</label>
+<label for="url">Lien du fichier de l’acte (le PDF)</label>
 <input type="text" id="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://" required>
 <label for="collectivite">Code INSEE de la commune, ou SIREN de la collectivité</label>
 <input type="text" id="collectivite" inputmode="numeric" autocomplete="off" spellcheck="false" maxlength="11" required>
@@ -202,6 +203,42 @@ export function pageActe() {
 }
 
 const jourFr = (j) => j.split('-').reverse().join('/');
+
+const majuscule = (t) => `${t[0].toUpperCase()}${t.slice(1)}`;
+const pluriel = (n, mot) => `${nombre(n)} ${mot}${n > 1 ? 's' : ''}`;
+
+/** La serie d'une collectivite : ses actes lus sur son site officiel, sans adresse ni libelle. */
+export function pageCollectivite({ code, commune, serie }) {
+	const nom = commune ? echapper(commune.nom) : `Collectivité ${code}`;
+	const codes = commune?.siren ? `Code INSEE ${code}, SIREN ${commune.siren}` : `Code ${code}`;
+	const lignes = serie.actes
+		.map(
+			(a) =>
+				`<tr><td><a href="/recu/${a.recu}">${jourFr(a.jour)}</a></td><td>${majuscule(NATURES[a.nature] ?? a.nature)}</td><td><code title="${a.sha256}">${a.sha256.slice(0, 16)}</code></td></tr>`
+		)
+		.join('\n');
+	const tableau = serie.actes.length
+		? `<table>
+<thead><tr><th>Daté le</th><th>Nature</th><th>Empreinte</th></tr></thead>
+<tbody>
+${lignes}
+</tbody>
+</table>
+${serie.total > serie.actes.length ? `<p class="compte">Les ${nombre(serie.actes.length)} plus récents sur ${nombre(serie.total)}.</p>` : ''}`
+		: '';
+	return gabarit({
+		titre: `${nom}, actes datés`,
+		description: `Actes de ${nom} datés à leur adresse sur le site officiel de la commune${NBSP}: date, nature, empreinte.`,
+		chemin: `/collectivite/${code}`,
+		indexer: serie.total > 0,
+		corps: `<h1>${nom}</h1>
+<p class="sous-titre">${codes}</p>
+<h2>${serie.total ? `${pluriel(serie.total, 'acte')} daté${serie.total > 1 ? 's' : ''}` : 'Aucun acte daté'}</h2>
+${tableau}
+<p class="compte">Actes lus sur le site officiel de la commune, d’après l’annuaire Service-Public.</p>
+<p>${lien('acte', 'bouton principal')}</p>`
+	});
+}
 
 /** Le recu d'un depot, a son adresse : ce que la ligne publique engage, et son inscription au registre. */
 export function pageRecu(ligne) {
@@ -274,6 +311,8 @@ ${tableDoc('Lire', [
 	ligneDoc('GET /recu/&lt;id&gt;', 'la page d’un reçu'),
 	ligneDoc('GET /api/recus/&lt;id&gt;', 'la ligne publique d’un reçu'),
 	ligneDoc('GET /api/depots/&lt;sha256&gt;', 'les dépôts d’une empreinte'),
+	ligneDoc('GET /collectivite/&lt;INSEE&gt;', 'les actes d’une commune lus sur son site officiel\u00A0: date, nature, empreinte, reçu\u00A0; le SIREN y renvoie'),
+	ligneDoc('GET /annuaire/communes/insee-&lt;département&gt;.json', 'le nom de chaque commune, code INSEE ou SIREN vers <code>[nom, INSEE, SIREN]</code>'),
 	ligneDoc('GET /annuaire/insee-&lt;département&gt;.json', 'les sites officiels des communes, code INSEE ou SIREN vers <code>[hôte, préfixe]</code>, d’après l’annuaire Service-Public'),
 	ligneDoc('GET /api/bilan', 'dépôts et déposants distincts, jour par jour'),
 	ligneDoc('GET /tours.json', 'les tours du registre'),

@@ -84,6 +84,7 @@ header { gap: 1rem; }
 .une p { font-size: 1.1rem; margin: 0.6rem 0; }
 .gestes { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.2rem !important; }
 .compte { color: var(--doux); }
+.sous-titre { color: var(--doux); font-size: 1.05rem; margin-top: -0.3rem; }
 .masque { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .choix { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; margin: 0.4rem 0 0.6rem; }
 .choix label { margin: 0; color: var(--accent); font-size: 1rem; }

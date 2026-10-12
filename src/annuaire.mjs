@@ -14,7 +14,7 @@ import { estUnInsee, estUnSiren, hoteDe } from './acte.mjs';
 /** En dessous, l'export est tronque : la table est refusee plutot que de rattacher une commune sur deux. */
 export const SITES_MIN = 10000;
 export const API_ANNUAIRE =
-	'https://api-lannuaire.service-public.fr/api/explore/v2.1/catalog/datasets/api-lannuaire-administration/exports/json?where=pivot%20like%20%22mairie%22&select=code_insee_commune,siren,site_internet,pivot';
+	'https://api-lannuaire.service-public.fr/api/explore/v2.1/catalog/datasets/api-lannuaire-administration/exports/json?where=pivot%20like%20%22mairie%22&select=nom,code_insee_commune,siren,site_internet,pivot';
 
 /** Les hotes ou chaque compte ouvre ses pages : seul le chemin y designe une commune. Ecrite a la main. */
 export const PLATEFORMES = new Set([
@@ -42,12 +42,20 @@ function sansBarreFinale(chemin) {
 	return c;
 }
 
-/** Les sites d'une fiche mairie : `{ insee, siren, hote, chemin }`, un par adresse. */
-export function sitesDeLaFiche(fiche) {
+/** Le code INSEE d'une fiche mairie, ou null pour toute autre fiche. */
+function inseeDeLaMairie(fiche) {
 	const mairie = tableau(fiche.pivot).find((p) => p.type_service_local === 'mairie');
 	const insee = String(fiche.code_insee_commune ?? tableau(mairie?.code_insee_commune)[0] ?? '');
-	if (!mairie || !estUnInsee(insee)) return [];
-	const siren = estUnSiren(String(fiche.siren ?? '')) ? String(fiche.siren) : null;
+	return mairie && estUnInsee(insee) ? insee : null;
+}
+
+const sirenDe = (fiche) => (estUnSiren(String(fiche.siren ?? '')) ? String(fiche.siren) : null);
+
+/** Les sites d'une fiche mairie : `{ insee, siren, hote, chemin }`, un par adresse. */
+export function sitesDeLaFiche(fiche) {
+	const insee = inseeDeLaMairie(fiche);
+	if (!insee) return [];
+	const siren = sirenDe(fiche);
 	return tableau(fiche.site_internet)
 		.map((s) => adresseDeSite(s.valeur))
 		.filter(Boolean)
@@ -88,6 +96,34 @@ export function tableDesSites(fiches) {
 	return table;
 }
 
+const MAIRIE = /^Mairie\s+-\s+/;
+const DELEGUEE = /^Mairie\s+d\u00e9l\u00e9gu\u00e9e\s+-\s+/i;
+
+/**
+ * Le nom de chaque commune, par code INSEE et par SIREN : `[nom, insee, siren]`.
+ * Le nom vient de la fiche « Mairie - <nom> » ; une mairie deleguee ne nomme que
+ * son propre code INSEE. Un SIREN porte par plusieurs codes (les arrondissements
+ * de Marseille) ne designe aucune page : il n'est ni une entree ni un renvoi.
+ */
+export function nomsDesCommunes(fiches) {
+	const table = {};
+	const codesDuSiren = new Map();
+	for (const fiche of fiches) {
+		const insee = inseeDeLaMairie(fiche);
+		const nom = String(fiche.nom ?? '');
+		const principale = MAIRIE.test(nom);
+		if (!insee || !(principale || DELEGUEE.test(nom)) || (table[insee] && !principale)) continue;
+		const siren = principale ? sirenDe(fiche) : null;
+		table[insee] = [nom.replace(MAIRIE, '').replace(DELEGUEE, '').trim(), insee, siren];
+		if (siren) codesDuSiren.set(siren, (codesDuSiren.get(siren) ?? new Set()).add(insee));
+	}
+	for (const [siren, codes] of codesDuSiren) {
+		if (codes.size === 1) table[siren] = table[[...codes][0]];
+		else for (const insee of codes) table[insee][2] = null;
+	}
+	return table;
+}
+
 /** Le fragment qui porte un code : `insee-17` pour 17133, `siren-2117` pour 211701339. */
 export const fragmentDe = (code) => (code.length === 9 ? `siren-${code.slice(0, 4)}` : `insee-${code.slice(0, 2)}`);
 
@@ -109,5 +145,19 @@ export async function sitesDe(code, lire) {
 	return (await r.json())[code] ?? null;
 }
 
+/** Le nom et les codes d'une commune, lus dans `/annuaire/communes/` ; null si absente ou illisible. */
+export async function communeDe(code, lire) {
+	try {
+		const r = await lire(`/annuaire/communes/${fragmentDe(code)}.json`);
+		const entree = r.ok ? (await r.json())[code] : null;
+		return entree ? { nom: entree[0], insee: entree[1], siren: entree[2] } : null;
+	} catch {
+		return null;
+	}
+}
+
 /** La lecture de la table publiee avec le site, par la liaison `ASSETS` d'une Function. */
 export const annuaireDesActifs = (env, base) => (code) => sitesDe(code, (chemin) => env.ASSETS.fetch(new URL(chemin, base)));
+
+/** La lecture des noms publies avec le site, par la liaison `ASSETS` d'une Function. */
+export const communeDesActifs = (env, base) => (code) => communeDe(code, (chemin) => env.ASSETS.fetch(new URL(chemin, base)));

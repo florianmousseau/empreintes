@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { ACTES, pageActe, pageDocumentation, pageIntrouvable, ancrageDe, dateHeure, echapper, pageAccueil, pageDeposer, pageJournal, pageVerifier } from '../src/pages.mjs';
+import { ACTES, pageActe, pageCollectivite, pageDocumentation, pageIntrouvable, ancrageDe, dateHeure, echapper, pageAccueil, pageDeposer, pageJournal, pageVerifier } from '../src/pages.mjs';
 
 const t = { id: '20261012T101314Z', instant: '2026-10-12T10:13:14Z', objets: 2018, racine: 'f'.repeat(64), ots: 'bitcoin', bloc: 971045, fichiers: ['20261012T101314Z.json', '20261012T101314Z.racine.ots'] };
-const pages = [pageJournal([t, { ...t, id: '20261012T121314Z', ots: 'calendrier', bloc: null }]), pageVerifier(), pageJournal([]), pageDeposer(), pageAccueil([t]), pageAccueil([]), pageIntrouvable(), pageActe(), pageDocumentation()];
+const pages = [pageJournal([t, { ...t, id: '20261012T121314Z', ots: 'calendrier', bloc: null }]), pageVerifier(), pageJournal([]), pageDeposer(), pageAccueil([t]), pageAccueil([]), pageIntrouvable(), pageActe(), pageDocumentation(), pageCollectivite({ code: '17133', commune: { nom: 'Cravans', insee: '17133', siren: '211701339' }, serie: { total: 1, actes: [{ jour: '2026-10-12', place: 3, sha256: 'c'.repeat(64), recu: 'd'.repeat(64), nature: 'deliberation' }] } })];
 const texteDe = (html) => html.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<[^>]+>/g, '');
 
 test('aucun signe double ne suit une espace ordinaire dans le texte affiche', () => {
@@ -54,16 +54,16 @@ test('un acte porte un seul nom sur toutes les pages', () => {
 });
 
 test('le choix du document est en francais, et les autres voies sont repliees', () => {
-	for (const html of [pages[1], pages[3]]) {
-		assert.match(html, /<label class="bouton" for="fichier">Choisir le document( ou son reçu)?<\/label>/);
-		assert.match(html, /<details>\n<summary>Pas le fichier sous la main\u00A0\?<\/summary>/);
-	}
+	for (const html of [pages[1], pages[3]]) assert.match(html, /<label class="bouton" for="fichier">Choisir le document( ou son reçu)?<\/label>/);
+	assert.match(pages[1], /<details>\n<summary>Pas le fichier sous la main\u00A0\?<\/summary>/);
+	assert.match(pages[3], /<details>\n<summary>Pas le fichier sous la main\u00A0\? Donnez son lien.<\/summary>/);
+	assert.match(pages[3], /<label for="url">Son lien \(adresse web\)<\/label>/);
 });
 
 test("le registre s'appelle partout Registre des dates, et dater dit ce qu'on recoit et ce qui est publie", () => {
 	assert.equal(ACTES.journal.nom, 'Registre des dates');
 	for (const html of pages) assert.ok(!html.includes('Journal public'));
-	assert.match(pages[0], /<h1>Registre des dates<\/h1>/);
+	assert.match(pages[0], /<h1>Registre des dates<\/h1>\n<p class="sous-titre">La liste publique des dates, sans les documents.<\/p>/);
 	const dater = pages[3];
 	assert.ok(dater.indexOf('reçu à imprimer ou à télécharger') < dater.indexOf('Dater ce document</button>'));
 	assert.match(dater, /Seule son empreinte est publiée, jamais le document/);
@@ -71,8 +71,8 @@ test("le registre s'appelle partout Registre des dates, et dater dit ce qu'on re
 });
 
 test('la documentation nomme chaque adresse servie et chaque formule', () => {
-	const doc = pages.at(-1);
-	for (const a of ['POST /api/depots', 'GET /depots/&lt;jour&gt;.jsonl', 'GET /api/recus/&lt;id&gt;', 'GET /api/depots/&lt;sha256&gt;', 'GET /api/bilan', 'GET /health', 'depots:&lt;n&gt;', 'ots verify']) assert.ok(doc.includes(a), a);
+	const doc = pageDocumentation();
+	for (const a of ['POST /api/depots', 'GET /depots/&lt;jour&gt;.jsonl', 'GET /api/recus/&lt;id&gt;', 'GET /api/depots/&lt;sha256&gt;', 'GET /api/bilan', 'GET /collectivite/&lt;INSEE&gt;', 'GET /health', 'depots:&lt;n&gt;', 'ots verify']) assert.ok(doc.includes(a), a);
 	for (const html of pages) assert.match(html, /<a href="\/documentation">Documentation<\/a>/);
 });
 
@@ -88,7 +88,7 @@ test("dater un acte demande l'adresse, la collectivite et la nature, et ne dit q
 	assert.match(html, /<option value="deliberation">Délibération<\/option><option value="arrete">Arrêté<\/option><option value="decision">Décision<\/option>/);
 	assert.match(html, /ce fichier était en ligne à cette adresse à cet instant/);
 	assert.ok(html.indexOf('reçu à imprimer ou à télécharger') < html.indexOf('Dater cet acte</button>'));
-	assert.match(html, /Adresse du fichier de l’acte \(le PDF\)/);
+	assert.match(html, /Lien du fichier de l’acte \(le PDF\)/);
 	assert.match(html, /Un autre document\u00A0\? <a href="\/deposer">Dater un document<\/a>/);
 	assert.match(pageDeposer(), /Un acte de collectivité\u00A0\? <a href="\/acte">Dater un acte<\/a>/);
 	assert.ok(!/servi/.test(texteDe(html) + readFileSync(new URL('../public/deposer.js', import.meta.url), 'utf8')), 'un mot de tous les jours');
