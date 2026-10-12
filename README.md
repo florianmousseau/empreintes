@@ -5,7 +5,8 @@ chaque fichier archive, assemble en arbre de Merkle, chaine au tour precedent
 et ancre dans Bitcoin par OpenTimestamps. Aucun contenu, seulement des
 empreintes.
 
-https://empreintes.florianmousseau.com
+https://temoinpublic.fr (Temoin public ; l'ancienne adresse
+empreintes.florianmousseau.com redirige ses pages, son API reste servie).
 
 - `donnees/empreintes/` : le miroir du journal (releves, racines, preuves
   `.ots`, horodatages `.tsr`, `ancrages.json`), pousse par l'entrepot.

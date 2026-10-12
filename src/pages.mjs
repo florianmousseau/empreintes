@@ -3,7 +3,7 @@
 import { NATURES } from './acte.mjs';
 
 const NBSP = '\u00A0';
-const ADRESSE = 'https://empreintes.florianmousseau.com';
+const ADRESSE = 'https://temoinpublic.fr';
 const DEPOT = 'https://github.com/florianmousseau/empreintes';
 
 /** Les trois actes du site, chacun sous un seul nom partout. */
@@ -58,7 +58,7 @@ function gabarit({ titre, description, chemin, corps, script = '', indexer = tru
 <link rel="icon" href="/icone.svg" type="image/svg+xml">
 ${script}</head>
 <body>
-<header><a class="marque" href="/">Empreintes</a><nav>${lien('dater')} ${lien('verifier')} ${lien('journal')}</nav></header>
+<header><a class="marque" href="/">Témoin public</a><nav>${lien('dater')} ${lien('verifier')} ${lien('journal')}</nav></header>
 <main>
 ${corps}
 </main>
@@ -276,7 +276,7 @@ ${lignesDActe(acte)}<div><dt>Empreinte</dt><dd><code class="racine">${ligne.sha2
 <div><dt>Ligne</dt><dd>${ligne.place} du ${jourFr(ligne.jour)}</dd></div>
 <div><dt>Registre</dt><dd id="inscription">lecture du registre</dd></div>
 </dl>
-<p class="imprime">empreintes.florianmousseau.com/recu/${ligne.recu}</p>
+<p class="imprime">temoinpublic.fr/recu/${ligne.recu}</p>
 </article>
 <p class="gestes"><button type="button" id="imprimer" class="principal">Imprimer le reçu</button> ${lien('verifier', 'bouton')}</p>`
 	});

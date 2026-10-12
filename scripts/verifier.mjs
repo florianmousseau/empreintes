@@ -9,7 +9,7 @@
 import fs from 'node:fs';
 import { sha256, placeDuFichier, verifierChaine } from '../src/chaine.mjs';
 
-const SITE = 'https://empreintes.florianmousseau.com';
+const SITE = 'https://temoinpublic.fr';
 
 async function lire(site, chemin) {
 	const r = await fetch(new URL(chemin, site));
