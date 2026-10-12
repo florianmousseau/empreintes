@@ -168,7 +168,8 @@ ${autresVoies(`<label for="url">Son adresse en ligne</label>
 <button type="submit" class="principal">Dater ce document</button>
 </form>
 <div id="resultat" aria-live="polite"></div>
-<p class="compte">Gratuit, sans compte, jusqu’à 20 documents par jour. Valeur juridique${NBSP}: un élément de preuve, que le juge apprécie librement.</p>`
+<p class="compte">Gratuit, sans compte, jusqu’à 20 documents par jour. Valeur juridique${NBSP}: un élément de preuve, que le juge apprécie librement.</p>
+<p class="compte">Un acte de collectivité${NBSP}? ${lien('acte')}</p>`
 	});
 }
 
@@ -184,7 +185,7 @@ export function pageActe() {
 		script: '<script type="module" src="/deposer.js"></script>\n',
 		corps: `<h1>${ACTES.acte.nom}</h1>
 <form id="formulaire">
-<label for="url">Adresse de l’acte en ligne</label>
+<label for="url">Adresse du fichier de l’acte (le PDF)</label>
 <input type="text" id="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://" required>
 <label for="collectivite">Code INSEE de la commune, ou SIREN de la collectivité</label>
 <input type="text" id="collectivite" inputmode="numeric" autocomplete="off" spellcheck="false" maxlength="11" required>
@@ -192,11 +193,11 @@ export function pageActe() {
 <select id="nature">${natures}</select>
 <label for="libelle">Objet (facultatif)</label>
 <input type="text" id="libelle" maxlength="200" autocomplete="off">
-<p class="recoit">Le reçu atteste que ce fichier était servi à cette adresse à cet instant.</p>
+<p class="recoit">Vous recevez un reçu à imprimer ou à télécharger. Il atteste que ce fichier était en ligne à cette adresse à cet instant.</p>
 <button type="submit" class="principal">Dater cet acte</button>
 </form>
 <div id="resultat" aria-live="polite"></div>
-<p class="compte">Gratuit, sans compte, jusqu’à 20 actes par jour.</p>`
+<p class="compte">Gratuit, sans compte, jusqu’à 20 actes par jour. Un autre document${NBSP}? ${lien('dater')}</p>`
 	});
 }
 
