@@ -1,9 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ACTES, pageDocumentation, pageIntrouvable, ancrageDe, dateHeure, echapper, pageAccueil, pageDeposer, pageJournal, pageVerifier } from '../src/pages.mjs';
+import { readFileSync } from 'node:fs';
+import { ACTES, pageActe, pageDocumentation, pageIntrouvable, ancrageDe, dateHeure, echapper, pageAccueil, pageDeposer, pageJournal, pageVerifier } from '../src/pages.mjs';
 
 const t = { id: '20261012T101314Z', instant: '2026-10-12T10:13:14Z', objets: 2018, racine: 'f'.repeat(64), ots: 'bitcoin', bloc: 971045, fichiers: ['20261012T101314Z.json', '20261012T101314Z.racine.ots'] };
-const pages = [pageJournal([t, { ...t, id: '20261012T121314Z', ots: 'calendrier', bloc: null }]), pageVerifier(), pageJournal([]), pageDeposer(), pageAccueil([t]), pageAccueil([]), pageIntrouvable(), pageDocumentation()];
+const pages = [pageJournal([t, { ...t, id: '20261012T121314Z', ots: 'calendrier', bloc: null }]), pageVerifier(), pageJournal([]), pageDeposer(), pageAccueil([t]), pageAccueil([]), pageIntrouvable(), pageActe(), pageDocumentation()];
 const texteDe = (html) => html.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<[^>]+>/g, '');
 
 test('aucun signe double ne suit une espace ordinaire dans le texte affiche', () => {
@@ -77,4 +78,17 @@ test('la documentation nomme chaque adresse servie et chaque formule', () => {
 
 test('aucun gabarit non interpole ne s affiche', () => {
 	for (const html of pages) assert.ok(!html.includes('${'), 'un ${...} est reste dans une chaine simple');
+});
+
+test("dater un acte demande l'adresse, la collectivite et la nature, et ne dit que ce que le recu prouve", () => {
+	const html = pageActe();
+	assert.equal(ACTES.acte.nom, 'Dater un acte');
+	assert.match(html, /<h1>Dater un acte<\/h1>/);
+	for (const id of ['url', 'collectivite', 'nature', 'libelle']) assert.match(html, new RegExp(`id="${id}"`), id);
+	assert.match(html, /<option value="deliberation">Délibération<\/option><option value="arrete">Arrêté<\/option><option value="decision">Décision<\/option>/);
+	assert.match(html, /ce fichier était servi à cette adresse à cet instant/);
+	assert.ok(!html.includes('id="fichier"'), 'un acte ne se date que par son adresse');
+	for (const page of pages) assert.match(page, /<a href="\/acte">Dater un acte<\/a>/);
+	const tout = [...pages, readFileSync(new URL('../public/deposer.js', import.meta.url), 'utf8')].join('');
+	for (const interdit of [/vaut publication/i, /certifi/i, /qualifi/i]) assert.doesNotMatch(tout, interdit);
 });

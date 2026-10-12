@@ -58,7 +58,8 @@ th { color: var(--doux); font-weight: 600; }
 td a + a { margin-left: 0.5rem; }
 form { display: grid; gap: 0.4rem; max-width: 36rem; }
 label { color: var(--doux); font-size: 0.9rem; margin-top: 0.6rem; }
-input[type='text'] { font: inherit; font-family: ui-monospace, Menlo, Consolas, monospace; padding: 0.45rem; border: 1px solid var(--trait); border-radius: 0.3rem; background: var(--fond); color: var(--texte); width: 100%; }
+input[type='text'], select { font: inherit; font-family: ui-monospace, Menlo, Consolas, monospace; padding: 0.45rem; border: 1px solid var(--trait); border-radius: 0.3rem; background: var(--fond); color: var(--texte); width: 100%; }
+select { font-family: inherit; }
 form button { justify-self: start; margin-top: 0.8rem; }
 article { border-left: 4px solid var(--trait); padding: 0.2rem 0 0.2rem 1rem; margin: 1rem 0; }
 article.ok { border-color: var(--ok); }

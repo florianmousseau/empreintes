@@ -35,3 +35,9 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   `functions/depots/[fichier].js` sert `/depots/<jour>.jsonl`. L'adresse d'un
   deposant n'est jamais ecrite : son hache sale du jour, sel jete le lendemain.
   Les tests jouent le vrai SQL sur `node:sqlite` (`tests/d1.mjs`).
+- Un acte de collectivite (D-165) est un depot de type `acte` (`src/acte.mjs`) :
+  temoin d'URL obligatoire, `collectivite` (INSEE ou SIREN a cle juste),
+  `nature` ; le libelle passe `nommeUnePersonne` (`src/personne.mjs`, copie
+  de truecopydev/corpus et de verites, a corriger des trois cotes). Sa ligne
+  publique reste a QUATRE champs (l'entrepot refuse toute ligne elargie) : la
+  collectivite, la nature et le rattachement vivent dans le recu, version 2.
