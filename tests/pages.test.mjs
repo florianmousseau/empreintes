@@ -72,7 +72,7 @@ test("le registre s'appelle partout Registre des dates, et dater dit ce qu'on re
 
 test('la documentation nomme chaque adresse servie et chaque formule', () => {
 	const doc = pageDocumentation();
-	for (const a of ['POST /api/depots', 'GET /depots/&lt;jour&gt;.jsonl', 'GET /api/recus/&lt;id&gt;', 'GET /api/depots/&lt;sha256&gt;', 'GET /api/bilan', 'GET /collectivite/&lt;INSEE&gt;', 'GET /health', 'depots:&lt;n&gt;', 'ots verify']) assert.ok(doc.includes(a), a);
+	for (const a of ['POST /api/depots', 'POST /api/flux', 'DELETE /api/flux/&lt;id&gt;', 'GET /depots/&lt;jour&gt;.jsonl', 'GET /api/recus/&lt;id&gt;', 'GET /api/depots/&lt;sha256&gt;', 'GET /api/bilan', 'GET /collectivite/&lt;INSEE&gt;', 'GET /health', 'depots:&lt;n&gt;', 'ots verify']) assert.ok(doc.includes(a), a);
 	for (const html of pages) assert.match(html, /<a href="\/documentation">Documentation<\/a>/);
 });
 

@@ -17,6 +17,12 @@ export const SCHEMA = [
 	// `objet` et `url` ajoutes le 2026-10-12 par ALTER TABLE sur la base en service ; null pour les actes d'avant.
 	'CREATE TABLE IF NOT EXISTS acte (recu TEXT PRIMARY KEY, collectivite TEXT NOT NULL, nature TEXT NOT NULL, objet TEXT, url TEXT) WITHOUT ROWID',
 	'CREATE INDEX IF NOT EXISTS acte_collectivite ON acte (collectivite)',
+	// D-170 : les flux suivis, leurs articles et les versions deposees. `jeton` est le sha256 du jeton rendu a l'inscription.
+	'CREATE TABLE IF NOT EXISTS flux (id TEXT PRIMARY KEY, url TEXT NOT NULL UNIQUE, jeton TEXT NOT NULL, inscrit TEXT NOT NULL, retire TEXT, reprise TEXT, lu TEXT, etat TEXT) WITHOUT ROWID',
+	'CREATE TABLE IF NOT EXISTS article (flux TEXT NOT NULL, id TEXT NOT NULL, lien TEXT NOT NULL, empreinte TEXT, octets TEXT, essaye TEXT, lu TEXT, PRIMARY KEY (flux, id)) WITHOUT ROWID',
+	'CREATE TABLE IF NOT EXISTS version (recu TEXT PRIMARY KEY, flux TEXT NOT NULL, article TEXT NOT NULL, jour TEXT NOT NULL, contenu TEXT NOT NULL) WITHOUT ROWID',
+	'CREATE INDEX IF NOT EXISTS version_jour ON version (jour)',
+	'CREATE INDEX IF NOT EXISTS version_article ON version (flux, article)',
 	'CREATE INDEX IF NOT EXISTS depot_recu ON depot (recu)',
 	'CREATE INDEX IF NOT EXISTS depot_sha256 ON depot (sha256)'
 ];
@@ -49,11 +55,23 @@ export async function resoudreParDoH(hote, { fetch: f = fetch, resolveur = 'http
 	return [...(await lire('A')), ...(await lire('AAAA'))];
 }
 
+/** Ce que le temoin a lu d'une reponse finale ; leve avec `statut` si elle n'est pas un succes. */
+async function lireReponse(r, { url, debut, maintenant, garder }) {
+	if (!r.ok) {
+		await r.body?.cancel();
+		throw Object.assign(new Error(`la source a repondu ${r.status}`), { statut: r.status });
+	}
+	const octets = r.body ? await lireBorne(r.body.getReader(), { debut, maintenant }) : new Uint8Array(0);
+	const lu = { url, taille: octets.byteLength, type: r.headers.get('content-type'), lu: new Date(maintenant()).toISOString(), sha256: await sha256(octets) };
+	return garder ? { ...lu, octets } : lu;
+}
+
 /**
  * Le temoin : lit l'URL lui-meme, chaque saut regarde (protocole, port, hote,
- * resolution), dans ses bornes, et rend ce qu'il a lu. Leve avec le motif.
+ * resolution), dans ses bornes, et rend ce qu'il a lu (les octets aussi avec
+ * `garder`). Leve avec le motif, et `statut` quand la source a repondu.
  */
-export async function temoigner(admise, { fetch: f = fetch, resoudre = (h) => resoudreParDoH(h), maintenant = () => Date.now() } = {}) {
+export async function temoigner(admise, { fetch: f = fetch, resoudre = (h) => resoudreParDoH(h), maintenant = () => Date.now(), garder = false } = {}) {
 	const debut = maintenant();
 	let courante = admise;
 	for (let sauts = 0; ; sauts++) {
@@ -69,17 +87,12 @@ export async function temoigner(admise, { fetch: f = fetch, resoudre = (h) => re
 			courante = suite;
 			continue;
 		}
-		if (!r.ok) {
-			await r.body?.cancel();
-			throw new Error(`la source a repondu ${r.status}`);
-		}
-		const octets = r.body ? await lireBorne(r.body.getReader(), { debut, maintenant }) : new Uint8Array(0);
-		return { url: courante.url, taille: octets.byteLength, type: r.headers.get('content-type'), lu: new Date(maintenant()).toISOString(), sha256: await sha256(octets) };
+		return lireReponse(r, { url: courante.url, debut, maintenant, garder });
 	}
 }
 
 /** Prend la place suivante du jour, dans la meme instruction que l'insertion. */
-async function inserer(db, { jour, empreinte, recu }) {
+export async function inserer(db, { jour, empreinte, recu }) {
 	const sql =
 		'INSERT INTO depot (jour, place, sha256, recu) SELECT ?, COALESCE(MAX(place), 0) + 1, ?, ? FROM depot WHERE jour = ? RETURNING place';
 	try {
@@ -126,7 +139,9 @@ export async function deposer({ db, corps, adresse, maintenant = new Date(), tem
 	const instant = maintenant.toISOString();
 	const jour = jourDe(instant);
 	const cle = await cleDAdresse(adresse ?? 'inconnue', await selDuJour(db, jour));
-	const duJour = (await un(db, 'SELECT COALESCE(MAX(place), 0) AS n FROM depot WHERE jour = ?', jour)).n;
+	// Les versions des flux suivis (D-170) ont leurs propres plafonds, hors de celui des depots exterieurs.
+	const duJour =
+		(await un(db, 'SELECT COALESCE(MAX(place), 0) AS n FROM depot WHERE jour = ?', jour)).n - (await un(db, 'SELECT COUNT(*) AS n FROM version WHERE jour = ?', jour)).n;
 	const deCetteAdresse = (await un(db, 'SELECT n FROM compte WHERE jour = ? AND adresse = ?', jour, cle))?.n ?? 0;
 	const limite = plafond({ deCetteAdresse, duJour, instant });
 	if (!limite.ok) return refus(429, limite.motif, [], { 'retry-after': String(limite.apres) });

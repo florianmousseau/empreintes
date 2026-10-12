@@ -1,0 +1,18 @@
+# Le Worker horaire du suivi des flux (D-170), deploye a part du site par `publier.yml` :
+#   npx wrangler deploy -c flux.wrangler.toml
+# Pages n'a pas de declencheur horaire. Meme base que les depots, aucune adresse publique.
+name = "empreintes-flux"
+main = "workers/flux.mjs"
+compatibility_date = "2025-09-01"
+workers_dev = false
+
+[triggers]
+crons = ["23 * * * *"]
+
+[observability]
+enabled = true
+
+[[d1_databases]]
+binding = "DEPOTS"
+database_name = "empreintes-depots"
+database_id = "8bbe0459-1c54-41eb-a38a-c946f6b2f5b7"
