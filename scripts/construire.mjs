@@ -8,7 +8,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { FICHIER_PUBLIE, ID_DE_TOUR, indexDesEmpreintes, resumeDe } from '../src/journal.mjs';
-import { pageAccueil, pageDeposer, pageVerifier } from '../src/pages.mjs';
+import { pageAccueil, pageDeposer, pageJournal, pageVerifier } from '../src/pages.mjs';
 
 const RACINE = path.resolve(import.meta.dirname, '..');
 const DONNEES = path.join(RACINE, 'donnees', 'empreintes');
@@ -44,6 +44,7 @@ ecrire('tours.json', `${JSON.stringify({ copie, tours }, null, 1)}\n`);
 ecrire('version.json', `${JSON.stringify({ commit: commitServi(), construit: new Date().toISOString() })}\n`);
 ecrire('index.html', pageAccueil(tours));
 ecrire('verifier.html', pageVerifier());
+ecrire('journal.html', pageJournal(tours));
 ecrire('deposer.html', pageDeposer());
 ecrire('chaine.mjs', fs.readFileSync(path.join(RACINE, 'src', 'chaine.mjs')));
 for (const f of fs.readdirSync(path.join(RACINE, 'public'))) ecrire(f, fs.readFileSync(path.join(RACINE, 'public', f)));

@@ -1,7 +1,10 @@
 import { sha256, placeDuFichier, verifierChaine } from '/chaine.mjs';
+import { suivreLeChoix } from '/fichier.js';
+
+suivreLeChoix(document);
 
 const $ = (id) => document.getElementById(id);
-const NBSP = ' ';
+const NBSP = '\u00A0';
 const echapper = (t) => String(t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const jourFr = (j) => (j ? j.split('-').reverse().join('/') : 'jour inconnu');
 const heure = (id) => `${id.slice(6, 8)}/${id.slice(4, 6)}/${id.slice(0, 4)} ${id.slice(9, 11)}:${id.slice(11, 13)}${NBSP}UTC`;
@@ -16,7 +19,7 @@ const lesTours = async () => (tours ??= (await lire('/tours.json')).tours);
 
 function ancrage(t) {
 	if (t?.ots === 'bitcoin' && t.bloc) return `<a href="https://mempool.space/block/${t.bloc}">Bitcoin, bloc ${t.bloc}</a>`;
-	return t?.ots === 'calendrier' ? 'en attente du bloc' : 'aucun';
+	return t?.ots === 'calendrier' ? 'en cours d’inscription dans Bitcoin' : 'aucun';
 }
 
 async function constat(empreinte, vu) {
@@ -28,43 +31,46 @@ async function constat(empreinte, vu) {
 		.map((f) => `<a href="/empreintes/${f}">${f.endsWith('.ots') ? 'preuve .ots' : 'horodatage .tsr'}</a>`)
 		.join(' ');
 	return `<article class="${place?.ok ? 'ok' : 'ko'}">
-<h2>${place?.ok ? `Servi tel quel le ${jourFr(vu.jour)}` : 'Chemin d’audit non conforme'}</h2>
+<h2>${place?.ok ? `Identique au document daté du ${jourFr(vu.jour)}` : 'Preuve non conforme'}</h2>
+<details>
+<summary>Détails de la preuve</summary>
 <dl>
 <div><dt>Objet</dt><dd><code>${echapper(vu.cle)}</code></dd></div>
 <div><dt>Vu</dt><dd>du tour ${heure(vu.premier)} au tour ${heure(vu.dernier)}</dd></div>
 <div><dt>Chemin d’audit</dt><dd>${place ? `${place.chemin.length} étapes, racine recalculée` : 'absent du relevé'}</dd></div>
 <div><dt>Racine du tour</dt><dd><code class="racine">${releve.racine}</code></dd></div>
-<div><dt>Ancrage</dt><dd>${ancrage(tour)} ${preuves}</dd></div>
+<div><dt>Bitcoin</dt><dd>${ancrage(tour)} ${preuves}</dd></div>
 </dl>
+</details>
 </article>`;
 }
 
 async function verifier(empreinte) {
 	const sortie = $('resultat');
-	sortie.innerHTML = `<p>Empreinte${NBSP}: <code class="racine">${empreinte}</code></p>`;
+	sortie.innerHTML = '';
 	const r = await fetch(`/index/${empreinte.slice(0, 2)}.json`);
 	const vus = r.ok ? ((await r.json())[empreinte] ?? []) : [];
 	if (vus.length === 0) {
-		sortie.innerHTML += '<article class="ko"><h2>Inconnu du journal</h2></article>';
+		sortie.innerHTML = '<article class="ko"><h2>Ce document n’a jamais été daté ici</h2></article>';
 		return;
 	}
 	for (const vu of vus) sortie.innerHTML += await constat(empreinte, vu);
 }
 
-$('formulaire').addEventListener('submit', async (e) => {
+$('formulaire')?.addEventListener('submit', async (e) => {
 	e.preventDefault();
 	const fichier = $('fichier').files[0];
 	const saisie = $('empreinte').value.trim().toLowerCase();
 	try {
 		if (fichier) await verifier(await sha256(new Uint8Array(await fichier.arrayBuffer())));
 		else if (/^[0-9a-f]{64}$/.test(saisie)) await verifier(saisie);
-		else $('resultat').innerHTML = '<p>Choisir un fichier ou saisir 64 caractères hexadécimaux.</p>';
+		else $('resultat').innerHTML = '<p>Choisir le document.</p>';
 	} catch (erreur) {
 		$('resultat').innerHTML = `<article class="ko"><h2>Erreur</h2><p>${echapper(erreur.message)}</p></article>`;
 	}
 });
 
-$('chaine').addEventListener('click', async () => {
+$('chaine')?.addEventListener('click', async () => {
 	const sortie = $('resultat-chaine');
 	try {
 		const ids = (await lesTours()).map((t) => t.id);

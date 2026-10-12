@@ -1,13 +1,21 @@
-// Les deux pages de la surface. Elles affichent ; la methode vit dans le code.
+// Les pages de la surface. Elles affichent ; la methode vit dans le code.
 
-const NBSP = ' ';
+const NBSP = '\u00A0';
 const ADRESSE = 'https://empreintes.florianmousseau.com';
-const MIROIR = 'https://github.com/florianmousseau/empreintes';
+const DEPOT = 'https://github.com/florianmousseau/empreintes';
+
+/** Les trois actes du site, chacun sous un seul nom partout. */
+export const ACTES = {
+	dater: { chemin: '/deposer', nom: 'Dater un document' },
+	verifier: { chemin: '/verifier', nom: 'Vérifier un document' },
+	journal: { chemin: '/journal', nom: 'Journal public' }
+};
 
 /** Echappe un texte pour le HTML. */
 export const echapper = (t) => String(t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
-const nombre = (n) => n.toLocaleString('fr-FR').replace(/ /g, NBSP);
+const nombre = (n) => n.toLocaleString('fr-FR').replace(/\u202f/g, NBSP);
+const lien = (acte, classe = '') => `<a${classe ? ` class="${classe}"` : ''} href="${ACTES[acte].chemin}">${ACTES[acte].nom}</a>`;
 
 /** Un instant ISO en « 12/10/2026 10:13 UTC ». */
 export function dateHeure(iso) {
@@ -18,13 +26,20 @@ export function dateHeure(iso) {
 /** L'ancrage d'un tour, en clair, avec le lien du bloc quand il existe. */
 export function ancrageDe(t) {
 	if (t.ots === 'bitcoin' && t.bloc) return `<a href="https://mempool.space/block/${t.bloc}">Bitcoin, bloc ${t.bloc}</a>`;
-	if (t.ots === 'calendrier') return 'en attente du bloc';
+	if (t.ots === 'calendrier') return 'en cours d’inscription dans Bitcoin';
 	return t.ots ? echapper(t.ots) : 'aucun';
 }
 
-const LIBELLE = { json: 'releve', racine: 'racine', 'racine.ots': '.ots', 'racine.tsr': '.tsr' };
+const LIBELLE = { json: 'relevé', racine: 'racine', 'racine.ots': '.ots', 'racine.tsr': '.tsr' };
 const liensDe = (t) =>
 	t.fichiers.map((f) => `<a href="/empreintes/${echapper(f)}">${LIBELLE[f.slice(t.id.length + 1)] ?? echapper(f)}</a>`).join(' ');
+
+/** Le choix d'un fichier, en francais : le bouton natif parle la langue du navigateur. */
+export const choixDeFichier = (texte) => `<div class="choix">
+<label class="bouton" for="fichier">${texte}</label>
+<input type="file" id="fichier" class="masque">
+<span id="nom-fichier">Aucun document choisi</span>
+</div>`;
 
 function gabarit({ titre, description, chemin, corps, script = '' }) {
 	return `<!doctype html>
@@ -39,29 +54,46 @@ function gabarit({ titre, description, chemin, corps, script = '' }) {
 <link rel="icon" href="/icone.svg" type="image/svg+xml">
 ${script}</head>
 <body>
-<header><a class="marque" href="/">Journal des empreintes</a><nav><a href="/deposer">Déposer</a> <a href="/verifier">Vérifier</a></nav></header>
+<header><a class="marque" href="/">Empreintes</a><nav>${lien('dater')} ${lien('verifier')} ${lien('journal')}</nav></header>
 <main>
 ${corps}
 </main>
-<footer>Éditeur${NBSP}: <a href="https://florianmousseau.com">Florian Mousseau</a>. Miroir${NBSP}: <a href="${MIROIR}">${MIROIR.replace('https://', '')}</a></footer>
+<footer>Éditeur${NBSP}: <a href="https://florianmousseau.com">Florian Mousseau</a>. Code et journal${NBSP}: <a href="${DEPOT}">${DEPOT.replace('https://', '')}</a></footer>
 </body>
 </html>
 `;
 }
 
-/** L'accueil : le dernier tour, puis tous les tours. */
+/** L'accueil : a quoi sert le service, et les deux gestes. */
 export function pageAccueil(tours) {
+	const dernier = tours.at(-1);
+	const compte = dernier ? `<p class="compte">${nombre(dernier.objets)} documents publics déjà datés depuis le ${dateHeure(tours[0].instant).split(' ')[0]}.</p>` : '';
+	return gabarit({
+		titre: 'Prouver la date d’un document',
+		description: "Prouvez gratuitement qu'un document existait à une date, sans modification. Sans compte ; le document reste chez vous.",
+		chemin: '/',
+		corps: `<section class="une">
+<h1>Prouvez qu’un document existait à une date, sans modification.</h1>
+<p>Gratuit, sans compte. Le document reste chez vous.</p>
+<p class="gestes">${lien('dater', 'bouton principal')} ${lien('verifier', 'bouton')}</p>
+</section>
+${compte}`
+	});
+}
+
+/** Le journal public : les chiffres, la derniere racine, chaque tour, et la chaine. */
+export function pageJournal(tours) {
 	const dernier = tours.at(-1);
 	const lignes = [...tours]
 		.reverse()
 		.map(
 			(t) =>
-				`<tr><td>${dateHeure(t.instant)}</td><td class="n">${nombre(t.objets)}</td><td><code title="${t.racine}">${t.racine.slice(0, 16)}</code></td><td>${ancrageDe(t)}</td><td>${liensDe(t)}</td></tr>`
+				`<tr><td>${dateHeure(t.instant)}</td><td class="n">${nombre(t.objets)}</td><td class="large"><code title="${t.racine}">${t.racine.slice(0, 16)}</code></td><td>${ancrageDe(t)}</td><td class="large">${liensDe(t)}</td></tr>`
 		)
 		.join('\n');
 	const tete = dernier
 		? `<dl class="chiffres">
-<div><dt>Objets</dt><dd>${nombre(dernier.objets)}</dd></div>
+<div><dt>Documents</dt><dd>${nombre(dernier.objets)}</dd></div>
 <div><dt>Tours</dt><dd>${nombre(tours.length)}</dd></div>
 <div><dt>Depuis le</dt><dd>${dateHeure(tours[0].instant).split(' ')[0]}</dd></div>
 </dl>
@@ -70,66 +102,67 @@ export function pageAccueil(tours) {
 <p>${ancrageDe(dernier)}</p>`
 		: '<p>Aucun tour publié.</p>';
 	return gabarit({
-		titre: 'Journal des empreintes',
-		description: "Empreintes SHA-256 des fichiers publics archivés chaque jour, chaînées et ancrées dans Bitcoin par OpenTimestamps.",
-		chemin: '/',
-		corps: `<h1>Journal des empreintes</h1>
+		titre: 'Journal public',
+		description: 'Chaque tour du journal des empreintes : documents, racine chaînée, ancrage Bitcoin, fichiers de preuve.',
+		chemin: '/journal',
+		script: '<script type="module" src="/verifier.js"></script>\n',
+		corps: `<h1>Journal public</h1>
 ${tete}
-<p><a class="bouton principal" href="/deposer">Dater un document</a> <a class="bouton" href="/verifier">Vérifier un fichier</a></p>
+<p><button type="button" id="chaine">Vérifier la chaîne</button></p>
+<div id="resultat-chaine" aria-live="polite"></div>
 <h2>${nombre(tours.length)} tours</h2>
-<div class="defile"><table>
-<thead><tr><th>Tour</th><th class="n">Objets</th><th>Racine</th><th>Ancrage</th><th>Fichiers</th></tr></thead>
+<table>
+<thead><tr><th>Tour</th><th class="n">Documents</th><th class="large">Racine</th><th>Bitcoin</th><th class="large">Fichiers</th></tr></thead>
 <tbody>
 ${lignes}
 </tbody>
-</table></div>`
+</table>
+<p><a href="${DEPOT}/blob/main/scripts/verifier.mjs">Script de vérification</a></p>`
 	});
 }
 
-/** Le verificateur : un fichier ou une empreinte, puis la chaine. */
+const autresVoies = (champs) => `<details>
+<summary>Pas le fichier sous la main${NBSP}?</summary>
+${champs}
+</details>`;
+
+/** Verifier : un document, ou son empreinte. */
 export function pageVerifier() {
 	return gabarit({
-		titre: 'Vérifier un fichier',
-		description: "Dire si un fichier était servi tel quel un jour donné, et vérifier la chaîne des racines du journal.",
+		titre: ACTES.verifier.nom,
+		description: "Vérifier qu'un document est identique à celui qui a été daté, et à quelle date.",
 		chemin: '/verifier',
 		script: '<script type="module" src="/verifier.js"></script>\n',
-		corps: `<h1>Vérifier un fichier</h1>
+		corps: `<h1>${ACTES.verifier.nom}</h1>
 <form id="formulaire">
-<label for="fichier">Fichier</label>
-<input type="file" id="fichier">
-<label for="empreinte">Ou son empreinte SHA-256</label>
-<input type="text" id="empreinte" inputmode="text" autocomplete="off" spellcheck="false" pattern="[0-9a-fA-F]{64}">
-<button type="submit">Vérifier</button>
+${choixDeFichier('Choisir le document')}
+${autresVoies(`<label for="empreinte">Son empreinte SHA-256</label>
+<input type="text" id="empreinte" autocomplete="off" spellcheck="false">`)}
+<button type="submit" class="principal">Vérifier</button>
 </form>
-<div id="resultat" aria-live="polite"></div>
-<h2>Chaîne des racines</h2>
-<p><button type="button" id="chaine">Vérifier la chaîne</button></p>
-<div id="resultat-chaine" aria-live="polite"></div>
-<p><a href="${MIROIR}/blob/main/scripts/verifier.mjs">Script de vérification</a></p>`
+<div id="resultat" aria-live="polite"></div>`
 	});
 }
 
-/** Le depot : une empreinte, un fichier haché sur place, ou une adresse que le service lit lui-meme. */
+/** Dater : le fichier par defaut, les deux autres voies repliees. */
 export function pageDeposer() {
 	return gabarit({
-		titre: 'Dater un document',
-		description: "Déposer gratuitement l'empreinte SHA-256 d'un document dans le journal public, ancré dans Bitcoin, et recevoir son reçu.",
+		titre: ACTES.dater.nom,
+		description: "Dater gratuitement un document dans le journal public, ancré dans Bitcoin, et recevoir son reçu de preuve.",
 		chemin: '/deposer',
 		script: '<script type="module" src="/deposer.js"></script>\n',
-		corps: `<h1>Dater un document</h1>
-<p class="chapeau">Son empreinte SHA-256 entre dans le journal public, ancré dans Bitcoin. Le document ne quitte pas votre appareil.</p>
+		corps: `<h1>${ACTES.dater.nom}</h1>
 <form id="formulaire">
-<label for="fichier">Fichier</label>
-<input type="file" id="fichier">
-<label for="empreinte">Ou son empreinte SHA-256</label>
-<input type="text" id="empreinte" autocomplete="off" spellcheck="false">
-<label for="url">Ou l’adresse publique du document, lue par le service</label>
+${choixDeFichier('Choisir le document')}
+${autresVoies(`<label for="url">Son adresse en ligne</label>
 <input type="text" id="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://">
-<label for="libelle">Libellé (facultatif, gardé dans votre reçu)</label>
+<label for="empreinte">Ou son empreinte SHA-256</label>
+<input type="text" id="empreinte" autocomplete="off" spellcheck="false">`)}
+<label for="libelle">Un nom pour vous en souvenir (facultatif)</label>
 <input type="text" id="libelle" maxlength="200" autocomplete="off">
-<button type="submit" class="principal">Déposer</button>
+<button type="submit" class="principal">Dater ce document</button>
 </form>
 <div id="resultat" aria-live="polite"></div>
-<p>Gratuit, sans compte${NBSP}: 20 dépôts par jour et par adresse.</p>`
+<p class="compte">Gratuit, sans compte, jusqu’à 20 documents par jour.</p>`
 	});
 }
