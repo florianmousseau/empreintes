@@ -67,11 +67,19 @@ async function reconnaitreLaCommune() {
 
 // Le bouton dit ce qui sera date.
 // Un acte se date avec son objet.
-$('acte') && $('nature').addEventListener('change', () => {
+// Au chargement aussi : un retour arriere rend au menu la nature choisie sans
+// declencher `change` (mesure le 2026-10-13 : « Délibération » restituee, bouton
+// « Dater ce document », objet facultatif, et le refus ne venait que du serveur).
+const accorderALaNature = () => {
 	const acte = Boolean($('nature').value);
 	$('formulaire').querySelector('button[type=submit]').textContent = acte ? 'Dater cet acte' : 'Dater ce document';
 	$('objet').required = acte;
-});
+};
+if ($('acte')) {
+	$('nature').addEventListener('change', accorderALaNature);
+	accorderALaNature();
+	window.addEventListener('pageshow', accorderALaNature);
+}
 
 let attente;
 $('url')?.addEventListener('input', () => {
