@@ -31,7 +31,7 @@ function afficher(r) {
 	$('resultat').innerHTML = `<article class="ok">
 ${tete}
 ${r.recu.libelle ? `<p><strong>${echapper(r.recu.libelle)}</strong></p>` : ''}
-<p>${acte ? `Ce fichier était servi à cette adresse à cet instant.` : `Gardez ce reçu avec le document${NBSP}: ensemble, ils prouvent qu’il existait ce jour-là, sans modification.`}</p>
+<p>${acte ? `Ce fichier était en ligne à cette adresse à cet instant.` : `Gardez ce reçu avec le document${NBSP}: ensemble, ils prouvent qu’il existait ce jour-là, sans modification.`}</p>
 <p class="gestes"><button type="button" id="imprimer" class="principal">Imprimer le reçu</button> <button type="button" id="recu">Télécharger le reçu</button></p>
 <details>
 <summary>Détails</summary>

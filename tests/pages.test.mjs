@@ -86,7 +86,12 @@ test("dater un acte demande l'adresse, la collectivite et la nature, et ne dit q
 	assert.match(html, /<h1>Dater un acte<\/h1>/);
 	for (const id of ['url', 'collectivite', 'nature', 'libelle']) assert.match(html, new RegExp(`id="${id}"`), id);
 	assert.match(html, /<option value="deliberation">Délibération<\/option><option value="arrete">Arrêté<\/option><option value="decision">Décision<\/option>/);
-	assert.match(html, /ce fichier était servi à cette adresse à cet instant/);
+	assert.match(html, /ce fichier était en ligne à cette adresse à cet instant/);
+	assert.ok(html.indexOf('reçu à imprimer ou à télécharger') < html.indexOf('Dater cet acte</button>'));
+	assert.match(html, /Adresse du fichier de l’acte \(le PDF\)/);
+	assert.match(html, /Un autre document\u00A0\? <a href="\/deposer">Dater un document<\/a>/);
+	assert.match(pageDeposer(), /Un acte de collectivité\u00A0\? <a href="\/acte">Dater un acte<\/a>/);
+	assert.ok(!/servi/.test(texteDe(html) + readFileSync(new URL('../public/deposer.js', import.meta.url), 'utf8')), 'un mot de tous les jours');
 	assert.ok(!html.includes('id="fichier"'), 'un acte ne se date que par son adresse');
 	for (const page of pages) assert.match(page, /<a href="\/acte">Dater un acte<\/a>/);
 	const tout = [...pages, readFileSync(new URL('../public/deposer.js', import.meta.url), 'utf8')].join('');
