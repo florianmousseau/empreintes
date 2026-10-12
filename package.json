@@ -4,7 +4,6 @@
   "type": "module",
   "engines": { "node": ">=22" },
   "scripts": {
-    "recuperer": "node scripts/recuperer.mjs",
     "construire": "node scripts/construire.mjs",
     "verifier": "node scripts/verifier.mjs",
     "check": "for f in src/*.mjs scripts/*.mjs public/*.js functions/*.js tests/*.mjs; do node --check \"$f\" || exit 1; done",

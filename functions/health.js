@@ -12,7 +12,8 @@ export async function onRequestGet({ request, env }) {
 	const dernier = tours.at(-1) ?? null;
 	const corps = {
 		service: 'empreintes',
-		...verdict(tours),
+		...verdict(tours, new Date(), liste?.copie ?? null),
+		copie: liste?.copie ?? null,
 		dernierTour: dernier && { id: dernier.id, racine: dernier.racine, objets: dernier.objets, ots: dernier.ots, bloc: dernier.bloc },
 		tours: tours.length,
 		deploye: { commit: version?.commit ?? 'inconnu', construit: version?.construit ?? null }
