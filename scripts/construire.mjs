@@ -8,7 +8,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { FICHIER_PUBLIE, ID_DE_TOUR, indexDesEmpreintes, resumeDe } from '../src/journal.mjs';
-import { pageAccueil, pageDeposer, pageIntrouvable, pageJournal, pageVerifier } from '../src/pages.mjs';
+import { pageAccueil, pageDeposer, pageDocumentation, pageIntrouvable, pageJournal, pageVerifier } from '../src/pages.mjs';
 
 const RACINE = path.resolve(import.meta.dirname, '..');
 const DONNEES = path.join(RACINE, 'donnees', 'empreintes');
@@ -46,6 +46,7 @@ ecrire('index.html', pageAccueil(tours));
 ecrire('verifier.html', pageVerifier());
 ecrire('journal.html', pageJournal(tours));
 ecrire('404.html', pageIntrouvable());
+ecrire('documentation.html', pageDocumentation());
 ecrire('deposer.html', pageDeposer());
 for (const m of ['chaine.mjs', 'depot.mjs']) ecrire(m, fs.readFileSync(path.join(RACINE, 'src', m)));
 for (const f of fs.readdirSync(path.join(RACINE, 'public'))) ecrire(f, fs.readFileSync(path.join(RACINE, 'public', f)));

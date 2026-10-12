@@ -8,7 +8,8 @@ const DEPOT = 'https://github.com/florianmousseau/empreintes';
 export const ACTES = {
 	dater: { chemin: '/deposer', nom: 'Dater un document' },
 	verifier: { chemin: '/verifier', nom: 'Vérifier un document' },
-	journal: { chemin: '/journal', nom: 'Registre des dates' }
+	journal: { chemin: '/journal', nom: 'Registre des dates' },
+	documentation: { chemin: '/documentation', nom: 'Documentation' }
 };
 
 /** Echappe un texte pour le HTML. */
@@ -58,7 +59,7 @@ ${script}</head>
 <main>
 ${corps}
 </main>
-<footer>Éditeur${NBSP}: <a href="https://florianmousseau.com">Florian Mousseau</a>. Code et journal${NBSP}: <a href="${DEPOT}">${DEPOT.replace('https://', '')}</a></footer>
+<footer>${lien('documentation')}. Éditeur${NBSP}: <a href="https://florianmousseau.com">Florian Mousseau</a>. Code et journal${NBSP}: <a href="${DEPOT}">${DEPOT.replace('https://', '')}</a></footer>
 </body>
 </html>
 `;
@@ -209,5 +210,51 @@ export function pageIntrouvable() {
 		chemin: '/404',
 		corps: `<h1>Page introuvable</h1>
 <p>${lien('dater', 'bouton principal')} ${lien('verifier', 'bouton')}</p>`
+	});
+}
+
+const ligneDoc = (gauche, droite) => `<tr><td><code>${gauche}</code></td><td>${droite}</td></tr>`;
+const tableDoc = (titre, lignes) => `<h2>${titre}</h2>
+<table class="doc">
+<tbody>
+${lignes.join('\n')}
+</tbody>
+</table>`;
+
+/** La documentation : les adresses, les limites et les formules, pour verifier sans ce site. */
+export function pageDocumentation() {
+	return gabarit({
+		titre: ACTES.documentation.nom,
+		description: 'Adresses, limites et formules du registre des dates : dater, lire et vérifier sans ce site.',
+		chemin: ACTES.documentation.chemin,
+		corps: `<h1>${ACTES.documentation.nom}</h1>
+${tableDoc('Dater', [
+	ligneDoc('POST /api/depots {"sha256": "&lt;64 hex&gt;", "libelle": "&lt;texte&gt;"}', 'une empreinte calculée par vous\u00A0; le libellé reste dans le reçu'),
+	ligneDoc('POST /api/depots {"url": "https://&lt;adresse&gt;"}', 'le service lit lui-même le document en ligne et date ses octets'),
+	ligneDoc('201', 'le reçu, son identifiant, la ligne publique'),
+	ligneDoc('429', `20 dépôts par jour et par adresse, 2${NBSP}000 par jour, <code>retry-after</code> jusqu’à minuit UTC`),
+	ligneDoc('409', 'une même adresse en ligne lue une fois par jour'),
+	ligneDoc('422', 'lecture impossible\u00A0: 20 Mo, 30 s, 5 redirections au plus, adresses publiques seulement')
+])}
+${tableDoc('Lire', [
+	ligneDoc('GET /depots/&lt;jour&gt;.jsonl', 'les dépôts du jour, une ligne <code>{"sha256","jour","place","recu"}</code> par dépôt'),
+	ligneDoc('GET /recu/&lt;id&gt;', 'la page d’un reçu'),
+	ligneDoc('GET /api/recus/&lt;id&gt;', 'la ligne publique d’un reçu'),
+	ligneDoc('GET /api/depots/&lt;sha256&gt;', 'les dépôts d’une empreinte'),
+	ligneDoc('GET /api/bilan', 'dépôts et déposants distincts, jour par jour'),
+	ligneDoc('GET /tours.json', 'les tours du registre'),
+	ligneDoc('GET /empreintes/&lt;tour&gt;.json', 'le relevé d’un tour, avec <code>.racine</code>, <code>.racine.ots</code>, <code>.racine.tsr</code>'),
+	ligneDoc('GET /empreintes/depots.jsonl', 'les dépôts lus par l’entrepôt, dans l’ordre de leur inscription'),
+	ligneDoc('GET /health', 'l’état du registre publié')
+])}
+${tableDoc('Vérifier sans ce site', [
+	ligneDoc('feuille', '<code>sha256(cle + "\\n" + sha256 + "\\n" + jour + "\\n")</code>'),
+	ligneDoc('arbre', 'Merkle SHA-256 sur les octets des deux enfants\u00A0; un niveau impair double son dernier nœud'),
+	ligneDoc('racine', '<code>sha256("entrepot\\n" + tour + "\\n" + précédente + "\\n" + arbre + "\\n")</code>\u00A0; le premier tour suit 64 zéros'),
+	ligneDoc('depots:&lt;n&gt;', 'la feuille des dépôts\u00A0: <code>sha256</code> des <code>n</code> premières lignes de <code>depots.jsonl</code>, chacune suivie de <code>"\\n"</code>'),
+	ligneDoc('reçu', 'identifiant\u00A0: <code>sha256</code> de sa forme canonique, clés triées, sans espace'),
+	ligneDoc('Bitcoin', '<code>ots verify &lt;tour&gt;.racine.ots</code>'),
+	ligneDoc('script', '<a href="https://github.com/florianmousseau/empreintes/blob/main/scripts/verifier.mjs">node scripts/verifier.mjs &lt;document | --chaine&gt;</a>')
+])}`
 	});
 }

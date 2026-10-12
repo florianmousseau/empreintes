@@ -11,6 +11,7 @@ export const SCHEMA = [
 	'CREATE TABLE IF NOT EXISTS compte (jour TEXT NOT NULL, adresse TEXT NOT NULL, n INTEGER NOT NULL, PRIMARY KEY (jour, adresse)) WITHOUT ROWID',
 	'CREATE TABLE IF NOT EXISTS lecture (cle TEXT PRIMARY KEY, jour TEXT NOT NULL) WITHOUT ROWID',
 	'CREATE TABLE IF NOT EXISTS sel (jour TEXT PRIMARY KEY, valeur TEXT NOT NULL) WITHOUT ROWID',
+	'CREATE TABLE IF NOT EXISTS bilan (jour TEXT PRIMARY KEY, depots INTEGER NOT NULL, deposants INTEGER NOT NULL) WITHOUT ROWID',
 	'CREATE INDEX IF NOT EXISTS depot_recu ON depot (recu)',
 	'CREATE INDEX IF NOT EXISTS depot_sha256 ON depot (sha256)'
 ];
@@ -25,6 +26,8 @@ const faire = (db, sql, ...args) => db.prepare(sql).bind(...args).run();
 /** Le sel du jour : tire une fois, jete le lendemain avec les compteurs et les lectures. */
 async function selDuJour(db, jour) {
 	await faire(db, 'DELETE FROM sel WHERE jour < ?', jour);
+	// Le compte des jours passes ne survit qu'en agregat : combien de depots, combien d'adresses distinctes ce jour-la.
+	await faire(db, 'INSERT INTO bilan (jour, depots, deposants) SELECT jour, SUM(n), COUNT(*) FROM compte WHERE jour < ? GROUP BY jour ON CONFLICT (jour) DO NOTHING', jour);
 	await faire(db, 'DELETE FROM compte WHERE jour < ?', jour);
 	await faire(db, 'DELETE FROM lecture WHERE jour < ?', jour);
 	await faire(db, 'INSERT INTO sel (jour, valeur) VALUES (?, ?) ON CONFLICT (jour) DO NOTHING', jour, selAleatoire());
@@ -152,4 +155,18 @@ export async function lignesDeLEmpreinte({ db, empreinte }) {
 export function lecturePublique(valeur) {
 	if (valeur === null) return refus(404, 'inconnu');
 	return reponse(200, valeur, { 'cache-control': 'public, max-age=60' });
+}
+
+/**
+ * Le bilan public, jour par jour : depots et deposants distincts (adresses
+ * distinctes ce jour-la, jamais suivies d'un jour a l'autre). Les jours clos
+ * viennent de `bilan`, le jour en cours et les jours pas encore purges du
+ * compteur vivant.
+ */
+export async function bilanPublic({ db }) {
+	const { results } = await db
+		.prepare('SELECT jour, depots, deposants FROM bilan UNION ALL SELECT jour, SUM(n) AS depots, COUNT(*) AS deposants FROM compte GROUP BY jour ORDER BY jour')
+		.all();
+	const jours = results.map((r) => ({ jour: r.jour, depots: Number(r.depots), deposants: Number(r.deposants) }));
+	return { jours, deposantsAuMoins: Math.max(0, ...jours.map((j) => j.deposants)) };
 }
