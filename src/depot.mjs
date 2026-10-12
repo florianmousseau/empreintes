@@ -1,0 +1,163 @@
+// Le depot d'une empreinte par un tiers : sa demande, son recu et la ligne
+// publique qui entre dans le journal. Pur : ni reseau, ni base.
+//
+// Ce qui se publie, une ligne par depot dans `/depots/<jour>.jsonl` :
+//   {"sha256":"<64 hex>","jour":"AAAA-MM-JJ","place":<n>,"recu":"<64 hex>"}
+// cles dans cet ordre, sans espace, terminee par "\n" ; `place` est le rang de
+// la ligne dans le fichier du jour, a partir de 1 ; `recu` est le sha256 du
+// recu canonique. Le libelle, l'URL et ce que le temoin a lu restent dans le
+// recu rendu au deposant, jamais sur une page publique.
+
+import { sha256 } from './chaine.mjs';
+
+/** Au plus autant de depots par adresse et par jour. */
+export const DEPOTS_PAR_ADRESSE = 20;
+/** Au plus autant de depots par jour, toutes adresses confondues. */
+export const DEPOTS_PAR_JOUR = 2000;
+export const LIBELLE_MAX = 200;
+export const URL_MAX = 2048;
+/** La version du recu ; une forme nouvelle prend un numero nouveau. */
+export const VERSION_DU_RECU = 1;
+
+const HEX64 = /^[0-9a-f]{64}$/;
+const JOUR = /^\d{4}-\d{2}-\d{2}$/;
+// Les caracteres de controle, et les deux separateurs qui coupent une ligne JSON lue en JavaScript.
+const CONTROLE = /[\u0000-\u001f\u007f-\u009f\u2028\u2029]/;
+
+/** Le jour UTC d'un instant. */
+export const jourDe = (instant) => new Date(instant).toISOString().slice(0, 10);
+
+/**
+ * Lit la demande d'un deposant : une empreinte declaree OU une URL a lire par
+ * le temoin, et un libelle facultatif. Rend `{ demande }` ou `{ erreurs }`.
+ */
+export function lireDemande(corps) {
+	const erreurs = [];
+	if (!corps || typeof corps !== 'object' || Array.isArray(corps)) return { erreurs: ['corps : un objet JSON est attendu'] };
+	const inconnus = Object.keys(corps).filter((k) => !['sha256', 'url', 'libelle'].includes(k));
+	if (inconnus.length) erreurs.push(`champs inconnus : ${inconnus.join(', ')}`);
+	const empreinte = typeof corps.sha256 === 'string' ? corps.sha256.trim().toLowerCase() : corps.sha256;
+	const url = typeof corps.url === 'string' ? corps.url.trim() : corps.url;
+	if (empreinte === undefined && url === undefined) erreurs.push('sha256 ou url : l un des deux est requis');
+	if (empreinte !== undefined && url !== undefined) erreurs.push('sha256 ou url : pas les deux, le temoin calcule l empreinte lui-meme');
+	if (empreinte !== undefined && !(typeof empreinte === 'string' && HEX64.test(empreinte))) erreurs.push('sha256 : 64 caracteres hexadecimaux');
+	if (url !== undefined && !(typeof url === 'string' && url.length > 0 && url.length <= URL_MAX)) erreurs.push(`url : texte de 1 a ${URL_MAX} caracteres`);
+	const libelle = lireLibelle(corps.libelle, erreurs);
+	if (erreurs.length) return { erreurs };
+	return { demande: { ...(empreinte !== undefined ? { sha256: empreinte } : { url }), ...(libelle ? { libelle } : {}) } };
+}
+
+function lireLibelle(valeur, erreurs) {
+	if (valeur === undefined || valeur === null) return null;
+	if (typeof valeur !== 'string') {
+		erreurs.push('libelle : un texte');
+		return null;
+	}
+	const libelle = valeur.trim().replace(/\s+/g, ' ');
+	if (libelle.length > LIBELLE_MAX) erreurs.push(`libelle : ${LIBELLE_MAX} caracteres au plus`);
+	if (CONTROLE.test(valeur.replace(/[\t\n\r]/g, ' '))) erreurs.push('libelle : aucun caractere de controle');
+	return libelle || null;
+}
+
+/** La serialisation canonique : cles triees a chaque niveau, aucun espace, champs absents omis. */
+export function canonique(valeur) {
+	if (valeur === null || typeof valeur !== 'object') return JSON.stringify(valeur);
+	if (Array.isArray(valeur)) return `[${valeur.map(canonique).join(',')}]`;
+	const cles = Object.keys(valeur)
+		.filter((k) => valeur[k] !== undefined)
+		.sort();
+	return `{${cles.map((k) => `${JSON.stringify(k)}:${canonique(valeur[k])}`).join(',')}}`;
+}
+
+/** Un sel de 128 bits : l'identifiant public du recu ne se devine pas depuis son libelle. */
+export function selAleatoire() {
+	const octets = new Uint8Array(16);
+	globalThis.crypto.getRandomValues(octets);
+	return Array.from(octets, (o) => o.toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * Le recu d'un depot. `temoin` porte ce que le service a lu lui-meme (url
+ * finale, taille, type, instant de lecture) ; sans lui, l'empreinte est
+ * declaree par le deposant et le recu le dit (`source`).
+ */
+export function recuDe({ sha256: empreinte, instant, place, libelle = null, url = null, temoin = null, sel = selAleatoire() }) {
+	if (!HEX64.test(empreinte)) throw new Error('recu : sha256 illisible');
+	if (!Number.isInteger(place) || place < 1) throw new Error('recu : place entiere a partir de 1');
+	return {
+		version: VERSION_DU_RECU,
+		sha256: empreinte,
+		jour: jourDe(instant),
+		place,
+		depose: new Date(instant).toISOString(),
+		source: temoin ? 'temoin' : 'declare',
+		libelle: libelle ?? undefined,
+		url: url ?? undefined,
+		temoin: temoin ? { url: temoin.url, taille: temoin.taille, type: temoin.type ?? null, lu: temoin.lu } : undefined,
+		sel
+	};
+}
+
+/** L'identifiant public d'un recu : le sha256 de sa forme canonique. */
+export const idDuRecu = (recu) => sha256(canonique(recu));
+
+/** La ligne publique d'un depot, cles dans l'ordre du format, terminee par un saut de ligne. */
+export function ligneDe({ sha256: empreinte, jour, place, recu }) {
+	if (!HEX64.test(empreinte) || !HEX64.test(recu)) throw new Error('ligne : sha256 et recu en 64 hex');
+	if (!JOUR.test(jour)) throw new Error('ligne : jour AAAA-MM-JJ');
+	if (!Number.isInteger(place) || place < 1) throw new Error('ligne : place entiere a partir de 1');
+	return `${JSON.stringify({ sha256: empreinte, jour, place, recu })}\n`;
+}
+
+/** La ligne publique d'un recu, celle que le recu engage. */
+export async function ligneDuRecu(recu) {
+	return ligneDe({ sha256: recu.sha256, jour: recu.jour, place: recu.place, recu: await idDuRecu(recu) });
+}
+
+/**
+ * Relit un fichier `/depots/<jour>.jsonl` : chaque ligne a la forme exacte du
+ * format, son jour est celui du fichier et les places se suivent depuis 1.
+ * Rend les lignes, ou leve sur la premiere qui s'ecarte.
+ */
+export function lireFichierDuJour(texte, jour) {
+	if (texte === '') return [];
+	if (!texte.endsWith('\n')) throw new Error('depots : le fichier finit par un saut de ligne');
+	return texte
+		.slice(0, -1)
+		.split('\n')
+		.map((brute, i) => {
+			let ligne;
+			try {
+				ligne = JSON.parse(brute);
+			} catch {
+				throw new Error(`depots ligne ${i + 1} : JSON illisible`);
+			}
+			if (ligne?.jour !== jour || ligne.place !== i + 1 || `${brute}\n` !== ligneOuNull(ligne)) throw new Error(`depots ligne ${i + 1} : hors format`);
+			return ligne;
+		});
+}
+
+function ligneOuNull(ligne) {
+	try {
+		return ligneDe(ligne);
+	} catch {
+		return null;
+	}
+}
+
+/** La cle sous laquelle une adresse est comptee un jour : jamais l'adresse elle-meme. */
+export const cleDAdresse = (adresse, selDuJour) => sha256(`${adresse}\n${selDuJour}`);
+
+/** Les secondes jusqu'au prochain minuit UTC, quand les compteurs repartent. */
+export function secondesAvantDemain(instant) {
+	const t = new Date(instant);
+	const minuit = Date.UTC(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate() + 1);
+	return Math.max(1, Math.ceil((minuit - t.getTime()) / 1000));
+}
+
+/** Le verdict des plafonds : `{ ok: true }`, ou le motif et le `retry-after` en secondes. */
+export function plafond({ deCetteAdresse, duJour, instant }) {
+	if (duJour >= DEPOTS_PAR_JOUR) return { ok: false, motif: 'plafond du jour atteint', apres: secondesAvantDemain(instant) };
+	if (deCetteAdresse >= DEPOTS_PAR_ADRESSE) return { ok: false, motif: 'plafond de cette adresse atteint', apres: secondesAvantDemain(instant) };
+	return { ok: true };
+}

@@ -3,7 +3,7 @@
 Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
 
 - `npm run gate` avant tout commit : `node --check`, construction, tests avec
-  plancher de couverture (90 %). Il ne baisse jamais.
+  plancher de couverture (95 %). Il ne baisse jamais.
 - Deploiement : `publier.yml`, a chaque push sur `main` (Cloudflare Pages,
   projet `empreintes`). Le journal `donnees/empreintes/` est POUSSE par
   l'entrepot depuis le VPS (cle de deploiement de ce seul depot) : c'est la
@@ -23,3 +23,9 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
 - Sonde : `/health` (Pages Function), 200 toujours, `alerte` sur l'age du
   dernier tour (12 h, 36 h) et les preuves restees aux calendriers (48 h) ;
   copie suspendue : `attention`, un seul constat qui la nomme.
+- Le depot d'une empreinte par un tiers (D-163) : le FORMAT de la ligne
+  publique `/depots/<jour>.jsonl` et du recu est ecrit en tete de
+  `src/depot.mjs`, et l'entrepot le relit (feuille `depots:<n>`) : il ne
+  change que par une version de recu nouvelle, jamais en place. Les gardes du
+  temoin d'URL sont dans `src/temoin.mjs`, pures ; la Function ne fait que les
+  brancher.
