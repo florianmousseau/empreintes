@@ -107,7 +107,7 @@ function champ(xml, nom) {
 
 /** La valeur d'un attribut d'une balise ouvrante, decodee ; null s'il manque. */
 function attribut(balise, nom) {
-	const m = new RegExp(`\\s${nom}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`).exec(balise);
+	const m = new RegExp(String.raw`\s${nom}\s*=\s*(?:"([^"]*)"|'([^']*)')`).exec(balise);
 	return m ? decoder(m[1] ?? m[2]) : null;
 }
 
