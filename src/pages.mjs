@@ -12,7 +12,7 @@ export const ACTES = {
 	dater: { chemin: '/deposer', nom: 'Dater un document' },
 	verifier: { chemin: '/verifier', nom: 'Vérifier un document' },
 	journal: { chemin: '/journal', nom: 'Registre des dates' },
-	acte: { chemin: '/acte', nom: 'Dater un acte' },
+	acte: { chemin: '/acte', nom: 'Dater la mise en ligne d’un acte' },
 	documentation: { chemin: '/documentation', nom: 'Documentation' },
 	mentions: { chemin: '/mentions-legales', nom: 'Mentions légales' }
 };
@@ -96,11 +96,11 @@ ${structure ? jsonLd(structure) : ''}
 <link rel="icon" href="/icone.svg" type="image/svg+xml">
 ${script}</head>
 <body>
-<header><a class="marque" href="/">Témoin public</a><nav>${lien('dater')} ${lien('verifier')} ${lien('journal')}</nav></header>
+<header><a class="marque" href="/">Témoin public</a><nav>${lien('dater')} ${lien('acte')} ${lien('verifier')} ${lien('journal')}</nav></header>
 <main>
 ${corps}
 </main>
-<footer>${lien('acte')}. ${lien('documentation')}. ${lien('mentions')}. Éditeur${NBSP}: <a href="https://florianmousseau.com">Florian Mousseau</a>. Code et journal${NBSP}: <a href="${DEPOT}">${DEPOT.replace('https://', '')}</a></footer>
+<footer>${lien('documentation')}. ${lien('mentions')}. Éditeur${NBSP}: <a href="https://florianmousseau.com">Florian Mousseau</a>. Code et journal${NBSP}: <a href="${DEPOT}">${DEPOT.replace('https://', '')}</a></footer>
 </body>
 </html>
 `;
@@ -117,8 +117,8 @@ export function pageAccueil(tours) {
 		structure: DONNEES_STRUCTUREES,
 		corps: `<section class="une">
 <h1>Prouvez qu’un document existait à une date, sans modification.</h1>
-<p>Gratuit, sans compte. Seule son empreinte, un code de 64 caractères, est publiée${NBSP}: jamais le document.</p>
-<p class="gestes">${lien('dater', 'bouton principal')} ${lien('verifier', 'bouton')}</p>
+<p>Gratuit, sans compte. Le document reste chez vous${NBSP}: vous recevez un reçu daté, à garder avec lui.</p>
+<p class="gestes">${lien('dater', 'bouton principal')} ${lien('acte', 'bouton')} ${lien('verifier', 'bouton')}</p>
 </section>
 ${compte}`
 	});
