@@ -228,16 +228,17 @@ export const SERIE_MAX = 500;
 /**
  * La serie publique d'une collectivite : ses actes rattaches, du plus recent au
  * plus ancien, sous chacun de ses codes (INSEE et SIREN) : la ligne publique,
- * la nature, l'objet donne au depot et l'adresse lue sur le site officiel.
+ * la nature, l'objet donne au depot et l'adresse lue sur le site officiel ;
+ * `depuis`, le jour du premier acte date.
  */
 export async function serieDeLaCollectivite({ db, codes, limite = SERIE_MAX }) {
 	const marques = codes.map(() => '?').join(', ');
-	const total = Number((await un(db, `SELECT COUNT(*) AS n FROM acte WHERE collectivite IN (${marques})`, ...codes)).n);
+	const compte = await un(db, `SELECT COUNT(*) AS n, MIN(d.jour) AS depuis FROM acte a JOIN depot d ON d.recu = a.recu WHERE a.collectivite IN (${marques})`, ...codes);
 	const { results } = await db
 		.prepare(`SELECT d.jour, d.place, d.sha256, d.recu, a.nature, a.objet, a.url FROM acte a JOIN depot d ON d.recu = a.recu WHERE a.collectivite IN (${marques}) ORDER BY d.jour DESC, d.place DESC LIMIT ?`)
 		.bind(...codes, limite)
 		.all();
-	return { total, actes: results };
+	return { total: Number(compte.n), depuis: compte.depuis ?? null, actes: results };
 }
 
 /** L'acte rattache que porte un recu, `{ collectivite, nature, objet, url }` ; null pour tout autre depot. */

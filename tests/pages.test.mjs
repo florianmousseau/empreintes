@@ -100,7 +100,7 @@ test("dater un acte demande l'adresse, la collectivite et la nature, et ne dit q
 	assert.equal(ACTES.acte.nom, 'Acte de collectivité');
 	assert.equal(ACTES.acte.titre, 'Dater la mise en ligne d’un acte');
 	assert.match(html, /<h1>Dater la mise en ligne d’un acte<\/h1>/);
-	for (const id of ['url', 'collectivite', 'nature', 'libelle']) assert.match(html, new RegExp(`id="${id}"`), id);
+	for (const id of ['url', 'collectivite', 'nature', 'objet']) assert.match(html, new RegExp(`id="${id}"`), id);
 	assert.match(html, /<option value="deliberation">Délibération<\/option><option value="arrete">Arrêté<\/option><option value="decision">Décision<\/option>/);
 	assert.match(html, /ce fichier était en ligne à cette adresse à cet instant/);
 	assert.ok(html.indexOf('reçu à imprimer ou à télécharger') > html.indexOf('Dater cet acte</button>'));
@@ -110,11 +110,13 @@ test("dater un acte demande l'adresse, la collectivite et la nature, et ne dit q
 		assert.match(dater, /<div id="acte" class="acte" hidden>/, "un lien sur le site d'une commune propose l'acte");
 		assert.match(dater, /<select id="nature"><option value="">Non, un autre document<\/option><option value="deliberation">/);
 		assert.match(dater, /<input type="hidden" id="collectivite">/);
+		assert.match(dater, /<label for="objet">Objet de l’acte<\/label>\n<input type="text" id="objet" maxlength="200" autocomplete="off">/);
 	}
 	assert.match(html, /<a href="\/deposer" aria-current="page">Dater<\/a>/, 'dater un acte reste sous Dater dans le menu');
 	assert.ok(!/servi/.test(texteDe(html) + readFileSync(new URL('../public/deposer.js', import.meta.url), 'utf8')), 'un mot de tous les jours');
 	assert.ok(!html.includes('id="fichier"'), 'un acte ne se date que par son adresse');
-	for (const page of pages) assert.match(page, /<a href="\/acte">Acte de collectivité<\/a>/);
+	assert.match(html, /<label for="objet">Objet de l’acte<\/label>\n<input type="text" id="objet" maxlength="200" autocomplete="off" required>/, "un acte se date avec son objet");
+	for (const page of pages) assert.doesNotMatch(page, /<a href="\/acte">/, 'un seul chemin vers un acte hors de Dater : le bouton de la commune');
 	const tout = [...pages, readFileSync(new URL('../public/deposer.js', import.meta.url), 'utf8')].join('');
 	for (const interdit of [/vaut publication/i, /certifi/i, /qualifi/i]) assert.doesNotMatch(tout, interdit);
 });
