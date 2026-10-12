@@ -1,13 +1,11 @@
-# Chaque heure : copie le journal de la Box, le verifie, le garde dans ce depot (le miroir) et deploie la surface.
+# A chaque push sur main (le code, ou le journal pousse par l'entrepot dans donnees/) : gate puis deploiement.
 name: publier
 on:
   push:
     branches: [main]
-  schedule:
-    - cron: '23 * * * *'
   workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
 concurrency:
   group: publier
   cancel-in-progress: false
@@ -20,22 +18,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Recuperer le journal
-        env:
-          STORAGEBOX_UTILISATEUR: ${{ secrets.STORAGEBOX_UTILISATEUR }}
-          STORAGEBOX_MOTDEPASSE: ${{ secrets.STORAGEBOX_MOTDEPASSE }}
-        run: node scripts/recuperer.mjs
       - name: Gate
         run: npm run gate
-      - name: Miroir
-        run: |
-          git add donnees
-          if ! git diff --cached --quiet; then
-            git -c user.name="Florian Mousseau" -c user.email="florian.mousseau@gmail.com" commit -q -m "chore: mirror the fingerprint journal"
-            git push origin HEAD:main
-          fi
-      - name: Construire
-        run: npm run construire
       - name: Deployer
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

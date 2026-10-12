@@ -8,7 +8,7 @@ empreintes.
 https://empreintes.florianmousseau.com
 
 - `donnees/empreintes/` : le miroir du journal (releves, racines, preuves
-  `.ots`, horodatages `.tsr`, `ancrages.json`), copie chaque heure.
+  `.ots`, horodatages `.tsr`, `ancrages.json`), pousse par l'entrepot.
 - `/verifier` : un fichier ou une empreinte, et la chaine des racines.
 
 ```sh

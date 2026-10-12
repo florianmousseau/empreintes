@@ -4,11 +4,8 @@
 /** Un identifiant de tour, tel que l'entrepot le nomme. */
 export const ID_DE_TOUR = /^\d{8}T\d{6}Z$/;
 
-/** Les fichiers du journal qui se publient ; tout le reste (cache, .bak) reste sur la Box. */
+/** Les fichiers du journal qui se publient ; tout le reste (cache, .bak) reste chez l'entrepot. */
 export const FICHIER_PUBLIE = /^(\d{8}T\d{6}Z\.(json|racine|racine\.ots|racine\.tsr)|ancrages\.json)$/;
-
-/** Un fichier qui ne change jamais une fois ecrit : un ecart de taille est une anomalie, pas une mise a jour. */
-export const IMMUABLE = /^\d{8}T\d{6}Z\.(json|racine)$/;
 
 /** Les feuilles qui sont des objets de l'archive, sans les manifestes ni les listes du tour. */
 export const estUnObjet = (f) => !/^(manifeste|liste):/.test(f.cle);
@@ -68,9 +65,16 @@ export const SEUIL_ROUGE_H = 36;
 /** Une preuve encore aux calendriers apres ce delai n'atteindra plus Bitcoin seule. */
 export const SEUIL_CALENDRIER_H = 48;
 
-/** Le verdict de la sonde : `ok`, `attention` ou `rouge`, avec ses constats. */
-export function verdict(tours, maintenant = new Date()) {
+/**
+ * Le verdict de la sonde : `ok`, `attention` ou `rouge`, avec ses constats.
+ * Une copie SUSPENDUE de propos delibere ne lit plus l'age ni les ancrages, qui
+ * ne bougent plus par construction : un seul constat, `attention`, qui la nomme.
+ */
+export function verdict(tours, maintenant = new Date(), copie = null) {
 	if (tours.length === 0) return { alerte: 'rouge', constats: ['aucun tour publie'] };
+	if (copie?.etat === 'suspendue') {
+		return { alerte: 'attention', constats: [`copie du journal suspendue depuis le ${copie.depuis} : dernier tour publie ${tours.at(-1).id}`] };
+	}
 	const constats = [];
 	let alerte = 'ok';
 	const monter = (niveau) => {

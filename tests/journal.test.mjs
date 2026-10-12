@@ -53,3 +53,12 @@ test("une preuve restee aux calendriers plus de 48 h est un constat ; une recent
 	assert.equal(v.constats.length, 1);
 	assert.equal(verdict([tour('2026-10-09T10:00:00Z', null), tour('2026-10-10T10:00:00Z')], maintenant).alerte, 'rouge');
 });
+
+test('une copie suspendue dit attention et la nomme, sans passer rouge sur un journal vieux', () => {
+	const copie = { etat: 'suspendue', depuis: '2026-10-12' };
+	const v = verdict([tour('2026-10-01T10:00:00Z', 'calendrier')], maintenant, copie);
+	assert.equal(v.alerte, 'attention');
+	assert.deepEqual(v.constats, ['copie du journal suspendue depuis le 2026-10-12 : dernier tour publie 20261001T100000Z']);
+	assert.equal(verdict([], maintenant, copie).alerte, 'rouge');
+	assert.equal(verdict([tour('2026-10-12T10:00:00Z')], maintenant, { etat: 'active' }).alerte, 'ok');
+});
