@@ -39,7 +39,7 @@ function gabarit({ titre, description, chemin, corps, script = '' }) {
 <link rel="icon" href="/icone.svg" type="image/svg+xml">
 ${script}</head>
 <body>
-<header><a class="marque" href="/">Journal des empreintes</a><nav><a href="/verifier">Vérifier</a></nav></header>
+<header><a class="marque" href="/">Journal des empreintes</a><nav><a href="/deposer">Déposer</a> <a href="/verifier">Vérifier</a></nav></header>
 <main>
 ${corps}
 </main>
@@ -75,7 +75,7 @@ export function pageAccueil(tours) {
 		chemin: '/',
 		corps: `<h1>Journal des empreintes</h1>
 ${tete}
-<p><a class="bouton" href="/verifier">Vérifier un fichier</a></p>
+<p><a class="bouton principal" href="/deposer">Dater un document</a> <a class="bouton" href="/verifier">Vérifier un fichier</a></p>
 <h2>${nombre(tours.length)} tours</h2>
 <div class="defile"><table>
 <thead><tr><th>Tour</th><th class="n">Objets</th><th>Racine</th><th>Ancrage</th><th>Fichiers</th></tr></thead>
@@ -106,5 +106,30 @@ export function pageVerifier() {
 <p><button type="button" id="chaine">Vérifier la chaîne</button></p>
 <div id="resultat-chaine" aria-live="polite"></div>
 <p><a href="${MIROIR}/blob/main/scripts/verifier.mjs">Script de vérification</a></p>`
+	});
+}
+
+/** Le depot : une empreinte, un fichier haché sur place, ou une adresse que le service lit lui-meme. */
+export function pageDeposer() {
+	return gabarit({
+		titre: 'Dater un document',
+		description: "Déposer gratuitement l'empreinte SHA-256 d'un document dans le journal public, ancré dans Bitcoin, et recevoir son reçu.",
+		chemin: '/deposer',
+		script: '<script type="module" src="/deposer.js"></script>\n',
+		corps: `<h1>Dater un document</h1>
+<p class="chapeau">Son empreinte SHA-256 entre dans le journal public, ancré dans Bitcoin. Le document ne quitte pas votre appareil.</p>
+<form id="formulaire">
+<label for="fichier">Fichier</label>
+<input type="file" id="fichier">
+<label for="empreinte">Ou son empreinte SHA-256</label>
+<input type="text" id="empreinte" autocomplete="off" spellcheck="false">
+<label for="url">Ou l’adresse publique du document, lue par le service</label>
+<input type="text" id="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://">
+<label for="libelle">Libellé (facultatif, gardé dans votre reçu)</label>
+<input type="text" id="libelle" maxlength="200" autocomplete="off">
+<button type="submit" class="principal">Déposer</button>
+</form>
+<div id="resultat" aria-live="polite"></div>
+<p>Gratuit, sans compte${NBSP}: 20 dépôts par jour et par adresse.</p>`
 	});
 }
