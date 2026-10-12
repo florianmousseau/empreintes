@@ -1,8 +1,15 @@
-// DELETE /api/flux/<id> : retirer un flux, `authorization: Bearer <jeton>` ; les versions deja deposees restent.
-import { retirerFlux } from '../../../src/suivi.mjs';
+// GET /api/flux/<id> : le registre prive d'un flux ; DELETE : le retirer, les versions deja deposees restent.
+// Les deux demandent `authorization: Bearer <jeton>`.
+import { registrePrive, retirerFlux } from '../../../src/suivi.mjs';
+
+const jetonDe = (request) => (request.headers.get('authorization') ?? '').replace(/^Bearer\s+/i, '');
+
+export async function onRequestGet({ request, params, env }) {
+	const r = await registrePrive({ db: env.DEPOTS, id: params.id, jeton: jetonDe(request) });
+	return new Response(r.corps, { status: r.statut, headers: r.entetes });
+}
 
 export async function onRequestDelete({ request, params, env }) {
-	const jeton = (request.headers.get('authorization') ?? '').replace(/^Bearer\s+/i, '');
-	const r = await retirerFlux({ db: env.DEPOTS, id: params.id, jeton });
+	const r = await retirerFlux({ db: env.DEPOTS, id: params.id, jeton: jetonDe(request) });
 	return new Response(r.corps, { status: r.statut, headers: r.entetes });
 }

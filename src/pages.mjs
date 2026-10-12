@@ -282,6 +282,43 @@ ${lignesDActe(acte)}<div><dt>Empreinte</dt><dd><code class="racine">${ligne.sha2
 	});
 }
 
+/** Le registre public d'un editeur : chaque version datee de ses articles, sans adresse ni titre. */
+export function pageEditeur({ flux, total, versions }) {
+	const parArticle = new Map();
+	for (const v of versions) parArticle.set(v.article, (parArticle.get(v.article) ?? 0) + 1);
+	const lignes = versions
+		.map(
+			(v) =>
+				`<tr><td><code>${v.article.slice(0, 12)}</code></td><td class="n">${parArticle.get(v.article)}</td><td><a href="/recu/${v.recu}">${jourFr(v.jour)}</a></td><td class="n">${v.place}</td><td class="large"><code title="${v.sha256}">${v.sha256.slice(0, 16)}</code></td></tr>`
+		)
+		.join('\n');
+	const tableau = versions.length
+		? `<table>
+<thead><tr><th>Article</th><th class="n">Versions</th><th>Datée le</th><th class="n">Ligne</th><th class="large">Empreinte</th></tr></thead>
+<tbody>
+${lignes}
+</tbody>
+</table>
+${total > versions.length ? `<p class="compte">Les ${nombre(versions.length)} plus récentes sur ${nombre(total)}.</p>` : ''}`
+		: '';
+	const etat = flux.retire ? `Suivi du ${jourFr(flux.inscrit.slice(0, 10))} au ${jourFr(flux.retire.slice(0, 10))}` : `Suivi depuis le ${jourFr(flux.inscrit.slice(0, 10))}`;
+	return gabarit({
+		titre: `Registre de l’éditeur ${flux.id}`,
+		description: `Les versions datées des articles du flux ${flux.id}${NBSP}: date, ligne du registre, empreinte.`,
+		chemin: `/editeur/${flux.id}`,
+		indexer: total > 0,
+		script: '<script type="module" src="/editeur.js"></script>\n',
+		corps: `<h1>Registre de l’éditeur</h1>
+<p class="sous-titre">Flux ${flux.id}. ${etat}.</p>
+<h2>${titreDeVersions(parArticle.size, total)}</h2>
+${tableau}
+<section id="prive" data-flux="${flux.id}" hidden></section>`
+	});
+}
+
+const titreDeVersions = (articles, versions) =>
+	versions ? `${nombre(versions)} version${marqueDuPluriel(versions)}, ${nombre(articles)} article${marqueDuPluriel(articles)}` : 'Aucune version datée';
+
 /** Une adresse de recu qui ne nomme aucun depot. */
 export function pageRecuInconnu() {
 	return gabarit({
@@ -325,6 +362,8 @@ ${tableDoc('Dater', [
 	ligneDoc('POST /api/depots {"type": "acte", "url": "https://&lt;adresse&gt;", "collectivite": "&lt;INSEE | SIREN&gt;", "nature": "deliberation | arrete | decision"}', 'un acte de collectivité, lu à son adresse\u00A0; reçu version 2, ligne publique inchangée'),
 	ligneDoc('201', 'le reçu, son identifiant, la ligne publique'),
 	ligneDoc('POST /api/flux {"url": "https://&lt;flux RSS ou Atom&gt;"}', 'suivre un flux\u00A0: chaque heure, chaque article nouveau ou modifié est lu et daté\u00A0; rend l’identifiant du flux et son jeton'),
+	ligneDoc('GET /editeur/&lt;id&gt;', 'le registre public d’un flux\u00A0: chaque version datée, sans adresse ni titre\u00A0; avec <code>#&lt;jeton&gt;</code>, les adresses et les reçus'),
+	ligneDoc('GET /api/flux/&lt;id&gt;', 'le registre privé d’un flux, <code>authorization: Bearer &lt;jeton&gt;</code>'),
 	ligneDoc('DELETE /api/flux/&lt;id&gt;', 'cesser de suivre un flux, <code>authorization: Bearer &lt;jeton&gt;</code>\u00A0; les dates déjà enregistrées restent'),
 	ligneDoc('429', `20 dépôts par jour et par adresse, 2${NBSP}000 par jour, <code>retry-after</code> jusqu’à minuit UTC`),
 	ligneDoc('409', 'une même adresse en ligne lue une fois par jour'),

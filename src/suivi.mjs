@@ -66,7 +66,7 @@ export async function inscrireFlux({ db, corps, maintenant = new Date(), temoin 
 	const jeton = selAleatoire() + selAleatoire();
 	await faire(db, 'DELETE FROM flux WHERE id = ?', id);
 	await faire(db, 'INSERT INTO flux (id, url, jeton, inscrit) VALUES (?, ?, ?, ?)', id, admise.url, await sha256(jeton), maintenant.toISOString());
-	return reponse(201, { id, jeton, format: flux.format, entrees: flux.entrees.length });
+	return reponse(201, { id, jeton, format: flux.format, entrees: flux.entrees.length, registre: `/editeur/${id}`, prive: `/editeur/${id}#${jeton}` });
 }
 
 /** Retire un flux sur presentation de son jeton ; les versions deja deposees restent dans l'arbre. */
@@ -150,4 +150,35 @@ export async function tourneeDesFlux({ db, maintenant = new Date(), temoin = tem
 		if (reste > 0) reste -= await tourneeDuFlux({ db, flux, instant, jour, temoin, budget: reste });
 	});
 	return { flux: suivis.length, lectures: budget - reste };
+}
+
+/** Au plus tant de versions sur le registre public d'un editeur ; le compte dit les autres. */
+export const REGISTRE_MAX = 2000;
+
+/**
+ * Le registre public d'un flux : ses versions (article, jour, place,
+ * empreinte, recu), sans adresse ni titre ; null pour un flux inconnu.
+ */
+export async function registreDeLEditeur({ db, id, limite = REGISTRE_MAX }) {
+	const flux = await un(db, 'SELECT id, inscrit, retire FROM flux WHERE id = ?', String(id ?? ''));
+	if (!flux) return null;
+	const total = (await un(db, 'SELECT COUNT(*) AS n FROM version WHERE flux = ?', flux.id)).n;
+	const versions = await tous(
+		db,
+		'SELECT v.article, d.jour, d.place, d.sha256, d.recu FROM version v JOIN depot d ON d.recu = v.recu WHERE v.flux = ? ORDER BY d.jour DESC, d.place DESC LIMIT ?',
+		flux.id,
+		limite
+	);
+	return { flux, total, versions };
+}
+
+/** Le registre prive d'un flux, sur presentation de son jeton : l'adresse du flux et de chaque article, et chaque recu. */
+export async function registrePrive({ db, id, jeton }) {
+	const flux = await un(db, 'SELECT id, url, jeton, inscrit, retire, lu, etat FROM flux WHERE id = ?', String(id ?? ''));
+	if (!flux) return refus(404, 'flux inconnu');
+	if (!jeton || (await sha256(jeton)) !== flux.jeton) return refus(403, 'jeton refuse');
+	const articles = await tous(db, 'SELECT id, lien, lu FROM article WHERE flux = ? ORDER BY id', flux.id);
+	const recus = await tous(db, 'SELECT recu, article, contenu FROM version WHERE flux = ? ORDER BY jour, recu', flux.id);
+	const { jeton: _hache, ...public_ } = flux;
+	return reponse(200, { flux: public_, articles, recus: recus.map((r) => ({ id: r.recu, article: r.article, recu: JSON.parse(r.contenu) })) });
 }
