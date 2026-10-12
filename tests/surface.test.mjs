@@ -19,7 +19,7 @@ function servir() {
 }
 
 test('la construction a produit la surface', () => {
-	for (const f of ['index.html', 'verifier.html', 'deposer.html', 'deposer.js', 'journal.html', 'fichier.js', 'tours.json', 'version.json', 'chaine.mjs', 'verifier.js', '_headers']) assert.ok(fs.existsSync(path.join(DIST, f)), f);
+	for (const f of ['index.html', 'verifier.html', 'deposer.html', 'deposer.js', 'journal.html', 'fichier.js', '404.html', 'depot.mjs', 'tours.json', 'version.json', 'chaine.mjs', 'verifier.js', '_headers']) assert.ok(fs.existsSync(path.join(DIST, f)), f);
 });
 
 test('un fichier du journal se dit servi tel quel ; une empreinte inconnue ne trouve rien', async () => {

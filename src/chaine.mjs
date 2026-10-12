@@ -114,3 +114,60 @@ export async function placeDuFichier(releve, empreinteDuFichier) {
 	const racine = await chainer({ id: releve.id, precedente: releve.precedente, arbre: arbreRendu });
 	return { feuille: releve.feuilles[index], index, chemin, ok: arbreRendu === releve.arbre && racine === releve.racine };
 }
+
+/** L'empreinte des `n` premieres lignes non vides d'un texte, chacune suivie de son saut de ligne ; null s'il en a moins. */
+export async function hacherLignes(texte, n) {
+	const lignes = texte.split('\n').filter(Boolean);
+	if (lignes.length < n) return null;
+	return sha256(lignes.slice(0, n).map((l) => `${l}\n`).join(''));
+}
+
+/** Le nombre de lignes d'une feuille `<prefixe>:<n>`, ou null. */
+const lignesDeLaFeuille = (cle, prefixe) => {
+	const m = new RegExp(`^${prefixe}:(\\d+)$`).exec(cle);
+	return m ? Number(m[1]) : null;
+};
+
+/**
+ * La preuve d'un depot exterieur : sa ligne dans le fichier des depots de
+ * l'entrepot, le premier tour dont la feuille `depots:<n>` la couvre, le hache
+ * des n premieres lignes egal a la feuille, et le chemin d'audit jusqu'a la
+ * racine chainee. `releves` dans l'ordre des tours ; rend `{ etat: 'attente' }`
+ * tant qu'aucun tour ne couvre la ligne.
+ */
+export async function preuveDuDepot({ recu, texteDesDepots, releves }) {
+	const lignes = texteDesDepots.split('\n').filter(Boolean);
+	const rang = lignes.findIndex((l) => JSON.parse(l).recu === recu) + 1;
+	if (rang === 0) return { etat: 'attente' };
+	for (const releve of releves) {
+		const index = releve.feuilles.findIndex((f) => (lignesDeLaFeuille(f.cle, 'depots') ?? 0) >= rang);
+		if (index < 0) continue;
+		const feuille = releve.feuilles[index];
+		const n = lignesDeLaFeuille(feuille.cle, 'depots');
+		const empreintes = await Promise.all(releve.feuilles.map(empreinteDeFeuille));
+		const chemin = await cheminDAudit(empreintes, index);
+		const arbreRendu = await racineDepuisChemin(empreintes[index], chemin);
+		const racine = await chainer({ id: releve.id, precedente: releve.precedente, arbre: arbreRendu });
+		const ok = (await hacherLignes(texteDesDepots, n)) === feuille.sha256 && arbreRendu === releve.arbre && racine === releve.racine;
+		return { etat: ok ? 'inscrit' : 'non conforme', tour: releve.id, rang, n, feuille, chemin, racine: releve.racine };
+	}
+	return { etat: 'attente', rang };
+}
+
+/**
+ * L'inscription d'un recu au registre, lue sur les fichiers publics de la
+ * surface (`lire(chemin)` rend une reponse fetch) : le fichier des depots, la
+ * liste des tours, puis le seul releve du premier tour qui couvre la ligne.
+ */
+export async function inscriptionDuRecu(id, lire) {
+	const r = await lire('/empreintes/depots.jsonl');
+	if (!r.ok) return { etat: 'attente' };
+	const texteDesDepots = await r.text();
+	const rang = texteDesDepots.split('\n').filter(Boolean).findIndex((l) => JSON.parse(l).recu === id) + 1;
+	if (!rang) return { etat: 'attente' };
+	const { tours } = await (await lire('/tours.json')).json();
+	const tour = tours.find((t) => t.depots >= rang);
+	if (!tour) return { etat: 'attente', rang };
+	const releve = await (await lire(`/empreintes/${tour.id}.json`)).json();
+	return { ...(await preuveDuDepot({ recu: id, texteDesDepots, releves: [releve] })), bloc: tour.ots === 'bitcoin' ? tour.bloc : null };
+}

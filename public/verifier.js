@@ -1,5 +1,6 @@
 import { sha256, placeDuFichier, verifierChaine } from '/chaine.mjs';
 import { suivreLeChoix } from '/fichier.js';
+import { idDuRecu } from '/depot.mjs';
 
 suivreLeChoix(document);
 
@@ -45,16 +46,47 @@ async function constat(empreinte, vu) {
 </article>`;
 }
 
+const depot = (l) => `<article class="ok">
+<h2>Identique au document daté du ${jourFr(l.jour)}</h2>
+<p><a href="/recu/${l.recu}">Voir le reçu</a></p>
+</article>`;
+
 async function verifier(empreinte) {
 	const sortie = $('resultat');
 	sortie.innerHTML = '';
-	const r = await fetch(`/index/${empreinte.slice(0, 2)}.json`);
+	const [r, d] = await Promise.all([fetch(`/index/${empreinte.slice(0, 2)}.json`), fetch(`/api/depots/${empreinte}`)]);
 	const vus = r.ok ? ((await r.json())[empreinte] ?? []) : [];
-	if (vus.length === 0) {
+	const deposes = d.ok ? await d.json() : [];
+	if (vus.length === 0 && deposes.length === 0) {
 		sortie.innerHTML = '<article class="ko"><h2>Ce document n’a jamais été daté ici</h2></article>';
 		return;
 	}
+	for (const l of deposes) sortie.innerHTML += depot(l);
 	for (const vu of vus) sortie.innerHTML += await constat(empreinte, vu);
+}
+
+/** Le recu telecharge, s'il en est un : sa forme, puis son identifiant cherche dans les depots. */
+function recuDans(octets) {
+	try {
+		const r = JSON.parse(new TextDecoder().decode(octets));
+		return r?.version === 1 && /^[0-9a-f]{64}$/.test(r.sha256) && /^[0-9a-f]{32}$/.test(r.sel) ? r : null;
+	} catch {
+		return null;
+	}
+}
+
+async function verifierLeRecu(recu) {
+	const id = await idDuRecu(recu);
+	const r = await fetch(`/api/recus/${id}`);
+	$('resultat').innerHTML = r.ok
+		? `<article class="ok"><h2>Reçu authentique${NBSP}: document daté du ${jourFr(recu.jour)}</h2><p><a href="/recu/${id}">Voir le reçu</a></p></article>`
+		: '<article class="ko"><h2>Reçu inconnu</h2></article>';
+}
+
+async function verifierLeFichier(fichier) {
+	const octets = new Uint8Array(await fichier.arrayBuffer());
+	const recu = fichier.size < 20000 ? recuDans(octets) : null;
+	return recu ? verifierLeRecu(recu) : verifier(await sha256(octets));
 }
 
 $('formulaire')?.addEventListener('submit', async (e) => {
@@ -62,7 +94,7 @@ $('formulaire')?.addEventListener('submit', async (e) => {
 	const fichier = $('fichier').files[0];
 	const saisie = $('empreinte').value.trim().toLowerCase();
 	try {
-		if (fichier) await verifier(await sha256(new Uint8Array(await fichier.arrayBuffer())));
+		if (fichier) await verifierLeFichier(fichier);
 		else if (/^[0-9a-f]{64}$/.test(saisie)) await verifier(saisie);
 		else $('resultat').innerHTML = '<p>Choisir le document.</p>';
 	} catch (erreur) {
