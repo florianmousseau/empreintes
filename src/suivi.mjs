@@ -30,6 +30,9 @@ const un = (db, sql, ...args) => db.prepare(sql).bind(...args).first();
 const tous = async (db, sql, ...args) => (await db.prepare(sql).bind(...args).all()).results;
 const faire = (db, sql, ...args) => db.prepare(sql).bind(...args).run();
 
+/** Applique `fn` a chaque element, l'un apres l'autre : un site lu poliment, une base ecrite dans l'ordre. */
+const enSerie = (elements, fn) => elements.reduce(async (avant, x) => [...(await avant), await fn(x)], Promise.resolve([]));
+
 const estDeDonnees = (hote) => HOTES_DE_DONNEES.some((h) => hote === h || hote.endsWith(`.${h}`));
 const lireTexte = (lu) => new TextDecoder('utf-8').decode(lu.octets);
 
@@ -57,8 +60,8 @@ export async function inscrireFlux({ db, corps, maintenant = new Date(), temoin 
 	try {
 		lu = await temoin(admise, { garder: true });
 		flux = lireFlux(lireTexte(lu), lu.url);
-	} catch (erreur) {
-		return refus(422, 'flux illisible', [String(erreur?.message ?? erreur)]);
+	} catch (error_) {
+		return refus(422, 'flux illisible', [String(error_?.message ?? error_)]);
 	}
 	const jeton = selAleatoire() + selAleatoire();
 	await faire(db, 'DELETE FROM flux WHERE id = ?', id);
@@ -119,16 +122,15 @@ async function tourneeDuFlux({ db, flux, instant, jour, temoin, budget }) {
 	try {
 		lu = await temoin(urlAdmise(flux.url), { garder: true });
 		entrees = await entreesDuFlux(lireFlux(lireTexte(lu), lu.url));
-	} catch (erreur) {
-		await faire(db, 'UPDATE flux SET lu = ?, etat = ?, reprise = ? WHERE id = ?', instant, String(erreur?.message ?? erreur).slice(0, 200), repriseApres(erreur?.statut, jour), flux.id);
+	} catch (error_) {
+		await faire(db, 'UPDATE flux SET lu = ?, etat = ?, reprise = ? WHERE id = ?', instant, String(error_?.message ?? error_).slice(0, 200), repriseApres(error_?.statut, jour), flux.id);
 		return 0;
 	}
 	const connus = await connusDe(db, flux.id);
 	const faits = Object.values(connus).filter((c) => c.essaye === jour).length;
 	const plan = planDuJour({ entrees, connus, jour, plafond: Math.min(budget, LECTURES_PAR_JOUR - faits) });
 	const parId = new Map(entrees.map((e) => [e.id, e]));
-	const issues = [];
-	for (const p of plan) issues.push(await lireArticle({ db, flux: flux.id, entree: parId.get(p.id), connu: connus[p.id], instant, jour, temoin }));
+	const issues = await enSerie(plan, (p) => lireArticle({ db, flux: flux.id, entree: parId.get(p.id), connu: connus[p.id], instant, jour, temoin }));
 	const compte = (motif) => issues.filter((i) => i === motif).length;
 	await faire(db, 'UPDATE flux SET lu = ?, etat = ?, reprise = NULL WHERE id = ?', instant, `${entrees.length} entrees, ${compte('version')} versions, ${compte('echec')} echecs`, flux.id);
 	return plan.length;
@@ -144,9 +146,8 @@ export async function tourneeDesFlux({ db, maintenant = new Date(), temoin = tem
 	const jour = jourDe(instant);
 	const suivis = await tous(db, "SELECT id, url FROM flux WHERE retire IS NULL AND (reprise IS NULL OR reprise <= ?) ORDER BY COALESCE(lu, '') LIMIT 20", jour);
 	let reste = budget;
-	for (const flux of suivis) {
-		if (reste <= 0) break;
-		reste -= await tourneeDuFlux({ db, flux, instant, jour, temoin, budget: reste });
-	}
+	await enSerie(suivis, async (flux) => {
+		if (reste > 0) reste -= await tourneeDuFlux({ db, flux, instant, jour, temoin, budget: reste });
+	});
 	return { flux: suivis.length, lectures: budget - reste };
 }

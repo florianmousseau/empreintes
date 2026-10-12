@@ -55,6 +55,17 @@ export async function resoudreParDoH(hote, { fetch: f = fetch, resolveur = 'http
 	return [...(await lire('A')), ...(await lire('AAAA'))];
 }
 
+/** Ce que le temoin a lu d'une reponse finale ; leve avec `statut` si elle n'est pas un succes. */
+async function lireReponse(r, { url, debut, maintenant, garder }) {
+	if (!r.ok) {
+		await r.body?.cancel();
+		throw Object.assign(new Error(`la source a repondu ${r.status}`), { statut: r.status });
+	}
+	const octets = r.body ? await lireBorne(r.body.getReader(), { debut, maintenant }) : new Uint8Array(0);
+	const lu = { url, taille: octets.byteLength, type: r.headers.get('content-type'), lu: new Date(maintenant()).toISOString(), sha256: await sha256(octets) };
+	return garder ? { ...lu, octets } : lu;
+}
+
 /**
  * Le temoin : lit l'URL lui-meme, chaque saut regarde (protocole, port, hote,
  * resolution), dans ses bornes, et rend ce qu'il a lu (les octets aussi avec
@@ -76,13 +87,7 @@ export async function temoigner(admise, { fetch: f = fetch, resoudre = (h) => re
 			courante = suite;
 			continue;
 		}
-		if (!r.ok) {
-			await r.body?.cancel();
-			throw Object.assign(new Error(`la source a repondu ${r.status}`), { statut: r.status });
-		}
-		const octets = r.body ? await lireBorne(r.body.getReader(), { debut, maintenant }) : new Uint8Array(0);
-		const lu = { url: courante.url, taille: octets.byteLength, type: r.headers.get('content-type'), lu: new Date(maintenant()).toISOString(), sha256: await sha256(octets) };
-		return garder ? { ...lu, octets } : lu;
+		return lireReponse(r, { url: courante.url, debut, maintenant, garder });
 	}
 }
 
