@@ -130,3 +130,21 @@ test('les Functions branchent le service : POST, preflight, fichier du jour, nom
 	assert.equal((await f.text()).split('\n').length, 2);
 	for (const nom of ['x.jsonl', '2026-13-45.jsonl', undefined]) assert.equal((await onRequestGet({ params: { fichier: nom }, env })).status, 404, String(nom));
 });
+
+test('le bilan garde depots et deposants distincts par jour, en agregat seulement', async () => {
+	const db = baseDeTest();
+	const veille = new Date('2026-10-11T12:00:00Z');
+	for (const adresse of ['a', 'a', 'b']) await deposer({ db, corps: { sha256: H }, adresse, maintenant: veille });
+	await deposer({ db, corps: { sha256: H }, adresse: 'c', maintenant: midi });
+	const env = { DEPOTS: db };
+	const { onRequestGet } = await import('../functions/api/bilan.js');
+	const b = await (await onRequestGet({ env })).json();
+	assert.deepEqual(b.jours, [
+		{ jour: '2026-10-11', depots: 3, deposants: 2 },
+		{ jour: '2026-10-12', depots: 1, deposants: 1 }
+	]);
+	assert.equal(b.deposantsAuMoins, 2);
+	assert.equal(db.sqlite.prepare("SELECT COUNT(*) AS n FROM compte WHERE jour = '2026-10-11'").get().n, 0);
+	const vide = await (await onRequestGet({ env: { DEPOTS: baseDeTest() } })).json();
+	assert.deepEqual(vide, { jours: [], deposantsAuMoins: 0 });
+});

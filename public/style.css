@@ -125,3 +125,6 @@ th, td { white-space: normal; }
 @media (max-width: 34rem) {
 	.une h1 { font-size: 2.1rem; }
 }
+table.doc td { white-space: normal; vertical-align: top; }
+table.doc td:first-child { width: 45%; }
+table.doc code { overflow-wrap: anywhere; }
