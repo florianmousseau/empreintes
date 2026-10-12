@@ -20,6 +20,10 @@ jobs:
           node-version: 22
       - name: Gate
         run: npm run gate
+      # La table des sites officiels des collectivites (D-165) : un export muet ou tronque publie sans elle, et un acte reste declare.
+      - name: Annuaire des collectivites
+        continue-on-error: true
+        run: node scripts/annuaire.mjs
       - name: Deployer
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

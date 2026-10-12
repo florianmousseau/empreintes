@@ -273,6 +273,7 @@ ${tableDoc('Lire', [
 	ligneDoc('GET /recu/&lt;id&gt;', 'la page d’un reçu'),
 	ligneDoc('GET /api/recus/&lt;id&gt;', 'la ligne publique d’un reçu'),
 	ligneDoc('GET /api/depots/&lt;sha256&gt;', 'les dépôts d’une empreinte'),
+	ligneDoc('GET /annuaire/insee-&lt;département&gt;.json', 'les sites officiels des communes, code INSEE ou SIREN vers <code>[hôte, préfixe]</code>, d’après l’annuaire Service-Public'),
 	ligneDoc('GET /api/bilan', 'dépôts et déposants distincts, jour par jour'),
 	ligneDoc('GET /tours.json', 'les tours du registre'),
 	ligneDoc('GET /empreintes/&lt;tour&gt;.json', 'le relevé d’un tour, avec <code>.racine</code>, <code>.racine.ots</code>, <code>.racine.tsr</code>'),
