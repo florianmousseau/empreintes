@@ -8,7 +8,7 @@ const DEPOT = 'https://github.com/florianmousseau/empreintes';
 export const ACTES = {
 	dater: { chemin: '/deposer', nom: 'Dater un document' },
 	verifier: { chemin: '/verifier', nom: 'Vérifier un document' },
-	journal: { chemin: '/journal', nom: 'Journal public' }
+	journal: { chemin: '/journal', nom: 'Registre des dates' }
 };
 
 /** Echappe un texte pour le HTML. */
@@ -67,14 +67,14 @@ ${corps}
 /** L'accueil : a quoi sert le service, et les deux gestes. */
 export function pageAccueil(tours) {
 	const dernier = tours.at(-1);
-	const compte = dernier ? `<p class="compte">${nombre(dernier.objets)} documents publics déjà datés depuis le ${dateHeure(tours[0].instant).split(' ')[0]}.</p>` : '';
+	const compte = dernier ? `<p class="compte">${nombre(dernier.objets)} dates enregistrées depuis le ${dateHeure(tours[0].instant).split(' ')[0]}.</p>` : '';
 	return gabarit({
 		titre: 'Prouver la date d’un document',
-		description: "Prouvez gratuitement qu'un document existait à une date, sans modification. Sans compte ; le document reste chez vous.",
+		description: "Prouvez gratuitement qu'un document existait à une date, sans modification. Sans compte ; seule son empreinte est publiée, jamais le document.",
 		chemin: '/',
 		corps: `<section class="une">
 <h1>Prouvez qu’un document existait à une date, sans modification.</h1>
-<p>Gratuit, sans compte. Le document reste chez vous.</p>
+<p>Gratuit, sans compte. Seule son empreinte, un code de 64 caractères, est publiée${NBSP}: jamais le document.</p>
 <p class="gestes">${lien('dater', 'bouton principal')} ${lien('verifier', 'bouton')}</p>
 </section>
 ${compte}`
@@ -102,11 +102,11 @@ export function pageJournal(tours) {
 <p>${ancrageDe(dernier)}</p>`
 		: '<p>Aucun tour publié.</p>';
 	return gabarit({
-		titre: 'Journal public',
+		titre: ACTES.journal.nom,
 		description: 'Chaque tour du journal des empreintes : documents, racine chaînée, ancrage Bitcoin, fichiers de preuve.',
 		chemin: '/journal',
 		script: '<script type="module" src="/verifier.js"></script>\n',
-		corps: `<h1>Journal public</h1>
+		corps: `<h1>${ACTES.journal.nom}</h1>
 ${tete}
 <p><button type="button" id="chaine">Vérifier la chaîne</button></p>
 <div id="resultat-chaine" aria-live="polite"></div>
@@ -148,7 +148,7 @@ ${autresVoies(`<label for="empreinte">Son empreinte SHA-256</label>
 export function pageDeposer() {
 	return gabarit({
 		titre: ACTES.dater.nom,
-		description: "Dater gratuitement un document dans le journal public, ancré dans Bitcoin, et recevoir son reçu de preuve.",
+		description: "Dater gratuitement un document, ancré dans Bitcoin, et recevoir un reçu à imprimer. Seule son empreinte est publiée, jamais le document.",
 		chemin: '/deposer',
 		script: '<script type="module" src="/deposer.js"></script>\n',
 		corps: `<h1>${ACTES.dater.nom}</h1>
@@ -160,9 +160,10 @@ ${autresVoies(`<label for="url">Son adresse en ligne</label>
 <input type="text" id="empreinte" autocomplete="off" spellcheck="false">`)}
 <label for="libelle">Un nom pour vous en souvenir (facultatif)</label>
 <input type="text" id="libelle" maxlength="200" autocomplete="off">
+<p class="recoit">Vous recevez un reçu à imprimer ou à télécharger, à garder avec le document. Seule son empreinte est publiée, jamais le document.</p>
 <button type="submit" class="principal">Dater ce document</button>
 </form>
 <div id="resultat" aria-live="polite"></div>
-<p class="compte">Gratuit, sans compte, jusqu’à 20 documents par jour.</p>`
+<p class="compte">Gratuit, sans compte, jusqu’à 20 documents par jour. Valeur juridique${NBSP}: un élément de preuve, que le juge apprécie librement.</p>`
 	});
 }

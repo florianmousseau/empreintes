@@ -109,3 +109,14 @@ th, td { white-space: normal; }
 	table { font-size: 0.85rem; }
 	th, td { padding-right: 0.4rem; }
 }
+.recoit { margin: 0.8rem 0 0; }
+@media print {
+	header, footer, form, .compte, h1, .gestes, summary { display: none !important; }
+	body { background: #fff; color: #000; }
+	article { border: none; padding: 0; }
+	code { word-break: break-all; }
+}
+.imprime { display: none; }
+@media print {
+	.imprime { display: block; }
+}
