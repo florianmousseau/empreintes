@@ -205,7 +205,13 @@ export function pageActe() {
 const jourFr = (j) => j.split('-').reverse().join('/');
 
 const majuscule = (t) => `${t[0].toUpperCase()}${t.slice(1)}`;
-const pluriel = (n, mot) => `${nombre(n)} ${mot}${n > 1 ? 's' : ''}`;
+const s = (n) => (n > 1 ? 's' : '');
+
+/** Le titre d'une serie : le compte et la nature. */
+const titreDeSerie = (n) => (n ? `${nombre(n)} acte${s(n)} daté${s(n)}` : 'Aucun acte daté');
+
+/** La ligne qui dit qu'une serie est coupee, vide sinon. */
+const coupe = (serie) => (serie.total > serie.actes.length ? `<p class="compte">Les ${nombre(serie.actes.length)} plus récents sur ${nombre(serie.total)}.</p>` : '');
 
 /** La serie d'une collectivite : ses actes lus sur son site officiel, sans adresse ni libelle. */
 export function pageCollectivite({ code, commune, serie }) {
@@ -224,7 +230,7 @@ export function pageCollectivite({ code, commune, serie }) {
 ${lignes}
 </tbody>
 </table>
-${serie.total > serie.actes.length ? `<p class="compte">Les ${nombre(serie.actes.length)} plus récents sur ${nombre(serie.total)}.</p>` : ''}`
+${coupe(serie)}`
 		: '';
 	return gabarit({
 		titre: `${nom}, actes datés`,
@@ -233,7 +239,7 @@ ${serie.total > serie.actes.length ? `<p class="compte">Les ${nombre(serie.actes
 		indexer: serie.total > 0,
 		corps: `<h1>${nom}</h1>
 <p class="sous-titre">${codes}</p>
-<h2>${serie.total ? `${pluriel(serie.total, 'acte')} daté${serie.total > 1 ? 's' : ''}` : 'Aucun acte daté'}</h2>
+<h2>${titreDeSerie(serie.total)}</h2>
 ${tableau}
 <p class="compte">Actes lus sur le site officiel de la commune, d’après l’annuaire Service-Public.</p>
 <p>${lien('acte', 'bouton principal')}</p>`
