@@ -1,4 +1,6 @@
 // La zone de depot : le nom du document choisi, et le glisser-deposer sur la meme entree.
+import { T } from '/textes.js';
+
 export function suivreLeChoix(document) {
 	const champ = document.getElementById('fichier');
 	const nom = document.getElementById('nom-fichier');
@@ -6,7 +8,7 @@ export function suivreLeChoix(document) {
 	if (!champ) return;
 	champ.addEventListener('change', () => {
 		const f = champ.files[0];
-		nom.textContent = f?.name ?? 'Aucun document choisi';
+		nom.textContent = f?.name ?? T.aucunDocument;
 		zone?.classList.toggle('choisi', Boolean(f));
 	});
 	if (!zone) return;

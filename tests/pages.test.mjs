@@ -7,7 +7,7 @@ const t = { id: '20261012T101314Z', instant: '2026-10-12T10:13:14Z', objets: 201
 const pages = [pageJournal([t, { ...t, id: '20261012T121314Z', ots: 'calendrier', bloc: null }]), pageVerifier(), pageJournal([]), pageDeposer(), pageAccueil([t]), pageAccueil([]), pageIntrouvable(), pageMentions(), pagePreuve([t]), pageActe(), pageDocumentation(), pageEditeur({ flux: { id: '0123456789abcdef', inscrit: '2026-10-12T00:00:00Z', retire: null }, total: 1, versions: [{ article: 'e'.repeat(64), jour: '2026-10-12', place: 4, sha256: 'c'.repeat(64), recu: 'd'.repeat(64) }] }), pageCollectivite({ code: '17133', commune: { nom: 'Cravans', insee: '17133', siren: '211701339' }, serie: { total: 1, actes: [{ jour: '2026-10-12', place: 3, sha256: 'c'.repeat(64), recu: 'd'.repeat(64), nature: 'deliberation' }] } })];
 const texteDe = (html) => html.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<[^>]+>/g, '');
 
-test('aucun signe double ne suit une espace ordinaire dans le texte affiche', () => {
+test('aucun signe double ne suit une espace ordinaire dans le texte affiche en francais', () => {
 	for (const html of pages) {
 		const texte = texteDe(html);
 		assert.ok(texte.length > 40, 'le detecteur lit du texte');

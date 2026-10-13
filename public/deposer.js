@@ -1,9 +1,11 @@
 import { sha256 } from '/chaine.mjs';
 import { suivreLeChoix } from '/fichier.js';
 import { communeDe, communeDeLAdresse } from '/annuaire.mjs';
+import { T } from '/textes.js';
 
 const $ = (id) => document.getElementById(id);
 const $fichier = () => $('fichier');
+const t = T.deposer;
 
 if ($fichier()) suivreLeChoix(document);
 
@@ -24,20 +26,18 @@ async function dejaDate() {
 		const lignes = r.ok ? await r.json() : [];
 		if (!lignes.length || $fichier().files[0] !== fichier) return;
 		const premier = lignes[0];
-		deja.innerHTML = `Déjà daté le ${jourFr(premier.jour)}. <a href="/recu/${premier.recu}">Voir le reçu</a>`;
+		deja.innerHTML = `${t.deja(T.jour(premier.jour))} <a href="/recu/${premier.recu}">${T.voirLeRecu}</a>`;
 		deja.hidden = false;
 	} catch {
 		// Une lecture manquee ne bloque pas le depot.
 	}
 }
 
-const NBSP = '\u00A0';
 const echapper = (t) => String(t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-const TITRES = { 409: 'Ce document en ligne a déjà été lu aujourd’hui', 422: 'Le document en ligne n’a pas pu être lu', 429: 'Limite du jour atteinte, à demain' };
-const jourFr = (j) => j.split('-').reverse().join('/');
 if ($('deja')) $fichier().addEventListener('change', dejaDate);
 
 // Un lien sur le site officiel d'une commune : on propose d'en faire un acte, la commune deja reconnue.
+// L'edition allemande n'a ni le bloc ni le champ : le lien y reste un document.
 let lecture = 0;
 async function reconnaitreLaCommune() {
 	const url = $('url').value.trim();
@@ -57,12 +57,12 @@ async function reconnaitreLaCommune() {
 	if (bloc) {
 		bloc.hidden = !insee;
 		$('collectivite').value = insee ?? '';
-		$('acte-commune').textContent = commune?.nom ?? `la commune ${insee}`;
+		$('acte-commune').textContent = commune?.nom ?? t.commune(insee);
 		if (!insee && $('nature').value) {
 			$('nature').value = '';
 			$('nature').dispatchEvent(new Event('change'));
 		}
-	} else if (insee && !$('collectivite').value) $('collectivite').value = insee;
+	} else if (insee && $('collectivite') && !$('collectivite').value) $('collectivite').value = insee;
 }
 
 // Le bouton dit ce qui sera date.
@@ -72,7 +72,7 @@ async function reconnaitreLaCommune() {
 // « Dater ce document », objet facultatif, et le refus ne venait que du serveur).
 const accorderALaNature = () => {
 	const acte = Boolean($('nature').value);
-	$('formulaire').querySelector('button[type=submit]').textContent = acte ? 'Dater cet acte' : 'Dater ce document';
+	$('formulaire').querySelector('button[type=submit]').textContent = acte ? t.daterActe : t.daterDocument;
 	$('objet').required = acte;
 };
 if ($('acte')) {
@@ -97,9 +97,6 @@ $fichier()?.addEventListener('change', () => {
 	reconnaitreLaCommune();
 });
 
-const NATURES = { deliberation: 'Délibération', arrete: 'Arrêté', decision: 'Décision' };
-const RATTACHEMENT = { 'site-officiel': 'adresse sur son site officiel', declaree: 'déclarée' };
-
 // Seul un acte lu sur le site officiel entre dans la serie publique de sa collectivite.
 const collectivite = (acte) =>
 	acte.rattachement === 'site-officiel' ? `<a href="/collectivite/${encodeURIComponent(acte.collectivite)}">${echapper(acte.collectivite)}</a>` : echapper(acte.collectivite);
@@ -107,32 +104,32 @@ const collectivite = (acte) =>
 function telecharger(recu, id) {
 	const lien = document.createElement('a');
 	lien.href = URL.createObjectURL(new Blob([`${JSON.stringify(recu, null, 1)}\n`], { type: 'application/json' }));
-	lien.download = `recu-${id.slice(0, 16)}.json`;
+	lien.download = `${t.fichier}-${id.slice(0, 16)}.json`;
 	lien.click();
 	URL.revokeObjectURL(lien.href);
 }
 
 function afficher(r) {
-	const source = r.recu.temoin ? `lu à <code>${echapper(r.recu.temoin.url)}</code>` : 'calculée sur votre appareil';
+	const source = r.recu.temoin ? `${t.luA} <code>${echapper(r.recu.temoin.url)}</code>` : t.calculee;
 	const acte = r.recu.acte;
 	const tete = acte
-		? `<h2>Reçu${NBSP}: ${NATURES[acte.nature]} du ${jourFr(r.recu.temoin.lu.slice(0, 10))}, ${r.recu.temoin.lu.slice(11, 16)}${NBSP}UTC</h2>
-<p>Collectivité ${collectivite(acte)}, ${RATTACHEMENT[acte.rattachement]}.</p>`
-		: `<h2>Reçu${NBSP}: document daté du ${jourFr(r.jour)}</h2>`;
+		? `<h2>${t.recuActe(t.natures[acte.nature], T.jour(r.recu.temoin.lu.slice(0, 10)), r.recu.temoin.lu.slice(11, 16))}</h2>
+<p>${t.collectivite} ${collectivite(acte)}, ${t.rattachement[acte.rattachement]}.</p>`
+		: `<h2>${t.recuDocument(T.jour(r.jour))}</h2>`;
 	$('resultat').innerHTML = `<article class="ok">
 ${tete}
 ${r.recu.libelle ? `<p><strong>${echapper(r.recu.libelle)}</strong></p>` : ''}
-<p>${acte ? `Ce fichier était en ligne à cette adresse à cet instant.` : `Gardez ce reçu avec le document${NBSP}: ensemble, ils prouvent qu’il existait ce jour-là, sans modification.`}</p>
-<p class="gestes"><button type="button" id="imprimer" class="principal">Imprimer le reçu</button> <button type="button" id="recu">Télécharger le reçu</button></p>
+<p>${acte ? t.enLigne : t.gardez}</p>
+<p class="gestes"><button type="button" id="imprimer" class="principal">${t.imprimer}</button> <button type="button" id="recu">${t.telecharger}</button></p>
 <details>
-<summary>Détails</summary>
+<summary>${t.details}</summary>
 <dl>
-<div><dt>Empreinte</dt><dd><code class="racine">${r.recu.sha256}</code>, ${source}</dd></div>
-<div><dt>Reçu</dt><dd><code class="racine">${r.id}</code>, ligne ${r.place} du ${jourFr(r.jour)}</dd></div>
+<div><dt>${t.empreinte}</dt><dd><code class="racine">${r.recu.sha256}</code>, ${source}</dd></div>
+<div><dt>${t.recu}</dt><dd><code class="racine">${r.id}</code>, ${t.ligne(r.place, T.jour(r.jour))}</dd></div>
 </dl>
 </details>
-<p>Adresse du reçu${NBSP}: <a href="/recu/${r.id}">temoinpublic.fr/recu/${r.id.slice(0, 12)}</a></p>
-<p class="imprime">temoinpublic.fr/recu/${r.id}<br>Émis le ${jourFr(r.recu.depose.slice(0, 10))} à ${r.recu.depose.slice(11, 16)}${NBSP}UTC.</p>
+<p>${t.adresse} <a href="/recu/${r.id}">${T.hote}/recu/${r.id.slice(0, 12)}</a></p>
+<p class="imprime">${T.hote}/recu/${r.id}<br>${t.emis(T.jour(r.recu.depose.slice(0, 10)), r.recu.depose.slice(11, 16))}</p>
 </article>`;
 	$('recu').addEventListener('click', () => telecharger(r.recu, r.id));
 	$('imprimer').addEventListener('click', () => {
@@ -163,15 +160,15 @@ $('formulaire').addEventListener('submit', async (e) => {
 	try {
 		const corps = await demande();
 		if (!corps) {
-			$('resultat').innerHTML = '<p>Choisir le document.</p>';
+			$('resultat').innerHTML = `<p>${T.choisir}</p>`;
 			return;
 		}
 		const r = await fetch('/api/depots', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(corps) });
 		const reponse = await r.json();
 		if (r.status === 201) return afficher(reponse);
-		$('resultat').innerHTML = `<article class="ko"><h2>${TITRES[r.status] ?? echapper(reponse.erreur)}</h2>${(reponse.details ?? []).map((d) => `<p>${echapper(d)}</p>`).join('')}</article>`;
+		$('resultat').innerHTML = `<article class="ko"><h2>${t.refus[r.status] ?? echapper(reponse.erreur)}</h2>${(reponse.details ?? []).map((d) => `<p>${echapper(d)}</p>`).join('')}</article>`;
 	} catch (erreur) {
-		$('resultat').innerHTML = `<article class="ko"><h2>Erreur${NBSP}: ${echapper(erreur.message)}</h2></article>`;
+		$('resultat').innerHTML = `<article class="ko"><h2>${T.erreurAvec(echapper(erreur.message))}</h2></article>`;
 	} finally {
 		bouton.disabled = false;
 	}

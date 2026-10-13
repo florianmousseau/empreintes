@@ -76,10 +76,15 @@ test('un recu et une empreinte se retrouvent dans la base ; un identifiant illis
 test('les Functions servent la page du recu, sa ligne et les depots d une empreinte', async () => {
 	const env = { DEPOTS: baseDeTest() };
 	const r = JSON.parse((await deposer({ db: env.DEPOTS, corps: { sha256: h('pv') }, adresse: 'a' })).corps);
-	const page = await pageDuRecu({ params: { id: r.id }, env });
+	const page = await pageDuRecu({ request: new Request(`https://temoinpublic.fr/recu/${r.id}`), params: { id: r.id }, env });
 	assert.equal(page.status, 200);
 	assert.match(await page.text(), new RegExp(`data-recu="${r.id}"`));
-	assert.equal((await pageDuRecu({ params: { id: h('rien') }, env })).status, 404);
+	const allemande = await pageDuRecu({ request: new Request(`https://datumszeuge.de/recu/${r.id}`), params: { id: r.id }, env });
+	assert.match(await allemande.text(), new RegExp(`<html lang="de">[\\s\\S]*<h1>Datumsbeleg</h1>[\\s\\S]*<p class="imprime">datumszeuge.de/recu/${r.id}</p>`));
+	assert.equal((await pageDuRecu({ request: new Request('https://temoinpublic.fr/recu/x'), params: { id: h('rien') }, env })).status, 404);
+	const inconnu = await pageDuRecu({ request: new Request('https://de.empreintes.pages.dev/recu/x'), params: { id: h('rien') }, env });
+	assert.equal(inconnu.status, 404);
+	assert.match(await inconnu.text(), /<h1>Unbekannter Beleg<\/h1>/);
 	assert.equal((await (await apiRecu({ params: { id: r.id }, env })).json()).recu, r.id);
 	assert.equal((await apiRecu({ params: { id: 'x' }, env })).status, 404);
 	assert.equal((await (await apiDepots({ params: { empreinte: h('pv') }, env })).json()).length, 1);
@@ -93,4 +98,10 @@ test('la page du recu affiche la date, la ligne et mene au verificateur sous son
 	assert.match(html, new RegExp(`href="${ACTES.verifier.chemin}">${ACTES.verifier.nom}<`));
 	assert.ok(ligneDe(ligne));
 	assert.match(pageRecuInconnu(), /<h1>Reçu inconnu<\/h1>/);
+	const allemand = pageRecu(ligne, null, 'de');
+	assert.match(allemand, /<h2>Dokument datiert am 12\.10\.2026<\/h2>/);
+	assert.match(allemand, /<dt>Zeile<\/dt><dd>4 vom 12\.10\.2026<\/dd>/);
+	assert.match(allemand, new RegExp(`<link rel="alternate" hreflang="fr" href="https://temoinpublic.fr/recu/${ligne.recu}">\\n<link rel="alternate" hreflang="de" href="https://datumszeuge.de/recu/${ligne.recu}">`));
+	assert.match(allemand, /<a class="bouton" href="\/pruefen">Prüfen<\/a>/);
+	assert.match(pageRecu(ligne, { collectivite: '17133', nature: 'deliberation', objet: 'Budget', url: null }, 'de'), /<h2>Online am 12\.10\.2026<\/h2>[\s\S]*<dt>Rechtsakt<\/dt><dd>Beschluss, Budget<\/dd>[\s\S]*<a href="https:\/\/temoinpublic.fr\/collectivite\/17133">17133<\/a>/);
 });

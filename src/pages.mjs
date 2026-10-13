@@ -1,46 +1,53 @@
-// Les pages de la surface. Elles affichent ; la methode vit dans le code.
+// Les pages de la surface. Elles affichent ; la methode vit dans le code. Chaque
+// page se rend dans la langue d'une edition (`src/edition.mjs`), le francais par
+// defaut ; les actes de collectivite ne se rendent qu'en francais.
 
 import { NATURES } from './acte.mjs';
+import { EDITIONS, cheminsDe, planDe } from './edition.mjs';
+import { ADRESSES, FORMULES } from './documentation.mjs';
 
 const NBSP = '\u00A0';
-const ADRESSE = 'https://temoinpublic.fr';
 const DEPOT = 'https://github.com/florianmousseau/empreintes';
-export const MARQUE = 'Témoin public';
+export const MARQUE = EDITIONS.fr.marque;
 
-/** Les actes du site : un nom court pour chaque lien, partout, et le titre de sa page. */
-export const ACTES = {
-	dater: { chemin: '/deposer', nom: 'Dater', titre: 'Dater un document' },
-	verifier: { chemin: '/verifier', nom: 'Vérifier', titre: 'Vérifier un document' },
-	journal: { chemin: '/journal', nom: 'Registre', titre: 'Registre des dates' },
-	acte: { chemin: '/acte', nom: 'Acte de collectivité', titre: 'Dater la mise en ligne d’un acte' },
-	preuve: { chemin: '/preuve', nom: 'Valeur de preuve', titre: 'Valeur de preuve' },
-	documentation: { chemin: '/documentation', nom: 'Documentation', titre: 'Documentation' },
-	mentions: { chemin: '/mentions-legales', nom: 'Mentions légales', titre: 'Mentions légales' }
-};
+/** Les actes du site en francais : un nom court pour chaque lien, partout, et le titre de sa page. */
+export const ACTES = EDITIONS.fr.actes;
 
-/** Les pages statiques que les moteurs lisent, dans l'ordre du plan du site. */
-export const PLAN = ['/', ACTES.dater.chemin, ACTES.verifier.chemin, ACTES.acte.chemin, ACTES.journal.chemin, ACTES.preuve.chemin, ACTES.documentation.chemin, ACTES.mentions.chemin];
+/** Les pages statiques francaises que les moteurs lisent, dans l'ordre du plan du site. */
+export const PLAN = planDe('fr');
 
-/** Le plan du site, au format sitemaps.org. */
-export const planDuSite = (chemins = PLAN) => `<?xml version="1.0" encoding="UTF-8"?>
+/** Le plan du site d'une edition, au format sitemaps.org. */
+export const planDuSite = (chemins = PLAN, langue = 'fr') => `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${chemins.map((c) => `<url><loc>${ADRESSE}${c}</loc></url>`).join('\n')}
+${chemins.map((c) => `<url><loc>${EDITIONS[langue].adresse}${c}</loc></url>`).join('\n')}
 </urlset>
 `;
 
-/** Le service decrit pour les moteurs : gratuit, sans compte, en francais. */
-export const DONNEES_STRUCTUREES = {
-	'@context': 'https://schema.org',
-	'@type': 'WebApplication',
-	name: MARQUE,
-	url: `${ADRESSE}/`,
-	description: "Prouver gratuitement qu'un document existait à une date, sans modification : son empreinte est inscrite dans un registre public ancré dans Bitcoin.",
-	applicationCategory: 'UtilitiesApplication',
-	operatingSystem: 'Web',
-	inLanguage: 'fr',
-	isAccessibleForFree: true,
-	offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' }
+/** Les consignes aux robots d'une edition : tout, sauf l'index des empreintes, et son plan. */
+export const robots = (langue = 'fr') => `User-agent: *
+Allow: /
+Disallow: /index/
+
+Sitemap: ${EDITIONS[langue].adresse}/sitemap.xml
+`;
+
+/** Le service decrit pour les moteurs : gratuit, sans compte, dans la langue de l'edition. */
+export const donneesStructurees = (langue = 'fr') => {
+	const e = EDITIONS[langue];
+	return {
+		'@context': 'https://schema.org',
+		'@type': 'WebApplication',
+		name: e.marque,
+		url: `${e.adresse}/`,
+		description: e.structure.description,
+		applicationCategory: 'UtilitiesApplication',
+		operatingSystem: 'Web',
+		inLanguage: langue,
+		isAccessibleForFree: true,
+		offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' }
+	};
 };
+export const DONNEES_STRUCTUREES = donneesStructurees('fr');
 
 /** Un bloc JSON-LD sur, meme si une chaine contient `</script>`. */
 const jsonLd = (objet) => `<script type="application/ld+json">${JSON.stringify(objet).replace(/</g, '\\u003c')}</script>\n`;
@@ -48,25 +55,21 @@ const jsonLd = (objet) => `<script type="application/ld+json">${JSON.stringify(o
 /** Echappe un texte pour le HTML. */
 export const echapper = (t) => String(t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
-const nombre = (n) => n.toLocaleString('fr-FR').replace(/\u202f/g, NBSP);
-const lien = (acte, classe = '') => `<a${classe ? ` class="${classe}"` : ''} href="${ACTES[acte].chemin}">${ACTES[acte].nom}</a>`;
+const lien = (e, acte, classe = '') => `<a${classe ? ` class="${classe}"` : ''} href="${e.actes[acte].chemin}">${e.actes[acte].nom}</a>`;
 
 /** Un instant ISO en « 12/10/2026 10:13 UTC ». */
-export function dateHeure(iso) {
-	const [j, h] = iso.split('T');
-	return `${j.split('-').reverse().join('/')} ${h.slice(0, 5)}${NBSP}UTC`;
-}
+export const dateHeure = (iso, langue = 'fr') => EDITIONS[langue].dateHeure(iso);
 
 /** L'ancrage d'un tour, en clair, avec le lien du bloc quand il existe. */
-export function ancrageDe(t) {
-	if (t.ots === 'bitcoin' && t.bloc) return `<a href="https://mempool.space/block/${t.bloc}">Bitcoin, bloc ${t.bloc}</a>`;
-	if (t.ots === 'calendrier') return 'en cours d’inscription dans Bitcoin';
-	return t.ots ? echapper(t.ots) : 'aucun';
+export function ancrageDe(t, langue = 'fr') {
+	const a = EDITIONS[langue].ancrage;
+	if (t.ots === 'bitcoin' && t.bloc) return `<a href="https://mempool.space/block/${t.bloc}">${a.bitcoin(t.bloc)}</a>`;
+	if (t.ots === 'calendrier') return a.calendrier;
+	return t.ots ? echapper(t.ots) : a.aucun;
 }
 
-const LIBELLE = { json: 'relevé', racine: 'racine', 'racine.ots': '.ots', 'racine.tsr': '.tsr' };
-const liensDe = (t) =>
-	t.fichiers.map((f) => `<a href="/empreintes/${echapper(f)}">${LIBELLE[f.slice(t.id.length + 1)] ?? echapper(f)}</a>`).join(' ');
+const liensDe = (e, t) =>
+	t.fichiers.map((f) => `<a href="/empreintes/${echapper(f)}">${e.fichiers[f.slice(t.id.length + 1)] ?? echapper(f)}</a>`).join(' ');
 
 /** Le sceau de la marque, dessine a la main : un cachet et sa coche. */
 export const SCEAU = `<svg class="sceau" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#b42318"/><circle cx="16" cy="16" r="11.6" fill="none" stroke="#fff" stroke-width="1.1" stroke-dasharray="1.8 1.5"/><path d="M10.6 16.4l3.7 3.7 7.2-7.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
@@ -74,59 +77,68 @@ export const SCEAU = `<svg class="sceau" viewBox="0 0 32 32" aria-hidden="true">
 const ICONE_DOCUMENT = `<svg class="zone-icone" viewBox="0 0 48 48" aria-hidden="true"><path d="M13 5h15l10 10v26a2 2 0 0 1-2 2H13a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M28 5v10h10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M24 35V22m-5.5 5.5L24 22l5.5 5.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
 /** La zone de depot : glisser le document, ou le choisir ; le bouton natif parle la langue du navigateur. */
-export const choixDeFichier = (texte) => `<input type="file" id="fichier" class="masque">
+export const choixDeFichier = (texte, langue = 'fr') => `<input type="file" id="fichier" class="masque">
 <label class="zone" for="fichier" id="zone">
 ${ICONE_DOCUMENT}
 <span class="zone-titre">${texte}</span>
-<span class="zone-aide"><span class="souris">Glissez-le ici, ou </span><span class="lien">choisissez-le sur votre appareil</span></span>
-<span id="nom-fichier" class="zone-nom">Aucun document choisi</span>
+<span class="zone-aide"><span class="souris">${EDITIONS[langue].zone.glisser}</span><span class="lien">${EDITIONS[langue].zone.choisir}</span></span>
+<span id="nom-fichier" class="zone-nom">${EDITIONS[langue].zone.aucun}</span>
 </label>`;
 
 /** Les trois gestes du menu, le courant marque pour les lecteurs d'ecran ; dater un acte reste dater. */
-const navigation = (chemin) => {
-	const courant = chemin === ACTES.acte.chemin ? ACTES.dater.chemin : chemin;
+const navigation = (e, chemin) => {
+	const courant = chemin === e.actes.acte?.chemin ? e.actes.dater.chemin : chemin;
 	return ['dater', 'verifier', 'journal']
-		.map((a) => `<a href="${ACTES[a].chemin}"${ACTES[a].chemin === courant ? ' aria-current="page"' : ''}>${ACTES[a].nom}</a>`)
+		.map((a) => `<a href="${e.actes[a].chemin}"${e.actes[a].chemin === courant ? ' aria-current="page"' : ''}>${e.actes[a].nom}</a>`)
 		.join(' ');
 };
 
-function gabarit({ titre, description, chemin, corps, script = '', indexer = true, structure = null }) {
-	const titreComplet = `${titre} | ${MARQUE}`;
+/** Les liens hreflang d'une page qui existe dans chaque edition ; `x-default` sur le francais. */
+const alternatives = (chemins) =>
+	chemins
+		? Object.entries(chemins)
+				.concat([['x-default', chemins.fr]])
+				.map(([l, c]) => `\n<link rel="alternate" hreflang="${l}" href="${EDITIONS[l === 'x-default' ? 'fr' : l].adresse}${c}">`)
+				.join('')
+		: '';
+
+function gabarit(e, { titre, description, chemin, corps, script = '', indexer = true, structure = null, chemins = null }) {
+	const titreComplet = `${titre} | ${e.marque}`;
 	return `<!doctype html>
-<html lang="fr">
+<html lang="${e.langue}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${titreComplet}</title>
 <meta name="description" content="${description}">
-<link rel="canonical" href="${ADRESSE}${chemin}">${indexer ? '' : '\n<meta name="robots" content="noindex">'}
+<link rel="canonical" href="${e.adresse}${chemin}">${alternatives(chemins)}${indexer ? '' : '\n<meta name="robots" content="noindex">'}
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="${MARQUE}">
-<meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="${e.marque}">
+<meta property="og:locale" content="${e.locale}">
 <meta property="og:title" content="${titreComplet}">
 <meta property="og:description" content="${description}">
-<meta property="og:url" content="${ADRESSE}${chemin}">
+<meta property="og:url" content="${e.adresse}${chemin}">
 ${structure ? jsonLd(structure) : ''}
 <link rel="stylesheet" href="/style.css">
 <link rel="icon" href="/icone.svg" type="image/svg+xml">
 ${script}</head>
 <body>
-<header><div class="barre"><a class="marque" href="/">${SCEAU}<span>${MARQUE}</span></a><nav aria-label="Principal">${navigation(chemin)}</nav></div></header>
+<header><div class="barre"><a class="marque" href="/">${SCEAU}<span>${e.marque}</span></a><nav aria-label="${e.navigation}">${navigation(e, chemin)}</nav></div></header>
 <main>
 ${corps}
 </main>
 <footer><div class="pied">
-<p class="pied-marque">${SCEAU}<span>${MARQUE}</span></p>
-<p class="pied-liens">${lien('dater')} ${lien('verifier')} ${lien('journal')} ${lien('preuve')} ${lien('documentation')} ${lien('mentions')} <a href="${DEPOT}">Code source</a></p>
+<p class="pied-marque">${SCEAU}<span>${e.marque}</span></p>
+<p class="pied-liens">${lien(e, 'dater')} ${lien(e, 'verifier')} ${lien(e, 'journal')} ${lien(e, 'preuve')} ${lien(e, 'documentation')} ${lien(e, 'mentions')} <a href="${DEPOT}">${e.codeSource}</a></p>
 </div></footer>
 </body>
 </html>
 `;
 }
 
-const champEmpreinte = `<details>
-<summary>Une empreinte SHA-256${NBSP}?</summary>
-<label for="empreinte">Son empreinte SHA-256</label>
+const champEmpreinte = (e) => `<details>
+<summary>${e.empreinte.question}</summary>
+<label for="empreinte">${e.empreinte.libelle}</label>
 <input type="text" id="empreinte" autocomplete="off" spellcheck="false">
 </details>`;
 
@@ -135,8 +147,10 @@ const optionsDeNature = () =>
 		.map(([valeur, nom]) => `<option value="${valeur}">${majuscule(nom)}</option>`)
 		.join('');
 
-/** Le bloc qui s'ouvre quand le lien est sur le site officiel d'une commune : il en fait un acte. */
-const blocActe = () => `<div id="acte" class="acte" hidden>
+/** Le bloc qui s'ouvre quand le lien est sur le site officiel d'une commune : il en fait un acte. Francais seulement. */
+const blocActe = (e) =>
+	e.actes.acte
+		? `<div id="acte" class="acte" hidden>
 <p class="acte-titre">Un acte de <strong id="acte-commune"></strong>${NBSP}?</p>
 <input type="hidden" id="collectivite">
 <label for="nature">Nature</label>
@@ -144,142 +158,150 @@ const blocActe = () => `<div id="acte" class="acte" hidden>
 <label for="objet">Objet de l’acte</label>
 <input type="text" id="objet" maxlength="200" autocomplete="off">
 <p class="avertir">À faire le jour de la mise en ligne${NBSP}: le reçu porte le jour où vous cliquez.</p>
-</div>`;
+</div>
+`
+		: '';
 
 /**
  * Le formulaire de datation, le meme a l'accueil et sur sa page : un fichier, ou
  * un lien ; un lien sur le site d'une commune propose d'en faire un acte.
  * L'empreinte nue hors de l'accueil.
  */
-const formulaireDater = (avecEmpreinte = true) => `<form id="formulaire" class="carte">
-${choixDeFichier('Déposez le document à dater')}
+const formulaireDater = (e, avecEmpreinte = true) => `<form id="formulaire" class="carte">
+${choixDeFichier(e.formulaire.deposez, e.langue)}
 <p id="deja" class="deja" aria-live="polite" hidden></p>
-<p class="ou"><span>ou</span></p>
-<label for="url">Le lien d’un document en ligne</label>
-<input type="text" id="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://www.ma-commune.fr/deliberation.pdf">
-${blocActe()}
-<details>
-<summary>Lui donner un nom (facultatif)</summary>
-<label for="libelle">Un nom</label>
+<p class="ou"><span>${e.formulaire.ou}</span></p>
+<label for="url">${e.formulaire.lien}</label>
+<input type="text" id="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="${e.formulaire.exemple}">
+${blocActe(e)}<details>
+<summary>${e.formulaire.nommer}</summary>
+<label for="libelle">${e.formulaire.nom}</label>
 <input type="text" id="libelle" maxlength="200" autocomplete="off">
 </details>
-${avecEmpreinte ? champEmpreinte : ''}
-<button type="submit" class="principal large-bouton">Dater ce document</button>
-<p class="recoit">Vous recevez un reçu à imprimer ou à télécharger, à garder avec le document. Un fichier déposé ne quitte jamais votre appareil.</p>
+${avecEmpreinte ? champEmpreinte(e) : ''}
+<button type="submit" class="principal large-bouton">${e.formulaire.bouton}</button>
+<p class="recoit">${e.formulaire.recoit}</p>
 </form>
 <div id="resultat" aria-live="polite"></div>`;
 
-const ETAPES = `<ol class="etapes">
-<li><strong>Déposez</strong><span>Un devis, un contrat, une photo, un PDF.</span></li>
-<li><strong>Gardez le reçu</strong><span>Daté, à imprimer, avec le document.</span></li>
-<li><strong>Vérifiez</strong><span>N’importe qui, à tout moment, sans compte.</span></li>
+const etapes = (e) => `<ol class="etapes">
+${e.etapes.map(([geste, exemple]) => `<li><strong>${geste}</strong><span>${exemple}</span></li>`).join('\n')}
 </ol>`;
 
 /** L'accueil : le geste de dater, tout de suite. */
-export function pageAccueil(tours) {
+export function pageAccueil(tours, langue = 'fr') {
+	const e = EDITIONS[langue];
 	const dernier = tours.at(-1);
-	const compte = dernier ? `<p class="compte">${nombre(dernier.objets)} dates enregistrées depuis le ${dateHeure(tours[0].instant).split(' ')[0]}.</p>` : '';
-	return gabarit({
-		titre: 'Prouver la date d’un document',
-		description: "Prouvez gratuitement qu'un document existait à une date, sans modification. Sans compte ; seule son empreinte est publiée, jamais le document.",
+	const compte = dernier ? `<p class="compte">${e.accueil.compte(dernier.objets, e.jour(tours[0].instant.slice(0, 10)))}</p>` : '';
+	return gabarit(e, {
+		titre: e.accueil.titre,
+		description: e.accueil.description,
 		chemin: '/',
-		structure: DONNEES_STRUCTUREES,
+		chemins: cheminsDe('accueil'),
+		structure: donneesStructurees(langue),
 		script: '<script type="module" src="/deposer.js"></script>\n',
 		corps: `<section class="une">
-<h1>Prouvez qu’un document existait à une date, sans modification.</h1>
-<p class="chapeau">Gratuit, sans compte. Vérifiable par tous, même sans ce site.</p>
+<h1>${e.accueil.h1}</h1>
+<p class="chapeau">${e.accueil.chapeau}</p>
 </section>
-${formulaireDater(false)}
-<p class="suite">Déjà daté${NBSP}? ${lien('verifier')}.</p>
-${ETAPES}
+${formulaireDater(e, false)}
+<p class="suite">${e.accueil.deja} ${lien(e, 'verifier')}.</p>
+${etapes(e)}
 ${compte}`
 	});
 }
 
 /** Le journal public : les chiffres, la derniere racine, chaque tour, et la chaine. */
-export function pageJournal(tours) {
+export function pageJournal(tours, langue = 'fr') {
+	const e = EDITIONS[langue];
 	const dernier = tours.at(-1);
 	const lignes = [...tours]
 		.reverse()
 		.map(
 			(t) =>
-				`<tr><td>${dateHeure(t.instant)}</td><td class="n">${nombre(t.objets)}</td><td class="large"><code title="${t.racine}">${t.racine.slice(0, 16)}</code></td><td>${ancrageDe(t)}</td><td class="large">${liensDe(t)}</td></tr>`
+				`<tr><td>${e.dateHeure(t.instant)}</td><td class="n">${e.nombre(t.objets)}</td><td class="large"><code title="${t.racine}">${t.racine.slice(0, 16)}</code></td><td>${ancrageDe(t, langue)}</td><td class="large">${liensDe(e, t)}</td></tr>`
 		)
 		.join('\n');
+	const [documents, nTours, depuis] = e.journal.chiffres;
 	const tete = dernier
 		? `<dl class="chiffres">
-<div><dt>Documents</dt><dd>${nombre(dernier.objets)}</dd></div>
-<div><dt>Tours</dt><dd>${nombre(tours.length)}</dd></div>
-<div><dt>Depuis le</dt><dd>${dateHeure(tours[0].instant).split(' ')[0]}</dd></div>
+<div><dt>${documents}</dt><dd>${e.nombre(dernier.objets)}</dd></div>
+<div><dt>${nTours}</dt><dd>${e.nombre(tours.length)}</dd></div>
+<div><dt>${depuis}</dt><dd>${e.jour(tours[0].instant.slice(0, 10))}</dd></div>
 </dl>
 <section class="carte">
-<h2>Dernière racine, ${dateHeure(dernier.instant)}</h2>
+<h2>${e.journal.derniereRacine(e.dateHeure(dernier.instant))}</h2>
 <p><code class="racine">${dernier.racine}</code></p>
-<p>${ancrageDe(dernier)}</p>
-<p><button type="button" id="chaine">Vérifier la chaîne</button></p>
+<p>${ancrageDe(dernier, langue)}</p>
+<p><button type="button" id="chaine">${e.journal.verifierChaine}</button></p>
 <div id="resultat-chaine" aria-live="polite"></div>
 </section>`
-		: '<p>Aucun tour publié.</p>';
-	return gabarit({
-		titre: ACTES.journal.titre,
-		description: 'Chaque tour du journal des empreintes : documents, racine chaînée, ancrage Bitcoin, fichiers de preuve.',
-		chemin: '/journal',
+		: `<p>${e.journal.aucunTour}</p>`;
+	const [tour, docs, racine, bitcoin, fichiers] = e.journal.colonnes;
+	return gabarit(e, {
+		titre: e.actes.journal.titre,
+		description: e.journal.description,
+		chemin: e.actes.journal.chemin,
+		chemins: cheminsDe('journal'),
 		script: '<script type="module" src="/verifier.js"></script>\n',
-		corps: `<h1>${ACTES.journal.titre}</h1>
-<p class="sous-titre">La liste publique des dates, sans les documents.</p>
+		corps: `<h1>${e.actes.journal.titre}</h1>
+<p class="sous-titre">${e.journal.sousTitre}</p>
 ${tete}
-<h2>${nombre(tours.length)} tours</h2>
+<h2>${e.journal.tours(tours.length)}</h2>
 <div class="defile">
 <table>
-<thead><tr><th>Tour</th><th class="n">Documents</th><th class="large">Racine</th><th>Bitcoin</th><th class="large">Fichiers</th></tr></thead>
+<thead><tr><th>${tour}</th><th class="n">${docs}</th><th class="large">${racine}</th><th>${bitcoin}</th><th class="large">${fichiers}</th></tr></thead>
 <tbody>
 ${lignes}
 </tbody>
 </table>
 </div>
-<p><a href="${DEPOT}/blob/main/scripts/verifier.mjs">Script de vérification</a></p>`
+<p><a href="${DEPOT}/blob/main/scripts/verifier.mjs">${e.journal.script}</a></p>`
 	});
 }
 
-const autresVoies = (champs, suite = '') => `<details>
-<summary>Pas le fichier sous la main${NBSP}?${suite}</summary>
-${champs}
-</details>`;
-
 /** Verifier : un document, ou son empreinte. */
-export function pageVerifier() {
-	return gabarit({
-		titre: ACTES.verifier.titre,
-		description: "Vérifier qu'un document est identique à celui qui a été daté, et à quelle date.",
-		chemin: '/verifier',
+export function pageVerifier(langue = 'fr') {
+	const e = EDITIONS[langue];
+	return gabarit(e, {
+		titre: e.actes.verifier.titre,
+		description: e.verifier.description,
+		chemin: e.actes.verifier.chemin,
+		chemins: cheminsDe('verifier'),
 		script: '<script type="module" src="/verifier.js"></script>\n',
-		corps: `<section class="une une-page"><h1>${ACTES.verifier.titre}</h1></section>
+		corps: `<section class="une une-page"><h1>${e.actes.verifier.titre}</h1></section>
 <form id="formulaire" class="carte">
-${choixDeFichier('Déposez le document ou son reçu')}
-${autresVoies(`<label for="empreinte">Son empreinte SHA-256</label>
-<input type="text" id="empreinte" autocomplete="off" spellcheck="false">`)}
-<button type="submit" class="principal large-bouton">Vérifier</button>
+${choixDeFichier(e.verifier.deposez, langue)}
+<details>
+<summary>${e.verifier.autrement}</summary>
+<label for="empreinte">${e.empreinte.libelle}</label>
+<input type="text" id="empreinte" autocomplete="off" spellcheck="false">
+</details>
+<button type="submit" class="principal large-bouton">${e.verifier.bouton}</button>
 </form>
 <div id="resultat" aria-live="polite"></div>`
 	});
 }
 
 /** Dater : le fichier par defaut, les deux autres voies repliees. */
-export function pageDeposer() {
-	return gabarit({
-		titre: ACTES.dater.titre,
-		description: "Dater gratuitement un document, ancré dans Bitcoin, et recevoir un reçu à imprimer. Seule son empreinte est publiée, jamais le document.",
-		chemin: '/deposer',
+export function pageDeposer(langue = 'fr') {
+	const e = EDITIONS[langue];
+	return gabarit(e, {
+		titre: e.actes.dater.titre,
+		description: e.deposer.description,
+		chemin: e.actes.dater.chemin,
+		chemins: cheminsDe('dater'),
 		script: '<script type="module" src="/deposer.js"></script>\n',
-		corps: `<section class="une une-page"><h1>${ACTES.dater.titre}</h1></section>
-${formulaireDater()}
-<p class="compte">Gratuit, sans compte, jusqu’à 20 documents par jour. ${lien('preuve')}${NBSP}: un élément de preuve, que le juge apprécie librement.</p>`
+		corps: `<section class="une une-page"><h1>${e.actes.dater.titre}</h1></section>
+${formulaireDater(e)}
+<p class="compte">${e.deposer.compte(lien(e, 'preuve'))}</p>`
 	});
 }
 
 /** Dater un acte de collectivite : l'adresse ou il est publie, la collectivite, la nature. */
 export function pageActe() {
-	return gabarit({
+	const e = EDITIONS.fr;
+	return gabarit(e, {
 		titre: ACTES.acte.titre,
 		description: "Dater la mise en ligne d'un acte d'une collectivité, délibération, arrêté ou décision : le service lit l'acte à son adresse et délivre un reçu.",
 		chemin: ACTES.acte.chemin,
@@ -303,7 +325,8 @@ export function pageActe() {
 	});
 }
 
-const jourFr = (j) => j.split('-').reverse().join('/');
+const jourFr = EDITIONS.fr.jour;
+const nombre = EDITIONS.fr.nombre;
 
 const majuscule = (t) => `${t[0].toUpperCase()}${t.slice(1)}`;
 const marqueDuPluriel = (n) => (n > 1 ? 's' : '');
@@ -315,8 +338,8 @@ const titreDeSerie = (n) => (n ? `${nombre(n)} acte${marqueDuPluriel(n)} daté${
 const coupe = (serie) => (serie.total > serie.actes.length ? `<p class="compte">Les ${nombre(serie.actes.length)} plus récents sur ${nombre(serie.total)}.</p>` : '');
 
 /** L'objet d'un acte, lie a l'acte en ligne quand son adresse est connue. */
-const objetDe = (a) => {
-	const objet = a.objet ? echapper(a.objet) : 'Sans objet';
+const objetDe = (a, sansObjet = 'Sans objet') => {
+	const objet = a.objet ? echapper(a.objet) : sansObjet;
 	return a.url ? `<a href="${echapper(a.url)}">${objet}</a>` : objet;
 };
 
@@ -339,7 +362,7 @@ ${lignes}
 </table>
 ${coupe(serie)}`
 		: '';
-	return gabarit({
+	return gabarit(EDITIONS.fr, {
 		titre: `${nom}, actes datés`,
 		description: `Actes de ${nom} datés à leur adresse sur le site officiel de la commune${NBSP}: date de mise en ligne, nature, objet, reçu.`,
 		chemin: `/collectivite/${code}`,
@@ -354,152 +377,128 @@ ${tableau}
 }
 
 /** Les lignes propres a un acte rattache, dans son reçu. */
-const lignesDActe = (acte) =>
+const lignesDActe = (e, acte) =>
 	acte
-		? `<div><dt>Acte</dt><dd>${majuscule(NATURES[acte.nature] ?? acte.nature)}, ${objetDe(acte)}</dd></div>
-<div><dt>Collectivité</dt><dd><a href="/collectivite/${echapper(acte.collectivite)}">${echapper(acte.collectivite)}</a></dd></div>
+		? `<div><dt>${e.recu.acte}</dt><dd>${e.recu.natures[acte.nature] ?? acte.nature}, ${objetDe(acte, e.recu.sansObjet)}</dd></div>
+<div><dt>${e.recu.collectivite}</dt><dd><a href="${e.recu.adresseCollectivite(echapper(acte.collectivite))}">${echapper(acte.collectivite)}</a></dd></div>
 `
 		: '';
 
 /** Le recu d'un depot, a son adresse : ce que la ligne publique engage, et son inscription au registre. */
-export function pageRecu(ligne, acte = null) {
-	const tete = acte ? `En ligne le ${jourFr(ligne.jour)}` : `Document daté du ${jourFr(ligne.jour)}`;
-	return gabarit({
-		titre: `Reçu de date du ${jourFr(ligne.jour)}`,
-		description: `Reçu de date${NBSP}: ${acte ? 'acte en ligne' : 'document daté'} le ${jourFr(ligne.jour)}, ligne ${ligne.place}.`,
-		chemin: `/recu/${ligne.recu}`,
+export function pageRecu(ligne, acte = null, langue = 'fr') {
+	const e = EDITIONS[langue];
+	const jour = e.jour(ligne.jour);
+	const chemin = `/recu/${ligne.recu}`;
+	return gabarit(e, {
+		titre: e.recu.titre(jour),
+		description: e.recu.description(acte, jour, ligne.place),
+		chemin,
+		chemins: { fr: chemin, de: chemin },
 		script: '<script type="module" src="/recu.js"></script>\n',
-		corps: `<h1>Reçu de date</h1>
+		corps: `<h1>${e.recu.h1}</h1>
 <article class="ok recu" id="recu" data-recu="${ligne.recu}">
-<h2>${tete}</h2>
+<h2>${acte ? e.recu.enLigne(jour) : e.recu.date(jour)}</h2>
 <dl>
-${lignesDActe(acte)}<div><dt>Empreinte</dt><dd><code class="racine">${ligne.sha256}</code></dd></div>
-<div><dt>Ligne</dt><dd>${ligne.place} du ${jourFr(ligne.jour)}</dd></div>
-<div><dt>Registre</dt><dd id="inscription">lecture du registre</dd></div>
+${lignesDActe(e, acte)}<div><dt>${e.recu.empreinte}</dt><dd><code class="racine">${ligne.sha256}</code></dd></div>
+<div><dt>${e.recu.ligne}</dt><dd>${e.recu.place(ligne.place, jour)}</dd></div>
+<div><dt>${e.recu.registre}</dt><dd id="inscription">${e.recu.lecture}</dd></div>
 </dl>
-<p class="imprime">temoinpublic.fr/recu/${ligne.recu}</p>
+<p class="imprime">${e.hote}${chemin}</p>
 </article>
-<p class="gestes"><button type="button" id="imprimer" class="principal">Imprimer le reçu</button> ${lien('verifier', 'bouton')}</p>`
+<p class="gestes"><button type="button" id="imprimer" class="principal">${e.recu.imprimer}</button> ${lien(e, 'verifier', 'bouton')}</p>`
 	});
 }
 
 /** Le registre public d'un editeur : chaque version datee de ses articles, sans adresse ni titre. */
-export function pageEditeur({ flux, total, versions }) {
+export function pageEditeur({ flux, total, versions }, langue = 'fr') {
+	const e = EDITIONS[langue];
 	const parArticle = new Map();
 	for (const v of versions) parArticle.set(v.article, (parArticle.get(v.article) ?? 0) + 1);
 	const lignes = versions
 		.map(
 			(v) =>
-				`<tr><td><code>${v.article.slice(0, 12)}</code></td><td class="n">${parArticle.get(v.article)}</td><td><a href="/recu/${v.recu}">${jourFr(v.jour)}</a></td><td class="n">${v.place}</td><td class="large"><code title="${v.sha256}">${v.sha256.slice(0, 16)}</code></td></tr>`
+				`<tr><td><code>${v.article.slice(0, 12)}</code></td><td class="n">${parArticle.get(v.article)}</td><td><a href="/recu/${v.recu}">${e.jour(v.jour)}</a></td><td class="n">${v.place}</td><td class="large"><code title="${v.sha256}">${v.sha256.slice(0, 16)}</code></td></tr>`
 		)
 		.join('\n');
+	const [article, nVersions, datee, ligne, empreinte] = e.editeur.colonnes;
 	const tableau = versions.length
 		? `<table>
-<thead><tr><th>Article</th><th class="n">Versions</th><th>Datée le</th><th class="n">Ligne</th><th class="large">Empreinte</th></tr></thead>
+<thead><tr><th>${article}</th><th class="n">${nVersions}</th><th>${datee}</th><th class="n">${ligne}</th><th class="large">${empreinte}</th></tr></thead>
 <tbody>
 ${lignes}
 </tbody>
 </table>
-${coupeDesVersions(versions.length, total)}`
+${total > versions.length ? `<p class="compte">${e.editeur.coupe(versions.length, total)}</p>` : ''}`
 		: '';
-	const etat = flux.retire ? `Suivi du ${jourFr(flux.inscrit.slice(0, 10))} au ${jourFr(flux.retire.slice(0, 10))}` : `Suivi depuis le ${jourFr(flux.inscrit.slice(0, 10))}`;
-	return gabarit({
-		titre: `Registre de l’éditeur ${flux.id}`,
-		description: `Les versions datées des articles du flux ${flux.id}${NBSP}: date, ligne du registre, empreinte.`,
-		chemin: `/editeur/${flux.id}`,
+	const inscrit = e.jour(flux.inscrit.slice(0, 10));
+	const etat = flux.retire ? e.editeur.suiviDuAu(inscrit, e.jour(flux.retire.slice(0, 10))) : e.editeur.suiviDepuis(inscrit);
+	const chemin = `/editeur/${flux.id}`;
+	return gabarit(e, {
+		titre: e.editeur.titre(flux.id),
+		description: e.editeur.description(flux.id),
+		chemin,
+		chemins: { fr: chemin, de: chemin },
 		indexer: total > 0,
 		script: '<script type="module" src="/editeur.js"></script>\n',
-		corps: `<h1>Registre de l’éditeur</h1>
-<p class="sous-titre">Flux ${flux.id}. ${etat}.</p>
-<h2>${titreDeVersions(parArticle.size, total)}</h2>
+		corps: `<h1>${e.editeur.h1}</h1>
+<p class="sous-titre">${e.editeur.flux(flux.id, etat)}</p>
+<h2>${total ? e.editeur.compte(parArticle.size, total) : e.editeur.aucune}</h2>
 ${tableau}
 <section id="prive" data-flux="${flux.id}" hidden></section>`
 	});
 }
 
-/** La ligne qui dit qu'un registre est coupe, vide sinon. */
-const coupeDesVersions = (montrees, total) => (total > montrees ? `<p class="compte">Les ${nombre(montrees)} plus récentes sur ${nombre(total)}.</p>` : '');
-
-const titreDeVersions = (articles, versions) =>
-	versions ? `${nombre(versions)} version${marqueDuPluriel(versions)}, ${nombre(articles)} article${marqueDuPluriel(articles)}` : 'Aucune version datée';
-
 /** Une adresse de recu qui ne nomme aucun depot. */
-export function pageRecuInconnu() {
-	return gabarit({
-		titre: 'Reçu inconnu',
-		description: 'Aucun dépôt ne porte ce reçu.',
+export function pageRecuInconnu(langue = 'fr') {
+	const e = EDITIONS[langue];
+	return gabarit(e, {
+		titre: e.recuInconnu.titre,
+		description: e.recuInconnu.description,
 		chemin: '/recu/',
-		corps: `<h1>Reçu inconnu</h1>
-<p>${lien('verifier', 'bouton')}</p>`
+		corps: `<h1>${e.recuInconnu.titre}</h1>
+<p>${lien(e, 'verifier', 'bouton')}</p>`
 	});
 }
 
 /** Toute adresse sans page : un vrai 404, jamais l'accueil servi a la place d'un fichier absent. */
-export function pageIntrouvable() {
-	return gabarit({
-		titre: 'Page introuvable',
-		description: 'Aucune page à cette adresse.',
+export function pageIntrouvable(langue = 'fr') {
+	const e = EDITIONS[langue];
+	return gabarit(e, {
+		titre: e.introuvable.titre,
+		description: e.introuvable.description,
 		chemin: '/404',
-		corps: `<h1>Page introuvable</h1>
-<p>${lien('dater', 'bouton principal')} ${lien('verifier', 'bouton')}</p>`
+		corps: `<h1>${e.introuvable.titre}</h1>
+<p>${lien(e, 'dater', 'bouton principal')} ${lien(e, 'verifier', 'bouton')}</p>`
 	});
 }
 
-const ligneDoc = (gauche, droite) => `<tr><td><code>${gauche}</code></td><td>${droite}</td></tr>`;
 const tableDoc = (titre, lignes) => `<h2>${titre}</h2>
 <table class="doc">
 <tbody>
-${lignes.join('\n')}
+${lignes.map(([gauche, droite]) => `<tr><td><code>${gauche}</code></td><td>${droite}</td></tr>`).join('\n')}
 </tbody>
 </table>`;
 
+/** Les adresses qu'une edition explique, avec leur explication. */
+const lignesDAdresses = (adresses, textes) => adresses.filter(([cle]) => textes[cle]).map(([cle, adresse]) => [adresse, textes[cle]]);
+
+/** Chaque formule derriere son nom, suivie de ce que l'edition en dit. */
+const lignesDeFormules = (textes) => Object.entries(FORMULES).map(([cle, formule]) => [textes[cle][0], `${formule}${textes[cle][1] ?? ''}`]);
+
 /** La documentation : les adresses, les limites et les formules, pour verifier sans ce site. */
-export function pageDocumentation() {
-	return gabarit({
-		titre: ACTES.documentation.titre,
-		description: 'Adresses, limites et formules du registre des dates : dater, lire et vérifier sans ce site.',
-		chemin: ACTES.documentation.chemin,
-		corps: `<h1>${ACTES.documentation.titre}</h1>
-${tableDoc('Dater', [
-	ligneDoc('POST /api/depots {"sha256": "&lt;64 hex&gt;", "libelle": "&lt;texte&gt;"}', 'une empreinte calculée par vous\u00A0; le libellé reste dans le reçu'),
-	ligneDoc('POST /api/depots {"url": "https://&lt;adresse&gt;"}', 'le service lit lui-même le document en ligne et date ses octets'),
-	ligneDoc('POST /api/depots {"type": "acte", "url": "https://&lt;adresse&gt;", "collectivite": "&lt;INSEE | SIREN&gt;", "nature": "deliberation | arrete | decision", "libelle": "&lt;objet&gt;"}', 'un acte de collectivité, lu à son adresse, avec son objet\u00A0; reçu version 2, ligne publique inchangée'),
-	ligneDoc('201', 'le reçu, son identifiant, la ligne publique'),
-	ligneDoc('POST /api/flux {"url": "https://&lt;flux RSS ou Atom&gt;"}', 'suivre un flux\u00A0: chaque heure, chaque article nouveau ou modifié est lu et daté\u00A0; rend l’identifiant du flux et son jeton'),
-	ligneDoc('GET /editeur/&lt;id&gt;', 'le registre public d’un flux\u00A0: chaque version datée, sans adresse ni titre\u00A0; avec <code>#&lt;jeton&gt;</code>, les adresses et les reçus'),
-	ligneDoc('GET /api/flux/&lt;id&gt;', 'le registre privé d’un flux, <code>authorization: Bearer &lt;jeton&gt;</code>'),
-	ligneDoc('DELETE /api/flux/&lt;id&gt;', 'cesser de suivre un flux, <code>authorization: Bearer &lt;jeton&gt;</code>\u00A0; les dates déjà enregistrées restent'),
-	ligneDoc('429', `20 dépôts par jour et par adresse, 2${NBSP}000 par jour, <code>retry-after</code> jusqu’à minuit UTC`),
-	ligneDoc('409', 'une même adresse en ligne lue une fois par jour'),
-	ligneDoc('422', 'lecture impossible\u00A0: 20 Mo, 30 s, 5 redirections au plus, adresses publiques seulement')
-])}
-${tableDoc('Agents', [
-	ligneDoc('POST /mcp', 'serveur MCP, HTTP sans session\u00A0: <code>dater_url</code>, <code>dater_empreinte</code>, <code>chercher_empreinte</code>, <code>lire_recu</code>\u00A0; mêmes limites'),
-	ligneDoc('GET /openapi.json', 'la description OpenAPI de l’API')
-])}
-${tableDoc('Lire', [
-	ligneDoc('GET /depots/&lt;jour&gt;.jsonl', 'les dépôts du jour, une ligne <code>{"sha256","jour","place","recu"}</code> par dépôt'),
-	ligneDoc('GET /recu/&lt;id&gt;', 'la page d’un reçu'),
-	ligneDoc('GET /api/recus/&lt;id&gt;', 'la ligne publique d’un reçu'),
-	ligneDoc('GET /api/depots/&lt;sha256&gt;', 'les dépôts d’une empreinte'),
-	ligneDoc('GET /collectivite/&lt;INSEE&gt;', 'les actes d’une commune lus sur son site officiel\u00A0: date, nature, empreinte, reçu\u00A0; le SIREN y renvoie'),
-	ligneDoc('GET /annuaire/communes/insee-&lt;département&gt;.json', 'le nom de chaque commune, code INSEE ou SIREN vers <code>[nom, INSEE, SIREN]</code>'),
-	ligneDoc('GET /annuaire/insee-&lt;département&gt;.json', 'les sites officiels des communes, code INSEE ou SIREN vers <code>[hôte, préfixe]</code>, d’après l’annuaire Service-Public'),
-	ligneDoc('GET /api/bilan', 'dépôts et déposants distincts, jour par jour'),
-	ligneDoc('GET /tours.json', 'les tours du registre'),
-	ligneDoc('GET /empreintes/&lt;tour&gt;.json', 'le relevé d’un tour, avec <code>.racine</code>, <code>.racine.ots</code>, <code>.racine.tsr</code>'),
-	ligneDoc('GET /empreintes/depots.jsonl', 'les dépôts lus par l’entrepôt, dans l’ordre de leur inscription'),
-	ligneDoc('GET /health', 'l’état du registre publié')
-])}
-${tableDoc('Vérifier sans ce site', [
-	ligneDoc('feuille', '<code>sha256(cle + "\\n" + sha256 + "\\n" + jour + "\\n")</code>'),
-	ligneDoc('arbre', 'Merkle SHA-256 sur les octets des deux enfants\u00A0; un niveau impair double son dernier nœud'),
-	ligneDoc('racine', '<code>sha256("entrepot\\n" + tour + "\\n" + précédente + "\\n" + arbre + "\\n")</code>\u00A0; le premier tour suit 64 zéros'),
-	ligneDoc('depots:&lt;n&gt;', 'la feuille des dépôts\u00A0: <code>sha256</code> des <code>n</code> premières lignes de <code>depots.jsonl</code>, chacune suivie de <code>"\\n"</code>'),
-	ligneDoc('reçu', 'identifiant\u00A0: <code>sha256</code> de sa forme canonique, clés triées, sans espace'),
-	ligneDoc('Bitcoin', '<code>ots verify &lt;tour&gt;.racine.ots</code>'),
-	ligneDoc('script', '<a href="https://github.com/florianmousseau/empreintes/blob/main/scripts/verifier.mjs">node scripts/verifier.mjs &lt;document | --chaine&gt;</a>')
-])}`
+export function pageDocumentation(langue = 'fr') {
+	const e = EDITIONS[langue];
+	const [dater, agents, lire, verifier] = e.documentation.titres;
+	return gabarit(e, {
+		titre: e.actes.documentation.titre,
+		description: e.documentation.description,
+		chemin: e.actes.documentation.chemin,
+		chemins: cheminsDe('documentation'),
+		corps: `<h1>${e.actes.documentation.titre}</h1>
+${tableDoc(dater, lignesDAdresses(ADRESSES.dater, e.documentation.dater))}
+${tableDoc(agents, lignesDAdresses(ADRESSES.agents, e.documentation.agents))}
+${tableDoc(lire, lignesDAdresses(ADRESSES.lire, e.documentation.lire))}
+${tableDoc(verifier, lignesDeFormules(e.documentation.verifier))}`
 	});
 }
 
@@ -511,54 +510,46 @@ export const COPIES = [
 ];
 
 /** Le premier jour d'un horodatage qualifie, null tant qu'aucun tour n'en porte. */
-export function premierHorodatageQualifie(tours) {
+export function premierHorodatageQualifie(tours, langue = 'fr') {
 	const tour = tours.find((t) => t.fichiers.some((f) => f.endsWith('.racine.tsr')));
-	return tour ? dateHeure(tour.instant).split(' ')[0] : null;
+	return tour ? EDITIONS[langue].jour(tour.instant.slice(0, 10)) : null;
 }
 
 const elements = (lignes) => `<ul>\n${lignes.map((l) => `<li>${l}</li>`).join('\n')}\n</ul>`;
 
 /** Ce qu'un recu prouve, ce qu'il ne prouve pas, les textes, et ce qui reste si le site disparait. */
-export function pagePreuve(tours, copies = COPIES) {
-	const qualifie = premierHorodatageQualifie(tours);
-	const ancrage = qualifie
-		? `Chaque jour, la date est ancrée dans Bitcoin et horodatée par un prestataire de la liste de confiance européenne (eIDAS), depuis le ${qualifie}.`
-		: 'Chaque jour, la date est ancrée dans Bitcoin.';
-	return gabarit({
-		titre: ACTES.preuve.titre,
-		description: "Ce que prouve un reçu de Témoin public, ce qu'il ne prouve pas, les textes applicables, et comment le vérifier sans ce site.",
-		chemin: ACTES.preuve.chemin,
-		corps: `<h1>${ACTES.preuve.titre}</h1>
-<h2>Ce que prouve un reçu</h2>
-${elements(['Le document existait, identique à l’octet près, au plus tard à la date du reçu.', `Pour un lien${NBSP}: ce fichier était servi à cette adresse à cet instant.`, ancrage])}
-<h2>Ce qu’il ne prouve pas</h2>
-${elements(['Qui est l’auteur du document.', 'Que son contenu est exact.', 'Qu’il n’existait pas avant.', `L’apparence d’une page à l’écran${NBSP}: seul le fichier lu est daté.`])}
-<h2>Textes</h2>
-${elements([
-	`<a href="https://www.legifrance.gouv.fr/codes/id/LEGITEXT000006070721">Code civil, article 1358</a>${NBSP}: hors les cas où la loi en dispose autrement, la preuve peut être apportée par tout moyen.`,
-	`<a href="https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX:32014R0910">Règlement eIDAS, article 41</a>${NBSP}: un horodatage électronique ne peut être écarté comme preuve au seul motif qu’il est électronique.`
-])}
-<h2>Si ce site disparaît</h2>
-<p>Le document et son reçu suffisent${NBSP}: les formules sont publiques (${lien('documentation')}). Copies du registre${NBSP}:</p>
-${elements(copies.map((c) => `<a href="${c.adresse}">${c.nom}</a>`))}
-<p><code>node scripts/verifier.mjs &lt;document&gt;</code> et <code>ots verify &lt;tour&gt;.racine.ots</code></p>`
+export function pagePreuve(tours, copies = COPIES, langue = 'fr') {
+	const e = EDITIONS[langue];
+	const qualifie = premierHorodatageQualifie(tours, langue);
+	return gabarit(e, {
+		titre: e.actes.preuve.titre,
+		description: e.preuve.description,
+		chemin: e.actes.preuve.chemin,
+		chemins: cheminsDe('preuve'),
+		corps: `<h1>${e.actes.preuve.titre}</h1>
+<h2>${e.preuve.prouve}</h2>
+${elements([e.preuve.existait, e.preuve.lien, qualifie ? e.preuve.ancrageQualifie(qualifie) : e.preuve.ancrage])}
+<h2>${e.preuve.neProuvePas}</h2>
+${elements(e.preuve.limites)}
+<h2>${e.preuve.textes}</h2>
+${elements(e.preuve.lois)}
+<h2>${e.preuve.disparait}</h2>
+<p>${e.preuve.suffisent(lien(e, 'documentation'))}</p>
+${elements(copies.map((c, i) => `<a href="${c.adresse}">${e.preuve.copies[i] ?? c.nom}</a>`))}
+<p><code>node scripts/verifier.mjs &lt;document&gt;</code> ${e.preuve.et} <code>ots verify &lt;tour&gt;.racine.ots</code></p>`
 	});
 }
 
-/** Les mentions legales : l'editeur, l'hebergeur, et ce que le service garde. */
-export function pageMentions() {
-	return gabarit({
-		titre: ACTES.mentions.titre,
-		description: `Éditeur, hébergeur et données conservées par ${MARQUE}.`,
-		chemin: ACTES.mentions.chemin,
-		corps: `<h1>${ACTES.mentions.titre}</h1>
-<h2>Éditeur</h2>
-<p><a href="https://florianmousseau.com">Florian Mousseau</a>, directeur de la publication. Contact${NBSP}: <a href="mailto:contact@florianmousseau.com">contact@florianmousseau.com</a></p>
-<h2>Hébergeur</h2>
-<p>Cloudflare, Inc., 101 Townsend St, San Francisco, CA 94107, États-Unis.</p>
-<h2>Données</h2>
-<p>Aucun document n’est reçu ni conservé, seulement son empreinte. Le libellé et l’adresse d’un dépôt restent dans le reçu. L’adresse IP d’un déposant n’est jamais écrite${NBSP}: seul son haché salé du jour sert au plafond, et le sel est effacé le lendemain. Aucun cookie.</p>
-<h2>Code</h2>
+/** Les mentions legales, ou l'Impressum : l'editeur, l'hebergeur, et ce que le service garde. */
+export function pageMentions(langue = 'fr') {
+	const e = EDITIONS[langue];
+	return gabarit(e, {
+		titre: e.actes.mentions.titre,
+		description: e.mentions.description(e.marque),
+		chemin: e.actes.mentions.chemin,
+		corps: `<h1>${e.actes.mentions.titre}</h1>
+${e.mentions.sections.map(([titre, texte]) => `<h2>${titre}</h2>\n<p>${texte}</p>`).join('\n')}
+<h2>${e.mentions.code}</h2>
 <p><a href="${DEPOT}">${DEPOT.replace('https://', '')}</a></p>`
 	});
 }

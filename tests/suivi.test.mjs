@@ -177,9 +177,14 @@ test("le registre public d'un editeur liste ses versions sans adresse ni titre ;
 	assert.match(html, /<td class="n">2<\/td><td><a href="\/recu\/[0-9a-f]{64}">19\/10\/2026<\/a><\/td>/);
 	assert.match(pageEditeur({ ...r, versions: r.versions.slice(0, 1) }), /Les 1 plus récentes sur 3\./);
 	assert.equal(await registreDeLEditeur({ db, id: 'inconnu' }), null);
-	const page = await pageDeLEditeur({ params: { id }, env: { DEPOTS: db } });
+	const page = await pageDeLEditeur({ request: new Request(`https://temoinpublic.fr/editeur/${id}`), params: { id }, env: { DEPOTS: db } });
 	assert.equal(page.status, 200);
-	assert.equal((await pageDeLEditeur({ params: { id: 'x' }, env: { DEPOTS: db } })).status, 404);
+	assert.match(await page.text(), /<html lang="fr">/);
+	const allemande = await pageDeLEditeur({ request: new Request(`https://datumszeuge.de/editeur/${id}`), params: { id }, env: { DEPOTS: db } });
+	assert.match(await allemande.text(), /<html lang="de">[\s\S]*Verfolgt seit dem 12\.10\.2026\.<\/p>\n<h2>3 Versionen, 2 Artikel<\/h2>/);
+	const absente = await pageDeLEditeur({ request: new Request('https://datumszeuge.de/editeur/x'), params: { id: 'x' }, env: { DEPOTS: db } });
+	assert.equal(absente.status, 404);
+	assert.match(await absente.text(), /<h1>Seite nicht gefunden<\/h1>/);
 
 	const lire = (j) => apiFlux({ request: new Request(`https://e/api/flux/${id}`, { headers: j ? { authorization: `Bearer ${j}` } : {} }), params: { id }, env: { DEPOTS: db } });
 	assert.equal((await lire(null)).status, 403);
@@ -194,6 +199,9 @@ test("le registre public d'un editeur liste ses versions sans adresse ni titre ;
 
 	await retirerFlux({ db, id, jeton, maintenant: jour(20) });
 	assert.match(pageEditeur(await registreDeLEditeur({ db, id })), /Suivi du 12\/10\/2026 au 20\/10\/2026/);
+	assert.match(pageEditeur(await registreDeLEditeur({ db, id }), 'de'), /Verfolgt vom 12\.10\.2026 bis 20\.10\.2026/);
+	assert.match(pageEditeur({ ...r, versions: r.versions.slice(0, 1) }, 'de'), /Die 1 neuesten von 3\./);
+	assert.match(pageEditeur({ ...r, total: 0, versions: [] }, 'de'), /Keine datierte Version/);
 	const vide = pageEditeur({ flux: { id: 'f', inscrit: '2026-10-12T00:00:00Z', retire: null }, total: 0, versions: [] });
 	assert.match(vide, /Aucune version datée/);
 	assert.match(vide, /noindex/);
