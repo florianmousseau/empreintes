@@ -1,5 +1,5 @@
 import { sha256, placeDuFichier, verifierChaine, verifierSignatureDuJournal, verifierSignatures } from '/chaine.mjs';
-import { suivreLeChoix } from '/fichier.js';
+import { montrer, suivreLeChoix } from '/fichier.js';
 import { idDuRecu } from '/depot.mjs';
 import { T } from '/textes.js';
 
@@ -111,6 +111,7 @@ const lancer = async () => {
 	} catch (erreur) {
 		$('resultat').innerHTML = `<article class="ko"><h2>${T.erreur}</h2><p>${echapper(erreur.message)}</p></article>`;
 	}
+	if ($('resultat').innerHTML) montrer($('resultat'));
 };
 
 // `/verifier?empreinte=<sha256>` : le lien qu'une autre page donne vers la preuve d'un document.

@@ -78,6 +78,7 @@ nav a[aria-current='page'] { color: var(--encre); background: color-mix(in srgb,
 .une h1 { margin: 0 auto 0.8rem; max-width: 40rem; font-size: clamp(2rem, 6vw, 3rem); }
 .chapeau { margin: 0; color: rgb(255 255 255 / 0.82); font-size: 1.15rem; }
 .une + .carte { position: relative; margin: 0 1rem; }
+.une ~ #resultat { margin-inline: 1rem; }
 .une-page { padding: 2rem 1.5rem 3.6rem; }
 .une-page h1 { margin: 0 auto; font-size: clamp(1.7rem, 5vw, 2.3rem); }
 .suite { text-align: center; color: var(--doux); margin: 1.2rem 0; }
@@ -183,12 +184,17 @@ article { position: relative; margin: 1rem 0; padding: 1.3rem 1.4rem; border: 1p
 article.ok { border-left-color: var(--ok); }
 article.ko { border-left-color: var(--ko); background: var(--ko-fond); }
 article h2 { margin-top: 0; font-size: 1.25rem; }
-article.ok h2::before { content: '\2713'; display: inline-grid; place-items: center; width: 1.6rem; height: 1.6rem; margin-right: 0.5rem; border-radius: 50%; background: var(--ok-fond); color: var(--ok); font: 700 1rem/1 system-ui, sans-serif; vertical-align: 0.15em; }
+article.ok h2 { display: flex; align-items: flex-start; gap: 0.55rem; }
+article.ok h2::before { content: '\2713'; flex: none; display: grid; place-items: center; width: 1.6rem; height: 1.6rem; margin-top: 0.05em; border-radius: 50%; background: var(--ok-fond); color: var(--ok); font: 700 1rem/1 system-ui, sans-serif; }
 article dl { margin: 0.8rem 0 0; }
 article dl div { display: grid; grid-template-columns: 9rem 1fr; gap: 0.6rem; padding: 0.45rem 0; border-top: 1px solid var(--trait); }
 article dt { color: var(--doux); }
 article dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
-article.recu { padding-top: 1.6rem; }
+article.recu { padding-top: 1.6rem; scroll-margin-top: 1rem; }
+article.recu:focus { outline: none; }
+#resultat { scroll-margin-top: 1rem; }
+.source { color: var(--doux); font-size: 0.92rem; }
+.garde { margin: 1rem 0 0; color: var(--doux); }
 .imprime { display: none; }
 
 /* Registre */
@@ -223,6 +229,7 @@ footer { margin-top: 2rem; background: var(--surface); border-top: 1px solid var
 	nav a { padding: 0.4rem 0.5rem; font-size: 0.9rem; }
 	.une { margin-top: 1rem; padding: 1.8rem 1rem 3.6rem; }
 	.une + .carte { margin: 0 0.5rem; }
+	.une ~ #resultat { margin-inline: 0.5rem; }
 	.carte { padding: 1.1rem; border-radius: 0.85rem; }
 	.zone { padding: 1.2rem 0.8rem; }
 	.zone-icone { width: 2.2rem; height: 2.2rem; margin: 0; }
@@ -236,6 +243,7 @@ footer { margin-top: 2rem; background: var(--surface); border-top: 1px solid var
 	.chiffres div { padding: 0.7rem; }
 	article { padding: 1.1rem; }
 	article dl div { grid-template-columns: 1fr; gap: 0; }
+	.gestes > * { flex: 1 1 12rem; }
 	.large { display: none; }
 	table { font-size: 0.85rem; }
 	th, td { padding-right: 0.4rem; }
@@ -245,9 +253,11 @@ footer { margin-top: 2rem; background: var(--surface); border-top: 1px solid var
 }
 
 @media print {
-	header, footer, form, .compte, .suite, .etapes, h1, .gestes, summary { display: none !important; }
+	nav, footer, form, .une, .compte, .suite, .etapes, h1, .gestes, summary { display: none !important; }
 	body { background: #fff; color: #000; }
-	article { border: 2px solid #000; box-shadow: none; }
-	code { word-break: break-all; }
+	header { border: 0; }
+	main { max-width: none; padding: 0; }
+	article { border: 2px solid #000; box-shadow: none; break-inside: avoid; }
+	code, .imprime, .racine { word-break: break-all; overflow-wrap: anywhere; }
 	.imprime { display: block; }
 }

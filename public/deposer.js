@@ -1,5 +1,5 @@
 import { sha256 } from '/chaine.mjs';
-import { suivreLeChoix } from '/fichier.js';
+import { montrer, suivreLeChoix } from '/fichier.js';
 import { communeDe, communeDeLAdresse } from '/annuaire.mjs';
 import { T } from '/textes.js';
 
@@ -109,33 +109,35 @@ function telecharger(recu, id) {
 	URL.revokeObjectURL(lien.href);
 }
 
+const ligneDuRecu = (titre, valeur) => `<div><dt>${titre}</dt><dd>${valeur}</dd></div>`;
+
+// Le meme recu que sa page `/recu/<id>` : tout est visible, l'adresse entiere, rien sous un depliant.
 function afficher(r) {
-	const source = r.recu.temoin ? `${t.luA} <code>${echapper(r.recu.temoin.url)}</code>` : t.calculee;
 	const acte = r.recu.acte;
-	const tete = acte
-		? `<h2>${t.recuActe(t.natures[acte.nature], T.jour(r.recu.temoin.lu.slice(0, 10)), r.recu.temoin.lu.slice(11, 16))}</h2>
-<p>${t.collectivite} ${collectivite(acte)}, ${t.rattachement[acte.rattachement]}.</p>`
-		: `<h2>${t.recuDocument(T.jour(r.jour))}</h2>`;
-	$('resultat').innerHTML = `<article class="ok">
-${tete}
-${r.recu.libelle ? `<p><strong>${echapper(r.recu.libelle)}</strong></p>` : ''}
-<p>${acte ? t.enLigne : t.gardez}</p>
-<p class="gestes"><button type="button" id="imprimer" class="principal">${t.imprimer}</button> <button type="button" id="recu">${t.telecharger}</button></p>
-<details>
-<summary>${t.details}</summary>
+	const lu = r.recu.temoin?.lu;
+	const titre = acte ? t.recuActe(t.natures[acte.nature], T.jour(lu.slice(0, 10)), lu.slice(11, 16)) : t.recuDocument(T.jour(r.jour));
+	const source = r.recu.temoin ? `${t.luA} <a href="${echapper(r.recu.temoin.url)}">${echapper(r.recu.temoin.url)}</a>` : t.calculee;
+	const lignes = [
+		r.recu.libelle ? ligneDuRecu(t.nom, `<strong>${echapper(r.recu.libelle)}</strong>`) : '',
+		acte ? ligneDuRecu(t.collectivite, `${collectivite(acte)}, ${t.rattachement[acte.rattachement]}`) : '',
+		ligneDuRecu(t.empreinte, `<code class="racine">${r.recu.sha256}</code><br><span class="source">${source}</span>`),
+		ligneDuRecu(t.ligne, t.place(r.place, T.jour(r.jour))),
+		ligneDuRecu(t.emis, t.instant(T.jour(r.recu.depose.slice(0, 10)), r.recu.depose.slice(11, 16))),
+		ligneDuRecu(t.adresse, `<a class="racine" href="/recu/${r.id}">${T.hote}/recu/${r.id}</a>`)
+	];
+	$('resultat').innerHTML = `<article class="ok recu" tabindex="-1">
+<h2>${titre}</h2>
 <dl>
-<div><dt>${t.empreinte}</dt><dd><code class="racine">${r.recu.sha256}</code>, ${source}</dd></div>
-<div><dt>${t.recu}</dt><dd><code class="racine">${r.id}</code>, ${t.ligne(r.place, T.jour(r.jour))}</dd></div>
+${lignes.join('')}
 </dl>
-</details>
-<p>${t.adresse} <a href="/recu/${r.id}">${T.hote}/recu/${r.id.slice(0, 12)}</a></p>
-<p class="imprime">${T.hote}/recu/${r.id}<br>${t.emis(T.jour(r.recu.depose.slice(0, 10)), r.recu.depose.slice(11, 16))}</p>
+<p class="garde">${acte ? t.enLigne : t.gardez}</p>
+<p class="gestes"><button type="button" id="imprimer" class="principal">${t.imprimer}</button> <button type="button" id="recu">${t.telecharger}</button></p>
 </article>`;
 	$('recu').addEventListener('click', () => telecharger(r.recu, r.id));
-	$('imprimer').addEventListener('click', () => {
-		for (const d of document.querySelectorAll('#resultat details')) d.open = true;
-		window.print();
-	});
+	$('imprimer').addEventListener('click', () => window.print());
+	$('formulaire').reset();
+	$fichier()?.dispatchEvent(new Event('change'));
+	$('url')?.dispatchEvent(new Event('input'));
 }
 
 const valeur = (id) => $(id)?.value.trim() ?? '';
@@ -153,23 +155,26 @@ async function demande() {
 	return null;
 }
 
+async function envoyer(corps) {
+	const r = await fetch('/api/depots', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(corps) });
+	const reponse = await r.json();
+	if (r.status === 201) afficher(reponse);
+	else $('resultat').innerHTML = `<article class="ko"><h2>${t.refus[r.status] ?? echapper(reponse.erreur)}</h2>${(reponse.details ?? []).map((d) => `<p>${echapper(d)}</p>`).join('')}</article>`;
+}
+
 $('formulaire').addEventListener('submit', async (e) => {
 	e.preventDefault();
 	const bouton = e.submitter ?? $('formulaire').querySelector('button');
 	bouton.disabled = true;
 	try {
 		const corps = await demande();
-		if (!corps) {
-			$('resultat').innerHTML = `<p>${T.choisir}</p>`;
-			return;
-		}
-		const r = await fetch('/api/depots', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(corps) });
-		const reponse = await r.json();
-		if (r.status === 201) return afficher(reponse);
-		$('resultat').innerHTML = `<article class="ko"><h2>${t.refus[r.status] ?? echapper(reponse.erreur)}</h2>${(reponse.details ?? []).map((d) => `<p>${echapper(d)}</p>`).join('')}</article>`;
+		if (corps) await envoyer(corps);
+		else $('resultat').innerHTML = `<p>${T.choisir}</p>`;
 	} catch (erreur) {
 		$('resultat').innerHTML = `<article class="ko"><h2>${T.erreurAvec(echapper(erreur.message))}</h2></article>`;
 	} finally {
 		bouton.disabled = false;
 	}
+	montrer($('resultat'));
+	$('resultat').querySelector('article')?.focus({ preventScroll: true });
 });
