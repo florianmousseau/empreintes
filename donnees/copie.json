@@ -1,5 +1,5 @@
 {
- "etat": "suspendue",
- "depuis": "2026-10-12",
- "attend": "l'entrepot pousse lui-meme son journal dans donnees/empreintes depuis le VPS"
+ "etat": "active",
+ "depuis": "2026-10-13",
+ "par": "l'entrepot, depuis le VPS, apres chaque tour"
 }
