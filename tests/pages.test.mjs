@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { ACTES, SCEAU, DONNEES_STRUCTUREES, PLAN, planDuSite, pageMentions, pageActe, pageCollectivite, pageEditeur, pageDocumentation, pageIntrouvable, ancrageDe, dateHeure, echapper, pageAccueil, pageDeposer, pageJournal, pageVerifier } from '../src/pages.mjs';
+import { ACTES, SCEAU, DONNEES_STRUCTUREES, PLAN, planDuSite, pageMentions, pageActe, pageCollectivite, pageEditeur, pageDocumentation, pageIntrouvable, ancrageDe, dateHeure, echapper, pageAccueil, pageDeposer, pageJournal, pageVerifier, pagePreuve, premierHorodatageQualifie, COPIES } from '../src/pages.mjs';
 
 const t = { id: '20261012T101314Z', instant: '2026-10-12T10:13:14Z', objets: 2018, racine: 'f'.repeat(64), ots: 'bitcoin', bloc: 971045, fichiers: ['20261012T101314Z.json', '20261012T101314Z.racine.ots'] };
-const pages = [pageJournal([t, { ...t, id: '20261012T121314Z', ots: 'calendrier', bloc: null }]), pageVerifier(), pageJournal([]), pageDeposer(), pageAccueil([t]), pageAccueil([]), pageIntrouvable(), pageMentions(), pageActe(), pageDocumentation(), pageEditeur({ flux: { id: '0123456789abcdef', inscrit: '2026-10-12T00:00:00Z', retire: null }, total: 1, versions: [{ article: 'e'.repeat(64), jour: '2026-10-12', place: 4, sha256: 'c'.repeat(64), recu: 'd'.repeat(64) }] }), pageCollectivite({ code: '17133', commune: { nom: 'Cravans', insee: '17133', siren: '211701339' }, serie: { total: 1, actes: [{ jour: '2026-10-12', place: 3, sha256: 'c'.repeat(64), recu: 'd'.repeat(64), nature: 'deliberation' }] } })];
+const pages = [pageJournal([t, { ...t, id: '20261012T121314Z', ots: 'calendrier', bloc: null }]), pageVerifier(), pageJournal([]), pageDeposer(), pageAccueil([t]), pageAccueil([]), pageIntrouvable(), pageMentions(), pagePreuve([t]), pageActe(), pageDocumentation(), pageEditeur({ flux: { id: '0123456789abcdef', inscrit: '2026-10-12T00:00:00Z', retire: null }, total: 1, versions: [{ article: 'e'.repeat(64), jour: '2026-10-12', place: 4, sha256: 'c'.repeat(64), recu: 'd'.repeat(64) }] }), pageCollectivite({ code: '17133', commune: { nom: 'Cravans', insee: '17133', siren: '211701339' }, serie: { total: 1, actes: [{ jour: '2026-10-12', place: 3, sha256: 'c'.repeat(64), recu: 'd'.repeat(64), nature: 'deliberation' }] } })];
 const texteDe = (html) => html.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<[^>]+>/g, '');
 
 test('aucun signe double ne suit une espace ordinaire dans le texte affiche', () => {
@@ -150,4 +150,15 @@ test("les mentions legales nomment l'editeur, l'hebergeur et ce qui est garde", 
 	assert.match(html, /Cloudflare, Inc\./);
 	assert.match(html, /mailto:contact@florianmousseau.com/);
 	assert.match(html, /Aucun cookie/);
+});
+
+test('la valeur de preuve dit l’horodatage qualifie seulement quand un tour en porte, et nomme chaque copie', () => {
+	const tsr = { ...t, id: '20261020T101314Z', instant: '2026-10-20T10:13:14Z', fichiers: ['20261020T101314Z.racine.tsr'] };
+	assert.equal(premierHorodatageQualifie([t]), null);
+	assert.equal(premierHorodatageQualifie([t, tsr]), '20/10/2026');
+	assert.doesNotMatch(pagePreuve([t]), /liste de confiance/);
+	assert.match(pagePreuve([t, tsr]), /liste de confiance européenne \(eIDAS\), depuis le 20\/10\/2026/);
+	for (const c of COPIES) assert.ok(pagePreuve([]).includes(`href="${c.adresse}"`), c.nom);
+	assert.match(pageDocumentation(), /POST \/mcp/);
+	assert.ok(PLAN.includes('/preuve'));
 });

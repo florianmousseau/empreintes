@@ -13,12 +13,13 @@ export const ACTES = {
 	verifier: { chemin: '/verifier', nom: 'Vérifier', titre: 'Vérifier un document' },
 	journal: { chemin: '/journal', nom: 'Registre', titre: 'Registre des dates' },
 	acte: { chemin: '/acte', nom: 'Acte de collectivité', titre: 'Dater la mise en ligne d’un acte' },
+	preuve: { chemin: '/preuve', nom: 'Valeur de preuve', titre: 'Valeur de preuve' },
 	documentation: { chemin: '/documentation', nom: 'Documentation', titre: 'Documentation' },
 	mentions: { chemin: '/mentions-legales', nom: 'Mentions légales', titre: 'Mentions légales' }
 };
 
 /** Les pages statiques que les moteurs lisent, dans l'ordre du plan du site. */
-export const PLAN = ['/', ACTES.dater.chemin, ACTES.verifier.chemin, ACTES.acte.chemin, ACTES.journal.chemin, ACTES.documentation.chemin, ACTES.mentions.chemin];
+export const PLAN = ['/', ACTES.dater.chemin, ACTES.verifier.chemin, ACTES.acte.chemin, ACTES.journal.chemin, ACTES.preuve.chemin, ACTES.documentation.chemin, ACTES.mentions.chemin];
 
 /** Le plan du site, au format sitemaps.org. */
 export const planDuSite = (chemins = PLAN) => `<?xml version="1.0" encoding="UTF-8"?>
@@ -116,7 +117,7 @@ ${corps}
 </main>
 <footer><div class="pied">
 <p class="pied-marque">${SCEAU}<span>${MARQUE}</span></p>
-<p class="pied-liens">${lien('dater')} ${lien('verifier')} ${lien('journal')} ${lien('documentation')} ${lien('mentions')} <a href="${DEPOT}">Code source</a></p>
+<p class="pied-liens">${lien('dater')} ${lien('verifier')} ${lien('journal')} ${lien('preuve')} ${lien('documentation')} ${lien('mentions')} <a href="${DEPOT}">Code source</a></p>
 </div></footer>
 </body>
 </html>
@@ -272,7 +273,7 @@ export function pageDeposer() {
 		script: '<script type="module" src="/deposer.js"></script>\n',
 		corps: `<section class="une une-page"><h1>${ACTES.dater.titre}</h1></section>
 ${formulaireDater()}
-<p class="compte">Gratuit, sans compte, jusqu’à 20 documents par jour. Valeur juridique${NBSP}: un élément de preuve, que le juge apprécie librement.</p>`
+<p class="compte">Gratuit, sans compte, jusqu’à 20 documents par jour. ${lien('preuve')}${NBSP}: un élément de preuve, que le juge apprécie librement.</p>`
 	});
 }
 
@@ -472,6 +473,10 @@ ${tableDoc('Dater', [
 	ligneDoc('409', 'une même adresse en ligne lue une fois par jour'),
 	ligneDoc('422', 'lecture impossible\u00A0: 20 Mo, 30 s, 5 redirections au plus, adresses publiques seulement')
 ])}
+${tableDoc('Agents', [
+	ligneDoc('POST /mcp', 'serveur MCP, HTTP sans session\u00A0: <code>dater_url</code>, <code>dater_empreinte</code>, <code>chercher_empreinte</code>, <code>lire_recu</code>\u00A0; mêmes limites'),
+	ligneDoc('GET /openapi.json', 'la description OpenAPI de l’API')
+])}
 ${tableDoc('Lire', [
 	ligneDoc('GET /depots/&lt;jour&gt;.jsonl', 'les dépôts du jour, une ligne <code>{"sha256","jour","place","recu"}</code> par dépôt'),
 	ligneDoc('GET /recu/&lt;id&gt;', 'la page d’un reçu'),
@@ -495,6 +500,48 @@ ${tableDoc('Vérifier sans ce site', [
 	ligneDoc('Bitcoin', '<code>ots verify &lt;tour&gt;.racine.ots</code>'),
 	ligneDoc('script', '<a href="https://github.com/florianmousseau/empreintes/blob/main/scripts/verifier.mjs">node scripts/verifier.mjs &lt;document | --chaine&gt;</a>')
 ])}`
+	});
+}
+
+/** Les copies du registre hors de ce site. */
+export const COPIES = [
+	{ nom: 'Dépôt Git public', adresse: DEPOT },
+	{ nom: 'Software Heritage', adresse: `https://archive.softwareheritage.org/browse/origin/?origin_url=${DEPOT}` },
+	{ nom: 'Bitcoin, par OpenTimestamps', adresse: 'https://opentimestamps.org' }
+];
+
+/** Le premier jour d'un horodatage qualifie, null tant qu'aucun tour n'en porte. */
+export function premierHorodatageQualifie(tours) {
+	const tour = tours.find((t) => t.fichiers.some((f) => f.endsWith('.racine.tsr')));
+	return tour ? dateHeure(tour.instant).split(' ')[0] : null;
+}
+
+const elements = (lignes) => `<ul>\n${lignes.map((l) => `<li>${l}</li>`).join('\n')}\n</ul>`;
+
+/** Ce qu'un recu prouve, ce qu'il ne prouve pas, les textes, et ce qui reste si le site disparait. */
+export function pagePreuve(tours, copies = COPIES) {
+	const qualifie = premierHorodatageQualifie(tours);
+	const ancrage = qualifie
+		? `Chaque jour, la date est ancrée dans Bitcoin et horodatée par un prestataire de la liste de confiance européenne (eIDAS), depuis le ${qualifie}.`
+		: 'Chaque jour, la date est ancrée dans Bitcoin.';
+	return gabarit({
+		titre: ACTES.preuve.titre,
+		description: "Ce que prouve un reçu de Témoin public, ce qu'il ne prouve pas, les textes applicables, et comment le vérifier sans ce site.",
+		chemin: ACTES.preuve.chemin,
+		corps: `<h1>${ACTES.preuve.titre}</h1>
+<h2>Ce que prouve un reçu</h2>
+${elements(['Le document existait, identique à l’octet près, au plus tard à la date du reçu.', `Pour un lien${NBSP}: ce fichier était servi à cette adresse à cet instant.`, ancrage])}
+<h2>Ce qu’il ne prouve pas</h2>
+${elements(['Qui est l’auteur du document.', 'Que son contenu est exact.', 'Qu’il n’existait pas avant.', `L’apparence d’une page à l’écran${NBSP}: seul le fichier lu est daté.`])}
+<h2>Textes</h2>
+${elements([
+	`<a href="https://www.legifrance.gouv.fr/codes/id/LEGITEXT000006070721">Code civil, article 1358</a>${NBSP}: hors les cas où la loi en dispose autrement, la preuve peut être apportée par tout moyen.`,
+	`<a href="https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX:32014R0910">Règlement eIDAS, article 41</a>${NBSP}: un horodatage électronique ne peut être écarté comme preuve au seul motif qu’il est électronique.`
+])}
+<h2>Si ce site disparaît</h2>
+<p>Le document et son reçu suffisent${NBSP}: les formules sont publiques (${lien('documentation')}). Copies du registre${NBSP}:</p>
+${elements(copies.map((c) => `<a href="${c.adresse}">${c.nom}</a>`))}
+<p><code>node scripts/verifier.mjs &lt;document&gt;</code> et <code>ots verify &lt;tour&gt;.racine.ots</code></p>`
 	});
 }
 

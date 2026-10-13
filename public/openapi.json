@@ -1,0 +1,66 @@
+{
+ "openapi": "3.1.0",
+ "info": {
+  "title": "Témoin public",
+  "version": "1.0.0",
+  "description": "Dater un document ou une page en ligne dans un registre public chaîné, ancré dans Bitcoin. Gratuit, sans compte : 20 dépôts par jour et par adresse IP, 2 000 par jour.",
+  "contact": { "url": "https://temoinpublic.fr/documentation" }
+ },
+ "servers": [{ "url": "https://temoinpublic.fr" }],
+ "paths": {
+  "/api/depots": {
+   "post": {
+    "operationId": "dater",
+    "summary": "Dater une empreinte SHA-256, ou une adresse publique lue par le service",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+         "sha256": { "type": "string", "pattern": "^[0-9a-fA-F]{64}$" },
+         "url": { "type": "string", "maxLength": 2048 },
+         "libelle": { "type": "string", "maxLength": 200 },
+         "type": { "type": "string", "enum": ["acte"] },
+         "collectivite": { "type": "string", "description": "Code INSEE ou SIREN, avec type acte" },
+         "nature": { "type": "string", "enum": ["deliberation", "arrete", "decision"] }
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": { "description": "Reçu : jour, place, ligne publique, identifiant, reçu complet" },
+     "400": { "description": "Demande illisible ou adresse refusée" },
+     "409": { "description": "Adresse déjà lue aujourd'hui" },
+     "422": { "description": "Lecture impossible" },
+     "429": { "description": "Plafond atteint, retry-after" }
+    }
+   }
+  },
+  "/api/depots/{sha256}": {
+   "get": {
+    "operationId": "chercherEmpreinte",
+    "summary": "Les dépôts d'une empreinte",
+    "parameters": [{ "name": "sha256", "in": "path", "required": true, "schema": { "type": "string", "pattern": "^[0-9a-f]{64}$" } }],
+    "responses": { "200": { "description": "Lignes publiques : sha256, jour, place, recu" }, "404": { "description": "Empreinte illisible" } }
+   }
+  },
+  "/api/recus/{id}": {
+   "get": {
+    "operationId": "lireRecu",
+    "summary": "La ligne publique d'un reçu",
+    "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "pattern": "^[0-9a-f]{64}$" } }],
+    "responses": { "200": { "description": "sha256, jour, place, recu" }, "404": { "description": "Reçu inconnu" } }
+   }
+  },
+  "/api/bilan": {
+   "get": { "operationId": "bilan", "summary": "Dépôts et déposants distincts, jour par jour", "responses": { "200": { "description": "jours, deposantsAuMoins" } } }
+  },
+  "/tours.json": {
+   "get": { "operationId": "tours", "summary": "Les tours du registre : racine chaînée, nombre de documents, ancrage", "responses": { "200": { "description": "copie, tours" } } }
+  }
+ }
+}
