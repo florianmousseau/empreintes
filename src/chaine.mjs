@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Florian Mousseau. Ce fichier seul est sous licence MIT
+// (LICENSES/MIT.txt) pour que tout logiciel, ouvert ou ferme, puisse verifier.
 // La verification du journal des empreintes, ecrite une seconde fois et a part
 // de l'entrepot qui le produit : un verificateur qui reprendrait le code du
 // producteur ne prouverait rien. Memes formules, memes octets, aucune

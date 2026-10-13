@@ -5,7 +5,7 @@
 import { EDITIONS, HOTES_ALLEMANDS, langueDe, planDe } from './edition.mjs';
 
 /** Les chemins servis par une Function, dans toute langue : la decision leur est laissee. */
-export const FONCTIONS = ['/api/', '/recu/', '/editeur/', '/depots/', '/health'];
+export const FONCTIONS = ['/api/', '/recu/', '/editeur/', '/depots/', '/health', '/mcp'];
 
 /** Ce qui n'existe qu'en francais : l'edition allemande y renvoie. */
 const FRANCAIS = ['/acte', '/collectivite/', '/mentions-legales'];

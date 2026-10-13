@@ -17,6 +17,7 @@
 		"/annuaire.mjs",
 		"/tours.json",
 		"/version.json",
+		"/openapi.json",
 		"/BingSiteAuth.xml",
 		"/empreintes/*",
 		"/index/*",

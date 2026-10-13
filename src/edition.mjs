@@ -27,7 +27,7 @@ export const langueDeLaRequete = (request) => langueDe(new URL(request.url).host
 /** Les pages statiques d'une edition que les moteurs lisent, dans l'ordre du plan du site. */
 export const planDe = (langue) => {
 	const a = EDITIONS[langue].actes;
-	return ['/', a.dater.chemin, a.verifier.chemin, ...(a.acte ? [a.acte.chemin] : []), a.journal.chemin, a.documentation.chemin, a.mentions.chemin];
+	return ['/', a.dater.chemin, a.verifier.chemin, ...(a.acte ? [a.acte.chemin] : []), a.journal.chemin, a.preuve.chemin, a.documentation.chemin, a.mentions.chemin];
 };
 
 /** Le chemin d'une meme page dans chaque edition, par la cle de l'acte ; `/` pour l'accueil. */

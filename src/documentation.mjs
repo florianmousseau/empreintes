@@ -16,6 +16,10 @@ export const ADRESSES = {
 		['unJour', '409'],
 		['illisible', '422']
 	],
+	agents: [
+		['mcp', 'POST /mcp'],
+		['openapi', 'GET /openapi.json']
+	],
 	lire: [
 		['jour', 'GET /depots/&lt;jour&gt;.jsonl'],
 		['recu', 'GET /recu/&lt;id&gt;'],

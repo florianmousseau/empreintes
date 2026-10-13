@@ -20,7 +20,7 @@ function servir() {
 
 test('la construction a produit la surface', () => {
 	for (const f of ['index.html', 'verifier.html', 'deposer.html', 'deposer.js', 'journal.html', 'fichier.js', '404.html', 'depot.mjs', 'documentation.html', 'tours.json', 'version.json', 'chaine.mjs', 'verifier.js', 'textes.js', '_headers', '_routes.json', 'robots.txt', 'llms.txt', 'sitemap.xml']) assert.ok(fs.existsSync(path.join(DIST, f)), f);
-	for (const f of ['index.html', 'datieren.html', 'pruefen.html', 'register.html', 'dokumentation.html', 'impressum.html', '404.html', 'robots.txt', 'llms.txt', 'sitemap.xml']) assert.ok(fs.existsSync(path.join(DIST, 'de', f)), `de/${f}`);
+	for (const f of ['index.html', 'datieren.html', 'pruefen.html', 'register.html', 'dokumentation.html', 'impressum.html', 'beweiswert.html', '404.html', 'robots.txt', 'llms.txt', 'sitemap.xml']) assert.ok(fs.existsSync(path.join(DIST, 'de', f)), `de/${f}`);
 	assert.ok(!fs.existsSync(path.join(DIST, 'de', 'acte.html')), 'pas d acte en allemand');
 	assert.match(fs.readFileSync(path.join(DIST, 'de', 'index.html'), 'utf8'), /<html lang="de">/);
 	assert.match(fs.readFileSync(path.join(DIST, 'index.html'), 'utf8'), /<html lang="fr">/);

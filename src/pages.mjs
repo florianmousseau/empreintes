@@ -129,7 +129,7 @@ ${corps}
 </main>
 <footer><div class="pied">
 <p class="pied-marque">${SCEAU}<span>${e.marque}</span></p>
-<p class="pied-liens">${lien(e, 'dater')} ${lien(e, 'verifier')} ${lien(e, 'journal')} ${lien(e, 'documentation')} ${lien(e, 'mentions')} <a href="${DEPOT}">${e.codeSource}</a></p>
+<p class="pied-liens">${lien(e, 'dater')} ${lien(e, 'verifier')} ${lien(e, 'journal')} ${lien(e, 'preuve')} ${lien(e, 'documentation')} ${lien(e, 'mentions')} <a href="${DEPOT}">${e.codeSource}</a></p>
 </div></footer>
 </body>
 </html>
@@ -294,7 +294,7 @@ export function pageDeposer(langue = 'fr') {
 		script: '<script type="module" src="/deposer.js"></script>\n',
 		corps: `<section class="une une-page"><h1>${e.actes.dater.titre}</h1></section>
 ${formulaireDater(e)}
-<p class="compte">${e.deposer.compte}</p>`
+<p class="compte">${e.deposer.compte(lien(e, 'preuve'))}</p>`
 	});
 }
 
@@ -488,7 +488,7 @@ const lignesDeFormules = (textes) => Object.entries(FORMULES).map(([cle, formule
 /** La documentation : les adresses, les limites et les formules, pour verifier sans ce site. */
 export function pageDocumentation(langue = 'fr') {
 	const e = EDITIONS[langue];
-	const [dater, lire, verifier] = e.documentation.titres;
+	const [dater, agents, lire, verifier] = e.documentation.titres;
 	return gabarit(e, {
 		titre: e.actes.documentation.titre,
 		description: e.documentation.description,
@@ -496,8 +496,47 @@ export function pageDocumentation(langue = 'fr') {
 		chemins: cheminsDe('documentation'),
 		corps: `<h1>${e.actes.documentation.titre}</h1>
 ${tableDoc(dater, lignesDAdresses(ADRESSES.dater, e.documentation.dater))}
+${tableDoc(agents, lignesDAdresses(ADRESSES.agents, e.documentation.agents))}
 ${tableDoc(lire, lignesDAdresses(ADRESSES.lire, e.documentation.lire))}
 ${tableDoc(verifier, lignesDeFormules(e.documentation.verifier))}`
+	});
+}
+
+/** Les copies du registre hors de ce site. */
+export const COPIES = [
+	{ nom: 'Dépôt Git public', adresse: DEPOT },
+	{ nom: 'Software Heritage', adresse: `https://archive.softwareheritage.org/browse/origin/?origin_url=${DEPOT}` },
+	{ nom: 'Bitcoin, par OpenTimestamps', adresse: 'https://opentimestamps.org' }
+];
+
+/** Le premier jour d'un horodatage qualifie, null tant qu'aucun tour n'en porte. */
+export function premierHorodatageQualifie(tours, langue = 'fr') {
+	const tour = tours.find((t) => t.fichiers.some((f) => f.endsWith('.racine.tsr')));
+	return tour ? EDITIONS[langue].jour(tour.instant.slice(0, 10)) : null;
+}
+
+const elements = (lignes) => `<ul>\n${lignes.map((l) => `<li>${l}</li>`).join('\n')}\n</ul>`;
+
+/** Ce qu'un recu prouve, ce qu'il ne prouve pas, les textes, et ce qui reste si le site disparait. */
+export function pagePreuve(tours, copies = COPIES, langue = 'fr') {
+	const e = EDITIONS[langue];
+	const qualifie = premierHorodatageQualifie(tours, langue);
+	return gabarit(e, {
+		titre: e.actes.preuve.titre,
+		description: e.preuve.description,
+		chemin: e.actes.preuve.chemin,
+		chemins: cheminsDe('preuve'),
+		corps: `<h1>${e.actes.preuve.titre}</h1>
+<h2>${e.preuve.prouve}</h2>
+${elements([e.preuve.existait, e.preuve.lien, qualifie ? e.preuve.ancrageQualifie(qualifie) : e.preuve.ancrage])}
+<h2>${e.preuve.neProuvePas}</h2>
+${elements(e.preuve.limites)}
+<h2>${e.preuve.textes}</h2>
+${elements(e.preuve.lois)}
+<h2>${e.preuve.disparait}</h2>
+<p>${e.preuve.suffisent(lien(e, 'documentation'))}</p>
+${elements(copies.map((c, i) => `<a href="${c.adresse}">${e.preuve.copies[i] ?? c.nom}</a>`))}
+<p><code>node scripts/verifier.mjs &lt;document&gt;</code> ${e.preuve.et} <code>ots verify &lt;tour&gt;.racine.ots</code></p>`
 	});
 }
 

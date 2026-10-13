@@ -67,7 +67,9 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   dans `dist/de/`, jamais servies en clair ; textes des pages dans
   `src/textes.mjs` (une table, les deux langues cote a cote, lue par `vue`),
   adresses et formules de la documentation dans `src/documentation.mjs`,
-  textes des scripts dans `public/textes.js` par `<html lang>`. Pas d'acte de collectivite en allemand (renvoi 301 vers le
+  textes des scripts dans `public/textes.js` par `<html lang>`. Une page ou une
+  adresse nouvelle se donne aux deux editions (`src/textes.mjs`, `src/hote.mjs`,
+  `_routes.json` pour un fichier partage). Pas d'acte de collectivite en allemand (renvoi 301 vers le
   francais). La typographie francaise (insecable avant `:;?!`) ne vaut que pour
   les pages francaises. `de.empreintes.pages.dev` est la voie de controle avant
   le domaine, `noindex` sur tout hote pages.dev. Le francais ne change pas d'un

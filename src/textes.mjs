@@ -28,6 +28,7 @@ export const TEXTES = {
 		verifier: { chemin: { fr: '/verifier', de: '/pruefen' }, nom: { fr: 'Vérifier', de: 'Prüfen' }, titre: { fr: 'Vérifier un document', de: 'Ein Dokument prüfen' } },
 		journal: { chemin: { fr: '/journal', de: '/register' }, nom: { fr: 'Registre', de: 'Register' }, titre: { fr: 'Registre des dates', de: 'Datumsregister' } },
 		acte: { fr: { chemin: '/acte', nom: 'Acte de collectivité', titre: 'Dater la mise en ligne d’un acte' }, de: undefined },
+		preuve: { chemin: { fr: '/preuve', de: '/beweiswert' }, nom: { fr: 'Valeur de preuve', de: 'Beweiswert' }, titre: { fr: 'Valeur de preuve', de: 'Beweiswert' } },
 		documentation: { chemin: { fr: '/documentation', de: '/dokumentation' }, nom: { fr: 'Documentation', de: 'Dokumentation' }, titre: { fr: 'Documentation', de: 'Dokumentation' } },
 		mentions: { chemin: { fr: '/mentions-legales', de: '/impressum' }, nom: { fr: 'Mentions légales', de: 'Impressum' }, titre: { fr: 'Mentions légales', de: 'Impressum' } }
 	},
@@ -121,8 +122,8 @@ export const TEXTES = {
 			de: 'Ein Dokument kostenlos datieren, in Bitcoin verankert, mit Beleg zum Ausdrucken. Nur seine Prüfsumme wird veröffentlicht, nie das Dokument.'
 		},
 		compte: {
-			fr: `Gratuit, sans compte, jusqu’à 20 documents par jour. Valeur juridique${NBSP}: un élément de preuve, que le juge apprécie librement.`,
-			de: 'Kostenlos, ohne Konto, bis zu 20 Dokumente pro Tag. Rechtlich: ein Beweismittel, das das Gericht frei würdigt.'
+			fr: (preuve) => `Gratuit, sans compte, jusqu’à 20 documents par jour. ${preuve}${NBSP}: un élément de preuve, que le juge apprécie librement.`,
+			de: (preuve) => `Kostenlos, ohne Konto, bis zu 20 Dokumente pro Tag. ${preuve}: ein Beweismittel, das das Gericht frei würdigt.`
 		}
 	},
 	recu: {
@@ -181,7 +182,7 @@ export const TEXTES = {
 			fr: 'Adresses, limites et formules du registre des dates : dater, lire et vérifier sans ce site.',
 			de: 'Adressen, Grenzen und Formeln des Datumsregisters: datieren, lesen und ohne diese Website prüfen.'
 		},
-		titres: { fr: ['Dater', 'Lire', 'Vérifier sans ce site'], de: ['Datieren', 'Lesen', 'Ohne diese Website prüfen'] },
+		titres: { fr: ['Dater', 'Agents', 'Lire', 'Vérifier sans ce site'], de: ['Datieren', 'Agenten', 'Lesen', 'Ohne diese Website prüfen'] },
 		dater: {
 			empreinte: { fr: 'une empreinte calculée par vous\u00A0; le libellé reste dans le reçu', de: 'eine von Ihnen berechnete Prüfsumme; der Name bleibt im Beleg' },
 			url: { fr: 'le service lit lui-même le document en ligne et date ses octets', de: 'der Dienst liest das Dokument selbst im Internet und datiert seine Bytes' },
@@ -207,6 +208,13 @@ export const TEXTES = {
 			unJour: { fr: 'une même adresse en ligne lue une fois par jour', de: 'dieselbe Internetadresse wird einmal pro Tag gelesen' },
 			illisible: { fr: 'lecture impossible\u00A0: 20 Mo, 30 s, 5 redirections au plus, adresses publiques seulement', de: 'Lesen nicht möglich: höchstens 20 MB, 30 s, 5 Weiterleitungen, nur öffentliche Adressen' }
 		},
+		agents: {
+			mcp: {
+				fr: 'serveur MCP, HTTP sans session\u00A0: <code>dater_url</code>, <code>dater_empreinte</code>, <code>chercher_empreinte</code>, <code>lire_recu</code>\u00A0; mêmes limites',
+				de: 'MCP-Server, HTTP ohne Sitzung: <code>dater_url</code>, <code>dater_empreinte</code>, <code>chercher_empreinte</code>, <code>lire_recu</code>; dieselben Grenzen'
+			},
+			openapi: { fr: 'la description OpenAPI de l’API', de: 'die OpenAPI-Beschreibung der API' }
+		},
 		lire: {
 			jour: { fr: 'les dépôts du jour, une ligne <code>{"sha256","jour","place","recu"}</code> par dépôt', de: 'die Datierungen des Tages, eine Zeile <code>{"sha256","jour","place","recu"}</code> je Datierung' },
 			recu: { fr: 'la page d’un reçu', de: 'die Seite eines Belegs' },
@@ -214,7 +222,10 @@ export const TEXTES = {
 			depotsDeLEmpreinte: { fr: 'les dépôts d’une empreinte', de: 'die Datierungen einer Prüfsumme' },
 			collectivite: { fr: 'les actes d’une commune lus sur son site officiel\u00A0: date, nature, empreinte, reçu\u00A0; le SIREN y renvoie', de: undefined },
 			communes: { fr: 'le nom de chaque commune, code INSEE ou SIREN vers <code>[nom, INSEE, SIREN]</code>', de: undefined },
-			sites: { fr: 'les sites officiels des communes, code INSEE ou SIREN vers <code>[hôte, préfixe]</code>, d’après l’annuaire Service-Public', de: undefined },
+			sites: {
+				fr: 'les sites officiels des communes, code INSEE ou SIREN vers <code>[hôte, préfixe]</code>. Source\u00A0: <a href="https://www.data.gouv.fr/datasets/service-public-fr-annuaire-de-l-administration-base-de-donnees-locales/">Annuaire de l’administration, Service-Public.fr</a> (DILA), <a href="https://www.etalab.gouv.fr/licence-ouverte-open-licence/">Licence Ouverte 2.0</a>',
+				de: undefined
+			},
 			bilan: { fr: 'dépôts et déposants distincts, jour par jour', de: 'Datierungen und verschiedene Einreicher, Tag für Tag' },
 			tours: { fr: 'les tours du registre', de: 'die Runden des Registers' },
 			releve: { fr: 'le relevé d’un tour, avec <code>.racine</code>, <code>.racine.ots</code>, <code>.racine.tsr</code>', de: 'das Protokoll einer Runde, mit <code>.racine</code>, <code>.racine.ots</code>, <code>.racine.tsr</code>' },
@@ -238,6 +249,49 @@ export const TEXTES = {
 			},
 			bitcoin: { fr: ['Bitcoin'], de: ['Bitcoin'] },
 			script: { fr: ['script'], de: ['Skript'] }
+		}
+	},
+	preuve: {
+		description: {
+			fr: "Ce que prouve un reçu de Témoin public, ce qu'il ne prouve pas, les textes applicables, et comment le vérifier sans ce site.",
+			de: 'Was ein Beleg von Datumszeuge beweist, was er nicht beweist, die anwendbaren Rechtstexte, und wie man ihn ohne diese Website prüft.'
+		},
+		prouve: { fr: 'Ce que prouve un reçu', de: 'Was ein Beleg beweist' },
+		existait: {
+			fr: 'Le document existait, identique à l’octet près, au plus tard à la date du reçu.',
+			de: 'Das Dokument existierte, Byte für Byte identisch, spätestens am Tag des Belegs.'
+		},
+		lien: { fr: `Pour un lien${NBSP}: ce fichier était servi à cette adresse à cet instant.`, de: 'Bei einem Link: Diese Datei wurde in diesem Moment unter dieser Adresse ausgeliefert.' },
+		ancrage: { fr: 'Chaque jour, la date est ancrée dans Bitcoin.', de: 'Jeden Tag wird das Datum in Bitcoin verankert.' },
+		ancrageQualifie: {
+			fr: (j) => `Chaque jour, la date est ancrée dans Bitcoin et horodatée par un prestataire de la liste de confiance européenne (eIDAS), depuis le ${j}.`,
+			de: (j) => `Jeden Tag wird das Datum in Bitcoin verankert und seit dem ${j} von einem Anbieter der europäischen Vertrauensliste (eIDAS) mit einem Zeitstempel versehen.`
+		},
+		neProuvePas: { fr: 'Ce qu’il ne prouve pas', de: 'Was er nicht beweist' },
+		limites: {
+			fr: ['Qui est l’auteur du document.', 'Que son contenu est exact.', 'Qu’il n’existait pas avant.', `L’apparence d’une page à l’écran${NBSP}: seul le fichier lu est daté.`],
+			de: ['Wer der Urheber des Dokuments ist.', 'Dass sein Inhalt richtig ist.', 'Dass es nicht schon früher existiert hat.', 'Das Aussehen einer Seite am Bildschirm: Nur die gelesene Datei wird datiert.']
+		},
+		textes: { fr: 'Textes', de: 'Rechtstexte' },
+		lois: {
+			fr: [
+				`<a href="https://www.legifrance.gouv.fr/codes/id/LEGITEXT000006070721">Code civil, article 1358</a>${NBSP}: hors les cas où la loi en dispose autrement, la preuve peut être apportée par tout moyen.`,
+				`<a href="https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX:32014R0910">Règlement eIDAS, article 41</a>${NBSP}: un horodatage électronique ne peut être écarté comme preuve au seul motif qu’il est électronique.`
+			],
+			de: [
+				'<a href="https://www.gesetze-im-internet.de/zpo/__286.html">§ 286 ZPO</a>: Das Gericht entscheidet nach freier Überzeugung, ob eine tatsächliche Behauptung für wahr zu erachten ist.',
+				'<a href="https://eur-lex.europa.eu/legal-content/DE/TXT/?uri=CELEX:32014R0910">eIDAS-Verordnung, Artikel 41</a>: Einem elektronischen Zeitstempel darf die Beweiskraft nicht allein deshalb abgesprochen werden, weil er in elektronischer Form vorliegt.'
+			]
+		},
+		disparait: { fr: 'Si ce site disparaît', de: 'Wenn diese Website verschwindet' },
+		suffisent: {
+			fr: (documentation) => `Le document et son reçu suffisent${NBSP}: les formules sont publiques (${documentation}). Copies du registre${NBSP}:`,
+			de: (documentation) => `Das Dokument und sein Beleg genügen: Die Formeln sind öffentlich (${documentation}). Kopien des Registers:`
+		},
+		et: { fr: 'et', de: 'und' },
+		copies: {
+			fr: ['Dépôt Git public', 'Software Heritage', 'Bitcoin, par OpenTimestamps'],
+			de: ['Öffentliches Git-Repository', 'Software Heritage', 'Bitcoin, über OpenTimestamps']
 		}
 	},
 	mentions: {
@@ -273,6 +327,9 @@ export const TEXTES = {
 - Registre public des dates : https://temoinpublic.fr/journal
 - API et formules de vérification sans le site : https://temoinpublic.fr/documentation
 - Code source et miroir du registre : https://github.com/florianmousseau/empreintes
+- Valeur de preuve, textes applicables, copies du registre hors du site : https://temoinpublic.fr/preuve
+- Serveur MCP (HTTP sans session) pour les agents, outils dater_url, dater_empreinte, chercher_empreinte, lire_recu : https://temoinpublic.fr/mcp
+- Description OpenAPI : https://temoinpublic.fr/openapi.json
 `,
 		de: `# Datumszeuge
 
@@ -283,6 +340,9 @@ export const TEXTES = {
 - Öffentliches Datumsregister: https://datumszeuge.de/register
 - API und Formeln zur Prüfung ohne die Website: https://datumszeuge.de/dokumentation
 - Quellcode und Spiegel des Registers: https://github.com/florianmousseau/empreintes
+- Beweiswert, anwendbare Rechtstexte, Kopien des Registers außerhalb der Website: https://datumszeuge.de/beweiswert
+- MCP-Server (HTTP ohne Sitzung) für Agenten, Werkzeuge dater_url, dater_empreinte, chercher_empreinte, lire_recu: https://datumszeuge.de/mcp
+- OpenAPI-Beschreibung: https://datumszeuge.de/openapi.json
 `
 	}
 };
