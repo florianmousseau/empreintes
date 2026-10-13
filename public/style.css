@@ -254,9 +254,15 @@ footer { margin-top: 2rem; background: var(--surface); border-top: 1px solid var
 
 @media print {
 	nav, footer, form, .une, .compte, .suite, .etapes, h1, .gestes, summary { display: none !important; }
-	body { background: #fff; color: #000; }
+	@page { margin: 12mm; }
+	html, body { min-height: 0; height: auto; }
+	body { display: block; background: #fff; color: #000; font-size: 11pt; line-height: 1.45; }
 	header { border: 0; }
+	.barre { padding: 0 0 4mm; }
 	main { max-width: none; padding: 0; }
+	article { margin: 0; padding: 5mm 6mm; }
+	article h2 { font-size: 15pt; }
+	article dl div { padding: 1.5mm 0; }
 	article { border: 2px solid #000; box-shadow: none; break-inside: avoid; }
 	code, .imprime, .racine { word-break: break-all; overflow-wrap: anywhere; }
 	.imprime { display: block; }

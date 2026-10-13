@@ -162,3 +162,11 @@ test('la valeur de preuve dit l’horodatage qualifie seulement quand un tour en
 	assert.match(pageDocumentation(), /POST \/mcp/);
 	assert.ok(PLAN.includes('/preuve'));
 });
+
+test("le recu imprime tient sur une page : l'impression rend au corps sa hauteur naturelle", () => {
+	const css = readFileSync(new URL('../public/style.css', import.meta.url), 'utf8');
+	const impression = css.slice(css.indexOf('@media print'));
+	assert.match(impression, /html, body \{ min-height: 0; height: auto; \}/);
+	assert.match(impression, /body \{ display: block;/);
+	assert.match(impression, /@page \{ margin: 12mm; \}/);
+});
