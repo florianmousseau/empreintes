@@ -20,3 +20,11 @@ ots verify donnees/empreintes/<tour>.racine.ots   # l'ancrage Bitcoin
 
 Le verificateur (`src/chaine.mjs`) est ecrit a part du code qui produit le
 journal, sans dependance, et tourne dans le navigateur comme sous Node.
+
+## Licences
+
+- Le code : [AGPL-3.0-or-later](LICENSE), Florian Mousseau.
+- Le verificateur, `src/chaine.mjs` et `scripts/verifier.mjs` : [MIT](LICENSES/MIT.txt),
+  pour qu'un logiciel ferme puisse verifier le journal sans contrainte.
+- Le journal, `donnees/` : [CC0 1.0](donnees/LICENSE), aucun droit reserve sur
+  les empreintes, les racines et les preuves ; recopiez-le, c'est un ancrage de plus.
