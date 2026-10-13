@@ -8,3 +8,6 @@
 - Registre public des dates : https://temoinpublic.fr/journal
 - API et formules de vérification sans le site : https://temoinpublic.fr/documentation
 - Code source et miroir du registre : https://github.com/florianmousseau/empreintes
+- Valeur de preuve, textes applicables, copies du registre hors du site : https://temoinpublic.fr/preuve
+- Serveur MCP (HTTP sans session) pour les agents, outils dater_url, dater_empreinte, chercher_empreinte, lire_recu : https://temoinpublic.fr/mcp
+- Description OpenAPI : https://temoinpublic.fr/openapi.json

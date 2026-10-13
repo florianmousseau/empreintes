@@ -11,3 +11,6 @@
 /tours.json
   Cache-Control: public, max-age=300
   Access-Control-Allow-Origin: *
+/openapi.json
+  Cache-Control: public, max-age=3600
+  Access-Control-Allow-Origin: *
