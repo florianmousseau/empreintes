@@ -25,3 +25,9 @@ export function suivreLeChoix(document) {
 		champ.dispatchEvent(new Event('change'));
 	});
 }
+
+/** Amene le resultat sous les yeux : sur telephone, il nait sous le bouton, hors de l'ecran. */
+export function montrer(element) {
+	const doux = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+	element.scrollIntoView({ behavior: doux ? 'smooth' : 'auto', block: 'start' });
+}
