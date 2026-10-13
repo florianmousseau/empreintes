@@ -9,9 +9,15 @@
 // Sortie 0 : servi tel quel (ou chaine intacte) ; 1 : inconnu ou rompu ; 2 : usage.
 
 import fs from 'node:fs';
-import { sha256, placeDuFichier, verifierChaine } from '../src/chaine.mjs';
+import { sha256, placeDuFichier, verifierChaine, verifierSignatureDuJournal, verifierSignatures } from '../src/chaine.mjs';
 
 const SITE = 'https://temoinpublic.fr';
+
+async function lireTexte(site, chemin) {
+	const r = await fetch(new URL(chemin, site));
+	if (!r.ok) throw new Error(`${chemin} : ${r.status}`);
+	return r.text();
+}
 
 async function lire(site, chemin) {
 	const r = await fetch(new URL(chemin, site));
@@ -24,10 +30,13 @@ export async function verifierEmpreinte(site, empreinte) {
 	const r = await fetch(new URL(`/index/${empreinte.slice(0, 2)}.json`, site));
 	const vus = r.ok ? ((await r.json())[empreinte] ?? []) : [];
 	const constats = [];
+	const tours = vus.length ? (await lire(site, '/tours.json')).tours : [];
 	for (const vu of vus) {
 		const releve = await lire(site, `/empreintes/${vu.premier}.json`);
 		const place = await placeDuFichier(releve, empreinte);
-		constats.push({ ...vu, racine: releve.racine, ok: Boolean(place?.ok) });
+		const signee = tours.find((t) => t.id === vu.premier)?.fichiers?.includes(`${vu.premier}.racine.jws`);
+		const signature = signee ? await verifierSignatureDuJournal(await lireTexte(site, `/empreintes/${vu.premier}.racine.jws`), releve.racine) : null;
+		constats.push({ ...vu, racine: releve.racine, signature: signature && { ok: signature.ok, sigT: signature.sigT, raisons: signature.raisons }, ok: Boolean(place?.ok) && signature?.ok !== false });
 	}
 	return constats;
 }
@@ -46,8 +55,9 @@ async function principal(args) {
 			tours.map((t) => t.id),
 			(id) => lire(site, `/empreintes/${id}.json`)
 		);
-		console.log(JSON.stringify(v, null, 1));
-		return v.ok ? 0 : 1;
+		const s = await verifierSignatures(tours, (chemin) => lireTexte(site, chemin));
+		console.log(JSON.stringify({ ...v, ok: v.ok && s.ok, signatures: s.signees, raisons: [...v.raisons, ...s.raisons] }, null, 1));
+		return v.ok && s.ok ? 0 : 1;
 	}
 	const empreinte = /^[0-9a-f]{64}$/i.test(cible) && !fs.existsSync(cible) ? cible.toLowerCase() : await sha256(fs.readFileSync(cible));
 	const constats = await verifierEmpreinte(site, empreinte);

@@ -70,7 +70,11 @@ const TEXTES = {
 		tour: { fr: (h) => `Tour ${h}`, de: (h) => `Runde ${h}` },
 		intacte: { fr: (n) => `Chaîne intacte, ${n} tours`, de: (n) => `Kette intakt, ${n} Runden` },
 		derniere: { fr: `Dernière racine${NBSP}:`, de: 'Letzte Wurzel:' },
-		rompue: { fr: 'Chaîne rompue', de: 'Kette unterbrochen' }
+		rompue: { fr: 'Chaîne rompue', de: 'Kette unterbrochen' },
+		signature: { fr: 'Signature du journal', de: 'Signatur des Journals' },
+		signatureValide: { fr: 'valide', de: 'gültig' },
+		signatureNonConforme: { fr: 'non conforme', de: 'ungültig' },
+		signatures: { fr: (n) => `${n} signatures du journal valides`, de: (n) => `${n} gültige Signaturen des Journals` }
 	},
 	recu: {
 		inscrit: { fr: (h) => `inscrit le ${h}`, de: (h) => `eingetragen am ${h}` },

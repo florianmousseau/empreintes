@@ -174,3 +174,90 @@ export async function inscriptionDuRecu(id, lire) {
 	const releve = await (await lire(`/empreintes/${tour.id}.json`)).json();
 	return { ...(await preuveDuDepot({ recu: id, texteDesDepots, releves: [releve] })), bloc: tour.ots === 'bitcoin' ? tour.bloc : null };
 }
+
+/**
+ * L'empreinte (sha256 du DER) du certificat de la signature du journal,
+ * epinglee ici : un certificat auto-signe ne prouve l'origine que compare a
+ * l'empreinte publiee hors du fichier signe.
+ */
+export const CERTIFICAT_DU_JOURNAL = '5263feba5fc71c4725c93328c0c75a94fc4e1b632bb9ff01574239551ab34b80';
+
+const depuisBase64 = (texte) => {
+	const b64 = texte.replace(/-/g, '+').replace(/_/g, '/');
+	return Uint8Array.from(atob(b64 + '='.repeat((4 - (b64.length % 4)) % 4)), (c) => c.charCodeAt(0));
+};
+const versBase64Url = (octets) => btoa(String.fromCharCode(...octets)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+/** Un element DER a `pos` : ou commence son contenu, ou il finit. */
+function elementDer(octets, pos) {
+	let longueur = octets[pos + 1];
+	let debut = pos + 2;
+	if (longueur > 0x7f) {
+		const n = longueur & 0x7f;
+		longueur = 0;
+		for (let i = 0; i < n; i++) longueur = longueur * 256 + octets[debut + i];
+		debut += n;
+	}
+	if (Number.isNaN(longueur) || debut + longueur > octets.length) throw new Error('DER tronque');
+	return { debut, fin: debut + longueur };
+}
+
+/** La cle publique (SubjectPublicKeyInfo) d'un certificat X.509 en DER. */
+export function clePubliqueDuCertificat(der) {
+	const tbs = elementDer(der, elementDer(der, 0).debut);
+	let pos = tbs.debut;
+	if (der[pos] === 0xa0) pos = elementDer(der, pos).fin;
+	// numero de serie, algorithme, emetteur, validite, sujet
+	for (let i = 0; i < 5; i++) pos = elementDer(der, pos).fin;
+	return der.slice(pos, elementDer(der, pos).fin);
+}
+
+/**
+ * Relit la signature du journal d'un tour (JWS compact, JAdES B-B, ES256) :
+ * le certificat de `x5c` est celui qu'on epingle et `x5t#S256` le designe,
+ * `sigT` est declare dans `crit`, la charge utile est la racine du tour, et la
+ * signature tient sous la cle du certificat. Rend `{ ok, raisons, sigT }`.
+ */
+export async function verifierSignatureDuJournal(jws, racine, empreinteCertificat = CERTIFICAT_DU_JOURNAL) {
+	const morceaux = String(jws).trim().split('.');
+	if (morceaux.length !== 3) return { ok: false, raisons: ['pas un JWS compact'], sigT: null };
+	let entete;
+	let der;
+	try {
+		entete = JSON.parse(new TextDecoder().decode(depuisBase64(morceaux[0])));
+		der = depuisBase64(entete.x5c[0]);
+	} catch {
+		return { ok: false, raisons: ['en-tete illisible'], sigT: null };
+	}
+	const raisons = [];
+	if (entete.alg !== 'ES256') raisons.push(`algorithme ${entete.alg}`);
+	if (!entete.crit?.includes('sigT') || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(entete.sigT ?? '')) raisons.push('sigT absent ou mal declare');
+	if ((await sha256(der)) !== empreinteCertificat) raisons.push("le certificat n'est pas celui du journal");
+	if (entete['x5t#S256'] !== versBase64Url(octetsDe(await sha256(der)))) raisons.push('x5t#S256 ne designe pas le certificat');
+	if (new TextDecoder().decode(depuisBase64(morceaux[1])) !== racine) raisons.push("la charge utile n'est pas la racine du tour");
+	let juste = false;
+	try {
+		const cle = await globalThis.crypto.subtle.importKey('spki', clePubliqueDuCertificat(der), { name: 'ECDSA', namedCurve: 'P-256' }, false, ['verify']);
+		juste = await globalThis.crypto.subtle.verify({ name: 'ECDSA', hash: 'SHA-256' }, cle, depuisBase64(morceaux[2]), encodeur.encode(`${morceaux[0]}.${morceaux[1]}`));
+	} catch {
+		juste = false;
+	}
+	if (!juste) raisons.push('la signature ne correspond pas');
+	return { ok: raisons.length === 0, raisons, sigT: entete.sigT ?? null };
+}
+
+/**
+ * Les signatures du journal de toute la liste des tours (`tours.json`) : chaque
+ * tour qui en porte une la voit relue contre sa racine. `lireTexte(chemin)`
+ * rend le texte d'un fichier publie. Rend le compte et les raisons d'un ecart.
+ */
+export async function verifierSignatures(tours, lireTexte) {
+	const raisons = [];
+	let signees = 0;
+	for (const t of tours.filter((t) => t.fichiers?.includes(`${t.id}.racine.jws`))) {
+		const v = await verifierSignatureDuJournal(await lireTexte(`/empreintes/${t.id}.racine.jws`), t.racine);
+		signees += 1;
+		raisons.push(...v.raisons.map((r) => `${t.id} : ${r}`));
+	}
+	return { ok: raisons.length === 0, signees, raisons };
+}

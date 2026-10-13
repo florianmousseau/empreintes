@@ -47,7 +47,7 @@ export const TEXTES = {
 		calendrier: { fr: 'en cours d’inscription dans Bitcoin', de: 'Eintragung in Bitcoin läuft' },
 		aucun: { fr: 'aucun', de: 'keine' }
 	},
-	fichiers: { json: { fr: 'relevé', de: 'Protokoll' }, racine: { fr: 'racine', de: 'Wurzel' }, 'racine.ots': { fr: '.ots', de: '.ots' }, 'racine.tsr': { fr: '.tsr', de: '.tsr' } },
+	fichiers: { json: { fr: 'relevé', de: 'Protokoll' }, racine: { fr: 'racine', de: 'Wurzel' }, 'racine.ots': { fr: '.ots', de: '.ots' }, 'racine.tsr': { fr: '.tsr', de: '.tsr' }, 'racine.jws': { fr: 'signature', de: 'Signatur' } },
 	zone: {
 		glisser: { fr: 'Glissez-le ici, ou ', de: 'Hierher ziehen oder ' },
 		choisir: { fr: 'choisissez-le sur votre appareil', de: 'auf Ihrem Gerät auswählen' },
@@ -229,6 +229,18 @@ export const TEXTES = {
 			bilan: { fr: 'dépôts et déposants distincts, jour par jour', de: 'Datierungen und verschiedene Einreicher, Tag für Tag' },
 			tours: { fr: 'les tours du registre', de: 'die Runden des Registers' },
 			releve: { fr: 'le relevé d’un tour, avec <code>.racine</code>, <code>.racine.ots</code>, <code>.racine.tsr</code>', de: 'das Protokoll einer Runde, mit <code>.racine</code>, <code>.racine.ots</code>, <code>.racine.tsr</code>' },
+			signature: {
+				fr: 'la signature du journal d’un tour\u00A0: JWS compact ES256, la racine en charge utile, <code>x5c</code> épinglé dans la formule ci-dessous',
+				de: 'die Signatur des Journals einer Runde: kompaktes JWS ES256, die Wurzel als Nutzlast, <code>x5c</code> wie in der Formel unten festgelegt'
+			},
+			attestations: {
+				fr: 'les documents des listes publiques vus par l’entrepôt\u00A0: adresse, empreinte, premier et dernier jour vu, preuve',
+				de: 'die vom Archiv gesehenen Dokumente der öffentlichen Listen: Adresse, Prüfsumme, erster und letzter Tag, Beweis'
+			},
+			preuveDUnObjet: {
+				fr: 'la preuve d’un document\u00A0: chemin d’audit, racine, <code>.ots</code>, signature du journal',
+				de: 'der Beweis eines Dokuments: Prüfpfad, Wurzel, <code>.ots</code>, Signatur des Journals'
+			},
 			depots: { fr: 'les dépôts lus par l’entrepôt, dans l’ordre de leur inscription', de: 'die vom Archiv gelesenen Datierungen, in der Reihenfolge ihrer Eintragung' },
 			sante: { fr: 'l’état du registre publié', de: 'der Zustand des veröffentlichten Registers' }
 		},
@@ -248,6 +260,7 @@ export const TEXTES = {
 				de: ['Beleg', 'Kennung: <code>sha256</code> seiner kanonischen Form, Schlüssel sortiert, ohne Leerzeichen']
 			},
 			bitcoin: { fr: ['Bitcoin'], de: ['Bitcoin'] },
+			signature: { fr: ['signature du journal', '\u00A0; ES256 sur <code>en-tête.charge</code>'], de: ['Signatur des Journals', '; ES256 über <code>Header.Nutzlast</code>'] },
 			script: { fr: ['script'], de: ['Skript'] }
 		}
 	},

@@ -5,7 +5,10 @@
 export const ID_DE_TOUR = /^\d{8}T\d{6}Z$/;
 
 /** Les fichiers du journal qui se publient ; tout le reste (cache, .bak) reste chez l'entrepot. */
-export const FICHIER_PUBLIE = /^(\d{8}T\d{6}Z\.(json|racine|racine\.ots|racine\.tsr)|ancrages\.json|depots\.jsonl)$/;
+export const FICHIER_PUBLIE = /^(\d{8}T\d{6}Z\.(json|racine|racine\.ots|racine\.tsr|racine\.jws)|ancrages\.json|depots\.jsonl)$/;
+
+/** Une preuve d'objet publiee par l'entrepot : `preuves/<sha256>.json`. */
+export const PREUVE_PUBLIEE = /^[0-9a-f]{64}\.json$/;
 
 /** Les feuilles qui sont des objets de l'archive, sans les manifestes ni les listes du tour. */
 export const estUnObjet = (f) => !/^(manifeste|liste):/.test(f.cle);

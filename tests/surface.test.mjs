@@ -45,6 +45,25 @@ test('un fichier du journal se dit servi tel quel ; une empreinte inconnue ne tr
 	}
 });
 
+test("un document d'un tour signe porte la signature du journal relue ; la chaine compte les signatures", async () => {
+	const serveur = await servir();
+	const site = `http://127.0.0.1:${serveur.address().port}`;
+	try {
+		const { tours } = JSON.parse(fs.readFileSync(path.join(DIST, 'tours.json'), 'utf8'));
+		const signe = tours.find((t) => t.fichiers.includes(`${t.id}.racine.jws`));
+		assert.ok(fs.existsSync(path.join(DIST, 'empreintes', `${signe.id}.racine.jws`)), 'la signature est servie');
+		const releve = JSON.parse(fs.readFileSync(path.join(DIST, 'empreintes', `${signe.id}.json`), 'utf8'));
+		const vusDe = (sha) => JSON.parse(fs.readFileSync(path.join(DIST, 'index', `${sha.slice(0, 2)}.json`), 'utf8'))[sha];
+		const premier = releve.feuilles.find((f) => !f.cle.includes(':') && vusDe(f.sha256).some((v) => v.premier === signe.id));
+		const constats = await verifierEmpreinte(site, premier.sha256);
+		const c = constats.find((x) => x.premier === signe.id);
+		assert.equal(c.signature.ok, true);
+		assert.equal(c.ok, true);
+	} finally {
+		serveur.close();
+	}
+});
+
 test('la sonde repond 200 en JSON, sans cache, avec le commit servi', async () => {
 	const env = { ASSETS: { fetch: async (url) => new Response(fs.readFileSync(path.join(DIST, new URL(url).pathname))) } };
 	const r = await onRequestGet({ request: new Request('https://empreintes.florianmousseau.com/health'), env });

@@ -31,7 +31,10 @@ export const ADRESSES = {
 		['bilan', 'GET /api/bilan'],
 		['tours', 'GET /tours.json'],
 		['releve', 'GET /empreintes/&lt;tour&gt;.json'],
+		['signature', 'GET /empreintes/&lt;tour&gt;.racine.jws'],
 		['depots', 'GET /empreintes/depots.jsonl'],
+		['attestations', 'GET /attestations/par-url.json'],
+		['preuveDUnObjet', 'GET /preuves/&lt;sha256&gt;.json'],
 		['sante', 'GET /health']
 	]
 };
@@ -44,5 +47,6 @@ export const FORMULES = {
 	depots: '',
 	recu: '',
 	bitcoin: '<code>ots verify &lt;tour&gt;.racine.ots</code>',
+	signature: '<code>sha256(x5c[0]) = 5263feba5fc71c4725c93328c0c75a94fc4e1b632bb9ff01574239551ab34b80</code>',
 	script: '<a href="https://github.com/temoinpublic/empreintes/blob/main/scripts/verifier.mjs">node scripts/verifier.mjs &lt;document | --chaine&gt;</a>'
 };
