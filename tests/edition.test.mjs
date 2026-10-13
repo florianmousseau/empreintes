@@ -32,7 +32,7 @@ test('chaque page allemande porte la marque, sa langue, son adresse canonique et
 		assert.match(html, /<link rel="canonical" href="https:\/\/datumszeuge.de\//);
 		assert.match(html, /<meta property="og:locale" content="de_DE">/);
 		assert.match(html, /<nav aria-label="Hauptnavigation"><a href="\/datieren"[^>]*>Datieren<\/a> <a href="\/pruefen"[^>]*>Prüfen<\/a> <a href="\/register"[^>]*>Register<\/a><\/nav>/);
-		assert.match(html, /<a href="\/impressum">Impressum<\/a> <a href="https:\/\/github.com\/florianmousseau\/empreintes">Quellcode<\/a>/);
+		assert.match(html, /<a href="\/impressum">Impressum<\/a> <a href="https:\/\/github.com\/temoinpublic\/empreintes">Quellcode<\/a>/);
 		assert.ok(!html.includes('${'), 'un ${...} est reste dans une chaine simple');
 		const corps = html.slice(html.indexOf('<body>'));
 		for (const francais of ['Témoin public', 'temoinpublic.fr', 'Mentions', 'lang="fr"']) assert.ok(!corps.includes(francais), francais);
@@ -99,7 +99,7 @@ test('le plan du site, les robots et llms.txt de chaque edition parlent de son s
 	assert.match(robots('de'), /^User-agent: \*\nAllow: \/\nDisallow: \/index\/\n\nSitemap: https:\/\/datumszeuge.de\/sitemap.xml\n$/);
 	assert.match(robots(), /Sitemap: https:\/\/temoinpublic.fr\/sitemap.xml/);
 	assert.match(EDITIONS.de.llms, /^# Datumszeuge\n/);
-	assert.ok(!EDITIONS.de.llms.includes('temoinpublic') && !EDITIONS.de.llms.includes('/acte'));
+	assert.ok(!EDITIONS.de.llms.includes('temoinpublic.fr') && !EDITIONS.de.llms.includes('/acte'));
 	for (const adresse of ['https://datumszeuge.de/datieren', 'https://datumszeuge.de/pruefen', 'https://datumszeuge.de/register', 'https://datumszeuge.de/dokumentation']) assert.ok(EDITIONS.de.llms.includes(adresse), adresse);
 	assert.match(EDITIONS.fr.llms, /https:\/\/temoinpublic.fr\/acte/);
 	assert.match(EDITIONS.de.llms, /https:\/\/datumszeuge.de\/beweiswert/);

@@ -4,7 +4,7 @@
  "title": "Témoin public",
  "description": "Prove a web page or document existed on a date: public SHA-256 registry anchored in Bitcoin. Free.",
  "websiteUrl": "https://temoinpublic.fr",
- "repository": { "url": "https://github.com/florianmousseau/empreintes", "source": "github" },
+ "repository": { "url": "https://github.com/temoinpublic/empreintes", "source": "github" },
  "version": "1.0.0",
  "remotes": [{ "type": "streamable-http", "url": "https://temoinpublic.fr/mcp" }]
 }
