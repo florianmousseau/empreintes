@@ -400,7 +400,7 @@ export function pageRecu(ligne, acte = null, langue = 'fr') {
 <h2>${acte ? e.recu.enLigne(jour) : e.recu.date(jour)}</h2>
 <dl>
 ${lignesDActe(e, acte)}<div><dt>${e.recu.empreinte}</dt><dd><code class="racine">${ligne.sha256}</code></dd></div>
-<div><dt>${e.recu.ligne}</dt><dd>${e.recu.place(ligne.place, jour)}</dd></div>
+<div><dt>${e.recu.ligne}</dt><dd><a href="/depots/${ligne.jour}.jsonl">${e.recu.place(ligne.place, jour)}</a></dd></div>
 <div><dt>${e.recu.registre}</dt><dd id="inscription">${e.recu.lecture}</dd></div>
 </dl>
 <p class="imprime">${e.hote}${chemin}</p>

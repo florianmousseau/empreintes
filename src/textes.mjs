@@ -145,8 +145,8 @@ export const TEXTES = {
 			decision: { fr: 'Décision', de: 'Entscheidung' }
 		},
 		empreinte: { fr: 'Empreinte', de: 'Prüfsumme' },
-		ligne: { fr: 'Ligne', de: 'Zeile' },
-		place: { fr: (place, j) => `${place} du ${j}`, de: (place, j) => `${place} vom ${j}` },
+		ligne: { fr: 'Entrée publique', de: 'Öffentlicher Eintrag' },
+		place: { fr: (place, j) => `n°${NBSP}${place} du ${j}`, de: (place, j) => `Nr.${NBSP}${place} vom ${j}` },
 		registre: { fr: 'Registre', de: 'Register' },
 		lecture: { fr: 'lecture du registre', de: 'Register wird gelesen' },
 		imprimer: { fr: 'Imprimer le reçu', de: 'Beleg drucken' }
