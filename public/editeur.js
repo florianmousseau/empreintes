@@ -1,5 +1,7 @@
 // Le registre prive d'un editeur : le jeton vit dans le fragment de l'adresse, jamais envoye au serveur
 // autrement qu'en en-tete ; l'adresse de chaque article et les recus ne s'affichent qu'ici.
+import { T } from '/textes.js';
+
 const section = document.getElementById('prive');
 const jeton = location.hash.slice(1);
 
@@ -38,20 +40,20 @@ async function afficher(id, entete) {
 		li.append(el('code', a.id.slice(0, 12)), ' ', lien(a.lien));
 		liste.append(li);
 	}
-	const source = el('p', 'Flux\u00A0: ');
+	const source = el('p', T.editeur.flux);
 	source.append(lien(flux.url));
 	const gestes = el('p', '', { class: 'gestes' });
-	gestes.append(bouton('Télécharger les reçus', true, () => telecharger(`recus-${id}.json`, recus)));
+	gestes.append(bouton(T.editeur.telecharger, true, () => telecharger(`${T.editeur.fichier}-${id}.json`, recus)));
 	if (!flux.retire)
 		gestes.append(
 			' ',
-			bouton('Cesser de suivre ce flux', false, async () => {
-				if (!confirm('Cesser de suivre ce flux\u00A0? Les dates déjà enregistrées restent.')) return;
+			bouton(T.editeur.cesser, false, async () => {
+				if (!confirm(T.editeur.confirmer)) return;
 				const reponse = await fetch(`/api/flux/${id}`, { method: 'DELETE', headers: entete });
 				if (reponse.ok) location.reload();
 			})
 		);
-	section.replaceChildren(el('h2', 'Vos articles'), source, liste, gestes);
+	section.replaceChildren(el('h2', T.editeur.articles), source, liste, gestes);
 	section.hidden = false;
 }
 
@@ -59,7 +61,7 @@ if (/^[0-9a-f]{64}$/.test(jeton)) {
 	try {
 		await afficher(section.dataset.flux, { authorization: `Bearer ${jeton}` });
 	} catch {
-		section.replaceChildren(el('p', 'Lien privé refusé.'));
+		section.replaceChildren(el('p', T.editeur.refuse));
 		section.hidden = false;
 	}
 }

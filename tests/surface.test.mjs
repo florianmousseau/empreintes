@@ -19,7 +19,13 @@ function servir() {
 }
 
 test('la construction a produit la surface', () => {
-	for (const f of ['index.html', 'verifier.html', 'deposer.html', 'deposer.js', 'journal.html', 'fichier.js', '404.html', 'depot.mjs', 'documentation.html', 'tours.json', 'version.json', 'chaine.mjs', 'verifier.js', '_headers']) assert.ok(fs.existsSync(path.join(DIST, f)), f);
+	for (const f of ['index.html', 'verifier.html', 'deposer.html', 'deposer.js', 'journal.html', 'fichier.js', '404.html', 'depot.mjs', 'documentation.html', 'tours.json', 'version.json', 'chaine.mjs', 'verifier.js', 'textes.js', '_headers', '_routes.json', 'robots.txt', 'llms.txt', 'sitemap.xml']) assert.ok(fs.existsSync(path.join(DIST, f)), f);
+	for (const f of ['index.html', 'datieren.html', 'pruefen.html', 'register.html', 'dokumentation.html', 'impressum.html', '404.html', 'robots.txt', 'llms.txt', 'sitemap.xml']) assert.ok(fs.existsSync(path.join(DIST, 'de', f)), `de/${f}`);
+	assert.ok(!fs.existsSync(path.join(DIST, 'de', 'acte.html')), 'pas d acte en allemand');
+	assert.match(fs.readFileSync(path.join(DIST, 'de', 'index.html'), 'utf8'), /<html lang="de">/);
+	assert.match(fs.readFileSync(path.join(DIST, 'index.html'), 'utf8'), /<html lang="fr">/);
+	assert.match(fs.readFileSync(path.join(DIST, 'robots.txt'), 'utf8'), /Sitemap: https:\/\/temoinpublic.fr\/sitemap.xml/);
+	assert.match(fs.readFileSync(path.join(DIST, 'llms.txt'), 'utf8'), /^# Témoin public\n/);
 });
 
 test('un fichier du journal se dit servi tel quel ; une empreinte inconnue ne trouve rien', async () => {

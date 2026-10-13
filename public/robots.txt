@@ -1,5 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /index/
-
-Sitemap: https://temoinpublic.fr/sitemap.xml

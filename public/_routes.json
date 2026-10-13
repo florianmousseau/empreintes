@@ -1,0 +1,25 @@
+{
+	"version": 1,
+	"include": ["/*"],
+	"exclude": [
+		"/style.css",
+		"/icone.svg",
+		"/deposer.js",
+		"/verifier.js",
+		"/recu.js",
+		"/editeur.js",
+		"/fichier.js",
+		"/textes.js",
+		"/chaine.mjs",
+		"/depot.mjs",
+		"/acte.mjs",
+		"/personne.mjs",
+		"/annuaire.mjs",
+		"/tours.json",
+		"/version.json",
+		"/BingSiteAuth.xml",
+		"/empreintes/*",
+		"/index/*",
+		"/annuaire/*"
+	]
+}
