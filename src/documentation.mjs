@@ -44,5 +44,5 @@ export const FORMULES = {
 	depots: '',
 	recu: '',
 	bitcoin: '<code>ots verify &lt;tour&gt;.racine.ots</code>',
-	script: '<a href="https://github.com/florianmousseau/empreintes/blob/main/scripts/verifier.mjs">node scripts/verifier.mjs &lt;document | --chaine&gt;</a>'
+	script: '<a href="https://github.com/temoinpublic/empreintes/blob/main/scripts/verifier.mjs">node scripts/verifier.mjs &lt;document | --chaine&gt;</a>'
 };

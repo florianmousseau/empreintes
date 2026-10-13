@@ -326,7 +326,7 @@ export const TEXTES = {
 - Vérifier un document ou un reçu : https://temoinpublic.fr/verifier
 - Registre public des dates : https://temoinpublic.fr/journal
 - API et formules de vérification sans le site : https://temoinpublic.fr/documentation
-- Code source et miroir du registre : https://github.com/florianmousseau/empreintes
+- Code source et miroir du registre : https://github.com/temoinpublic/empreintes
 - Valeur de preuve, textes applicables, copies du registre hors du site : https://temoinpublic.fr/preuve
 - Serveur MCP (HTTP sans session) pour les agents, outils dater_url, dater_empreinte, chercher_empreinte, lire_recu : https://temoinpublic.fr/mcp
 - Description OpenAPI : https://temoinpublic.fr/openapi.json
@@ -339,7 +339,7 @@ export const TEXTES = {
 - Ein Dokument oder einen Beleg prüfen: https://datumszeuge.de/pruefen
 - Öffentliches Datumsregister: https://datumszeuge.de/register
 - API und Formeln zur Prüfung ohne die Website: https://datumszeuge.de/dokumentation
-- Quellcode und Spiegel des Registers: https://github.com/florianmousseau/empreintes
+- Quellcode und Spiegel des Registers: https://github.com/temoinpublic/empreintes
 - Beweiswert, anwendbare Rechtstexte, Kopien des Registers außerhalb der Website: https://datumszeuge.de/beweiswert
 - MCP-Server (HTTP ohne Sitzung) für Agenten, Werkzeuge dater_url, dater_empreinte, chercher_empreinte, lire_recu: https://datumszeuge.de/mcp
 - OpenAPI-Beschreibung: https://datumszeuge.de/openapi.json

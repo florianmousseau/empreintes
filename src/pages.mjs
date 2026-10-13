@@ -7,7 +7,7 @@ import { EDITIONS, cheminsDe, planDe } from './edition.mjs';
 import { ADRESSES, FORMULES } from './documentation.mjs';
 
 const NBSP = '\u00A0';
-const DEPOT = 'https://github.com/florianmousseau/empreintes';
+const DEPOT = 'https://github.com/temoinpublic/empreintes';
 export const MARQUE = EDITIONS.fr.marque;
 
 /** Les actes du site en francais : un nom court pour chaque lien, partout, et le titre de sa page. */
