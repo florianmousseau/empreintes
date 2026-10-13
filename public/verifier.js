@@ -1,4 +1,4 @@
-import { sha256, placeDuFichier, verifierChaine } from '/chaine.mjs';
+import { sha256, placeDuFichier, verifierChaine, verifierSignatureDuJournal, verifierSignatures } from '/chaine.mjs';
 import { suivreLeChoix } from '/fichier.js';
 import { idDuRecu } from '/depot.mjs';
 import { T } from '/textes.js';
@@ -23,16 +23,27 @@ function ancrage(tour) {
 	return tour?.ots === 'calendrier' ? T.calendrier : T.aucun;
 }
 
+/** La signature du journal d'un tour, relue contre sa racine ; null quand le tour n'en porte pas. */
+async function signatureDe(tour, racine) {
+	const nom = `${tour.id}.racine.jws`;
+	if (!tour.fichiers?.includes(nom)) return null;
+	const r = await fetch(`/empreintes/${nom}`);
+	const v = r.ok ? await verifierSignatureDuJournal(await r.text(), racine) : { ok: false };
+	return { ...v, nom };
+}
+
 async function constat(empreinte, vu) {
 	const releve = await lire(`/empreintes/${vu.premier}.json`);
 	const place = await placeDuFichier(releve, empreinte);
 	const tour = (await lesTours()).find((t) => t.id === vu.premier);
+	const signature = tour ? await signatureDe(tour, releve.racine) : null;
+	const ok = place?.ok && signature?.ok !== false;
 	const preuves = (tour?.fichiers ?? [])
 		.filter((f) => f.endsWith('.ots') || f.endsWith('.tsr'))
 		.map((f) => `<a href="/empreintes/${f}">${f.endsWith('.ots') ? t.preuveOts : t.horodatageTsr}</a>`)
 		.join(' ');
-	return `<article class="${place?.ok ? 'ok' : 'ko'}">
-<h2>${place?.ok ? t.identique(T.jour(vu.jour)) : t.nonConforme}</h2>
+	return `<article class="${ok ? 'ok' : 'ko'}">
+<h2>${ok ? t.identique(T.jour(vu.jour)) : t.nonConforme}</h2>
 <details>
 <summary>${t.details}</summary>
 <dl>
@@ -41,6 +52,7 @@ async function constat(empreinte, vu) {
 <div><dt>${t.chemin}</dt><dd>${place ? t.etapes(place.chemin.length) : t.absent}</dd></div>
 <div><dt>${t.racine}</dt><dd><code class="racine">${releve.racine}</code></dd></div>
 <div><dt>Bitcoin</dt><dd>${ancrage(tour)} ${preuves}</dd></div>
+${signature ? `<div><dt>${t.signature}</dt><dd><a href="/empreintes/${signature.nom}">${signature.ok ? t.signatureValide : t.signatureNonConforme}</a></dd></div>` : ''}
 </dl>
 </details>
 </article>`;
@@ -101,6 +113,13 @@ const lancer = async () => {
 	}
 };
 
+// `/verifier?empreinte=<sha256>` : le lien qu'une autre page donne vers la preuve d'un document.
+const demandee = new URLSearchParams(location.search).get('empreinte')?.toLowerCase();
+if (demandee && /^[0-9a-f]{64}$/.test(demandee) && $('empreinte')) {
+	$('empreinte').value = demandee;
+	lancer();
+}
+
 $('formulaire')?.addEventListener('submit', (e) => {
 	e.preventDefault();
 	lancer();
@@ -115,9 +134,11 @@ $('chaine')?.addEventListener('click', async () => {
 		const v = await verifierChaine(ids, (id) => lire(`/empreintes/${id}.json`), {
 			surTour: (id) => (sortie.innerHTML = `<p>${t.tour(T.heure(id))}</p>`)
 		});
-		sortie.innerHTML = v.ok
-			? `<article class="ok"><h2>${t.intacte(v.tours)}</h2><p>${t.derniere} <code class="racine">${v.derniere}</code></p></article>`
-			: `<article class="ko"><h2>${t.rompue}</h2><ul>${v.raisons.map((r) => `<li>${echapper(r)}</li>`).join('')}</ul></article>`;
+		const s = await verifierSignatures(await lesTours(), async (chemin) => (await fetch(chemin)).text());
+		const raisons = [...v.raisons, ...s.raisons];
+		sortie.innerHTML = raisons.length === 0
+			? `<article class="ok"><h2>${t.intacte(v.tours)}</h2><p>${t.signatures(s.signees)}</p><p>${t.derniere} <code class="racine">${v.derniere}</code></p></article>`
+			: `<article class="ko"><h2>${t.rompue}</h2><ul>${raisons.map((r) => `<li>${echapper(r)}</li>`).join('')}</ul></article>`;
 	} catch (erreur) {
 		sortie.innerHTML = `<article class="ko"><h2>${T.erreur}</h2><p>${echapper(erreur.message)}</p></article>`;
 	}

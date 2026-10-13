@@ -14,3 +14,9 @@
 /openapi.json
   Cache-Control: public, max-age=3600
   Access-Control-Allow-Origin: *
+/attestations/*
+  Cache-Control: public, max-age=300
+  Access-Control-Allow-Origin: *
+/preuves/*
+  Cache-Control: public, max-age=300
+  Access-Control-Allow-Origin: *

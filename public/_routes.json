@@ -21,6 +21,8 @@
 		"/BingSiteAuth.xml",
 		"/empreintes/*",
 		"/index/*",
-		"/annuaire/*"
+		"/annuaire/*",
+		"/attestations/*",
+		"/preuves/*"
 	]
 }

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { FICHIER_PUBLIE, indexDesEmpreintes, instantDe, resumeDe, verdict } from '../src/journal.mjs';
+import { FICHIER_PUBLIE, PREUVE_PUBLIEE, indexDesEmpreintes, instantDe, resumeDe, verdict } from '../src/journal.mjs';
 
 const r1 = { id: '20261011T041935Z', precedente: '0', arbre: 'a', racine: 'r1', feuilles: [{ cle: 'src/x', sha256: 'aa11', jour: '2026-10-10' }, { cle: 'manifeste:2026-10-11', sha256: 'bb22', jour: '2026-10-11' }] };
 const r2 = { id: '20261012T101314Z', precedente: 'r1', arbre: 'b', racine: 'r2', feuilles: [{ cle: 'src/x', sha256: 'aa11', jour: '2026-10-10' }, { cle: 'src/y', sha256: 'aa11', jour: '2026-10-12' }, { cle: 'liste:z', sha256: 'cc33', jour: '2026-10-12' }] };
@@ -11,7 +11,9 @@ test("l'instant d'un tour se lit sur son identifiant ; un identifiant illisible 
 });
 
 test('seuls les fichiers du journal se publient, jamais le cache ni une sauvegarde', () => {
-	for (const f of ['20261012T101314Z.json', '20261012T101314Z.racine', '20261012T101314Z.racine.ots', '20261012T101314Z.racine.tsr', 'ancrages.json']) assert.ok(FICHIER_PUBLIE.test(f), f);
+	for (const f of ['20261012T101314Z.json', '20261012T101314Z.racine', '20261012T101314Z.racine.ots', '20261012T101314Z.racine.tsr', '20261012T101314Z.racine.jws', 'ancrages.json']) assert.ok(FICHIER_PUBLIE.test(f), f);
+	assert.ok(PREUVE_PUBLIEE.test(`${'a'.repeat(64)}.json`));
+	for (const f of [`${'a'.repeat(64)}.json.tmp`, 'par-url.json', `${'A'.repeat(64)}.json`]) assert.ok(!PREUVE_PUBLIEE.test(f), f);
 	for (const f of ['20261012T101314Z.racine.ots.bak', 'cache', '../etat.json', 'x.json']) assert.ok(!FICHIER_PUBLIE.test(f), f);
 });
 
