@@ -2,7 +2,9 @@
 // temoinpublic.fr, les pages allemandes de `dist/de/` sur datumszeuge.de, et
 // jamais `/de/` en clair. Pur ; la Function `_middleware.js` branche les actifs.
 
-import { EDITIONS, HOTES_ALLEMANDS, langueDe, planDe } from './edition.mjs';
+import { EDITIONS, langueDe, planDe } from './edition.mjs';
+
+export { HOTES_ALLEMANDS } from './edition.mjs';
 
 /** Les chemins servis par une Function, dans toute langue : la decision leur est laissee. */
 export const FONCTIONS = ['/api/', '/recu/', '/editeur/', '/depots/', '/health', '/mcp'];
@@ -10,12 +12,12 @@ export const FONCTIONS = ['/api/', '/recu/', '/editeur/', '/depots/', '/health',
 /** Ce qui n'existe qu'en francais : l'edition allemande y renvoie. */
 const FRANCAIS = ['/acte', '/collectivite/', '/mentions-legales'];
 
-const FICHIERS = ['/sitemap.xml', '/robots.txt', '/llms.txt'];
+const FICHIERS = new Set(['/sitemap.xml', '/robots.txt', '/llms.txt']);
 
 /** Le fichier de `dist/` qui porte un chemin de l'edition allemande, ou null. */
 export function pageAllemande(chemin) {
 	if (chemin === '/') return '/de/';
-	if (FICHIERS.includes(chemin)) return `/de${chemin}`;
+	if (FICHIERS.has(chemin)) return `/de${chemin}`;
 	return planDe('de').includes(chemin) ? `/de${chemin}` : null;
 }
 
@@ -43,5 +45,3 @@ export function decider(url) {
 
 /** Vrai pour un hote de controle de Cloudflare Pages : il ne s'indexe pas. */
 export const horsIndex = (url) => new URL(url).hostname.endsWith('.pages.dev');
-
-export { HOTES_ALLEMANDS };

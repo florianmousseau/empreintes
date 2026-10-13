@@ -5,7 +5,8 @@ import { decider, horsIndex } from '../src/hote.mjs';
 /** Un fichier de `dist/` par la liaison `ASSETS`, au statut voulu ; le `.html` en second quand le chemin propre ne repond pas. */
 async function actif(env, url, chemin, statut) {
 	let r = await env.ASSETS.fetch(new URL(chemin, url));
-	if (!r.ok) r = await env.ASSETS.fetch(new URL(`${chemin.endsWith('/') ? `${chemin}index` : chemin}.html`, url));
+	const fichier = chemin.endsWith('/') ? `${chemin}index` : chemin;
+	if (!r.ok) r = await env.ASSETS.fetch(new URL(`${fichier}.html`, url));
 	return new Response(r.body, { status: r.ok ? statut : r.status, headers: r.headers });
 }
 
