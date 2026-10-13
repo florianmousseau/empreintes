@@ -100,7 +100,8 @@ test('la page du recu affiche la date, la ligne et mene au verificateur sous son
 	assert.match(pageRecuInconnu(), /<h1>Reçu inconnu<\/h1>/);
 	const allemand = pageRecu(ligne, null, 'de');
 	assert.match(allemand, /<h2>Dokument datiert am 12\.10\.2026<\/h2>/);
-	assert.match(allemand, /<dt>Zeile<\/dt><dd>4 vom 12\.10\.2026<\/dd>/);
+	assert.match(html, /<dt>Entrée publique<\/dt><dd><a href="\/depots\/2026-10-12\.jsonl">n°\u00A04 du 12\/10\/2026<\/a><\/dd>/);
+	assert.match(allemand, /<dt>Öffentlicher Eintrag<\/dt><dd><a href="\/depots\/2026-10-12\.jsonl">Nr\.\u00A04 vom 12\.10\.2026<\/a><\/dd>/);
 	assert.match(allemand, new RegExp(`<link rel="alternate" hreflang="fr" href="https://temoinpublic.fr/recu/${ligne.recu}">\\n<link rel="alternate" hreflang="de" href="https://datumszeuge.de/recu/${ligne.recu}">`));
 	assert.match(allemand, /<a class="bouton" href="\/pruefen">Prüfen<\/a>/);
 	assert.match(pageRecu(ligne, { collectivite: '17133', nature: 'deliberation', objet: 'Budget', url: null }, 'de'), /<h2>Online am 12\.10\.2026<\/h2>[\s\S]*<dt>Rechtsakt<\/dt><dd>Beschluss, Budget<\/dd>[\s\S]*<a href="https:\/\/temoinpublic.fr\/collectivite\/17133">17133<\/a>/);

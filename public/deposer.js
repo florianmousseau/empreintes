@@ -121,7 +121,7 @@ function afficher(r) {
 		r.recu.libelle ? ligneDuRecu(t.nom, `<strong>${echapper(r.recu.libelle)}</strong>`) : '',
 		acte ? ligneDuRecu(t.collectivite, `${collectivite(acte)}, ${t.rattachement[acte.rattachement]}`) : '',
 		ligneDuRecu(t.empreinte, `<code class="racine">${r.recu.sha256}</code><br><span class="source">${source}</span>`),
-		ligneDuRecu(t.ligne, t.place(r.place, T.jour(r.jour))),
+		ligneDuRecu(t.ligne, `<a href="/depots/${r.jour}.jsonl">${t.place(r.place, T.jour(r.jour))}</a>`),
 		ligneDuRecu(t.emis, t.instant(T.jour(r.recu.depose.slice(0, 10)), r.recu.depose.slice(11, 16))),
 		ligneDuRecu(t.adresse, `<a class="racine" href="/recu/${r.id}">${T.hote}/recu/${r.id}</a>`)
 	];
