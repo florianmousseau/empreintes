@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Florian Mousseau. Ce fichier seul est sous licence MIT (LICENSES/MIT.txt).
 // Verifie un fichier, ou toute la chaine, contre le journal publie.
 //
 //   node scripts/verifier.mjs <fichier|sha256> [--site <adresse>]
