@@ -4,6 +4,7 @@
 
 import { NATURES } from './acte.mjs';
 import { EDITIONS, cheminsDe, planDe } from './edition.mjs';
+import { ADRESSES, FORMULES } from './textes/documentation.mjs';
 
 const NBSP = '\u00A0';
 const DEPOT = 'https://github.com/florianmousseau/empreintes';
@@ -471,25 +472,32 @@ export function pageIntrouvable(langue = 'fr') {
 	});
 }
 
-const tableDoc = ([titre, ...lignes]) => `<h2>${titre}</h2>
+const tableDoc = (titre, lignes) => `<h2>${titre}</h2>
 <table class="doc">
 <tbody>
 ${lignes.map(([gauche, droite]) => `<tr><td><code>${gauche}</code></td><td>${droite}</td></tr>`).join('\n')}
 </tbody>
 </table>`;
 
+/** Les adresses qu'une edition explique, avec leur explication. */
+const lignesDAdresses = (adresses, textes) => adresses.filter(([cle]) => cle in textes).map(([cle, adresse]) => [adresse, textes[cle]]);
+
+/** Chaque formule derriere son nom, suivie de ce que l'edition en dit. */
+const lignesDeFormules = (textes) => Object.entries(FORMULES).map(([cle, formule]) => [textes[cle][0], `${formule}${textes[cle][1] ?? ''}`]);
+
 /** La documentation : les adresses, les limites et les formules, pour verifier sans ce site. */
 export function pageDocumentation(langue = 'fr') {
 	const e = EDITIONS[langue];
+	const [dater, lire, verifier] = e.documentation.titres;
 	return gabarit(e, {
 		titre: e.actes.documentation.titre,
 		description: e.documentation.description,
 		chemin: e.actes.documentation.chemin,
 		chemins: cheminsDe('documentation'),
 		corps: `<h1>${e.actes.documentation.titre}</h1>
-${tableDoc(e.documentation.dater)}
-${tableDoc(e.documentation.lire)}
-${tableDoc(e.documentation.verifier)}`
+${tableDoc(dater, lignesDAdresses(ADRESSES.dater, e.documentation.dater))}
+${tableDoc(lire, lignesDAdresses(ADRESSES.lire, e.documentation.lire))}
+${tableDoc(verifier, lignesDeFormules(e.documentation.verifier))}`
 	});
 }
 

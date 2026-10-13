@@ -23,10 +23,6 @@ export default {
 		mentions: { chemin: '/mentions-legales', nom: 'Mentions légales', titre: 'Mentions légales' }
 	},
 	jour,
-	dateHeure: (iso) => {
-		const [j, h] = iso.split('T');
-		return `${jour(j)} ${h.slice(0, 5)}${NBSP}UTC`;
-	},
 	nombre,
 	structure: {
 		description: "Prouver gratuitement qu'un document existait à une date, sans modification : son empreinte est inscrite dans un registre public ancré dans Bitcoin."
@@ -115,48 +111,43 @@ export default {
 	introuvable: { titre: 'Page introuvable', description: 'Aucune page à cette adresse.' },
 	documentation: {
 		description: 'Adresses, limites et formules du registre des dates : dater, lire et vérifier sans ce site.',
-		dater: [
-			'Dater',
-			['POST /api/depots {"sha256": "&lt;64 hex&gt;", "libelle": "&lt;texte&gt;"}', 'une empreinte calculée par vous\u00A0; le libellé reste dans le reçu'],
-			['POST /api/depots {"url": "https://&lt;adresse&gt;"}', 'le service lit lui-même le document en ligne et date ses octets'],
-			[
-				'POST /api/depots {"type": "acte", "url": "https://&lt;adresse&gt;", "collectivite": "&lt;INSEE | SIREN&gt;", "nature": "deliberation | arrete | decision", "libelle": "&lt;objet&gt;"}',
-				'un acte de collectivité, lu à son adresse, avec son objet\u00A0; reçu version 2, ligne publique inchangée'
-			],
-			['201', 'le reçu, son identifiant, la ligne publique'],
-			['POST /api/flux {"url": "https://&lt;flux RSS ou Atom&gt;"}', 'suivre un flux\u00A0: chaque heure, chaque article nouveau ou modifié est lu et daté\u00A0; rend l’identifiant du flux et son jeton'],
-			['GET /editeur/&lt;id&gt;', 'le registre public d’un flux\u00A0: chaque version datée, sans adresse ni titre\u00A0; avec <code>#&lt;jeton&gt;</code>, les adresses et les reçus'],
-			['GET /api/flux/&lt;id&gt;', 'le registre privé d’un flux, <code>authorization: Bearer &lt;jeton&gt;</code>'],
-			['DELETE /api/flux/&lt;id&gt;', 'cesser de suivre un flux, <code>authorization: Bearer &lt;jeton&gt;</code>\u00A0; les dates déjà enregistrées restent'],
-			['429', `20 dépôts par jour et par adresse, 2${NBSP}000 par jour, <code>retry-after</code> jusqu’à minuit UTC`],
-			['409', 'une même adresse en ligne lue une fois par jour'],
-			['422', 'lecture impossible\u00A0: 20 Mo, 30 s, 5 redirections au plus, adresses publiques seulement']
-		],
-		lire: [
-			'Lire',
-			['GET /depots/&lt;jour&gt;.jsonl', 'les dépôts du jour, une ligne <code>{"sha256","jour","place","recu"}</code> par dépôt'],
-			['GET /recu/&lt;id&gt;', 'la page d’un reçu'],
-			['GET /api/recus/&lt;id&gt;', 'la ligne publique d’un reçu'],
-			['GET /api/depots/&lt;sha256&gt;', 'les dépôts d’une empreinte'],
-			['GET /collectivite/&lt;INSEE&gt;', 'les actes d’une commune lus sur son site officiel\u00A0: date, nature, empreinte, reçu\u00A0; le SIREN y renvoie'],
-			['GET /annuaire/communes/insee-&lt;département&gt;.json', 'le nom de chaque commune, code INSEE ou SIREN vers <code>[nom, INSEE, SIREN]</code>'],
-			['GET /annuaire/insee-&lt;département&gt;.json', 'les sites officiels des communes, code INSEE ou SIREN vers <code>[hôte, préfixe]</code>, d’après l’annuaire Service-Public'],
-			['GET /api/bilan', 'dépôts et déposants distincts, jour par jour'],
-			['GET /tours.json', 'les tours du registre'],
-			['GET /empreintes/&lt;tour&gt;.json', 'le relevé d’un tour, avec <code>.racine</code>, <code>.racine.ots</code>, <code>.racine.tsr</code>'],
-			['GET /empreintes/depots.jsonl', 'les dépôts lus par l’entrepôt, dans l’ordre de leur inscription'],
-			['GET /health', 'l’état du registre publié']
-		],
-		verifier: [
-			'Vérifier sans ce site',
-			['feuille', '<code>sha256(cle + "\\n" + sha256 + "\\n" + jour + "\\n")</code>'],
-			['arbre', 'Merkle SHA-256 sur les octets des deux enfants\u00A0; un niveau impair double son dernier nœud'],
-			['racine', '<code>sha256("entrepot\\n" + tour + "\\n" + précédente + "\\n" + arbre + "\\n")</code>\u00A0; le premier tour suit 64 zéros'],
-			['depots:&lt;n&gt;', 'la feuille des dépôts\u00A0: <code>sha256</code> des <code>n</code> premières lignes de <code>depots.jsonl</code>, chacune suivie de <code>"\\n"</code>'],
-			['reçu', 'identifiant\u00A0: <code>sha256</code> de sa forme canonique, clés triées, sans espace'],
-			['Bitcoin', '<code>ots verify &lt;tour&gt;.racine.ots</code>'],
-			['script', '<a href="https://github.com/florianmousseau/empreintes/blob/main/scripts/verifier.mjs">node scripts/verifier.mjs &lt;document | --chaine&gt;</a>']
-		]
+		titres: ['Dater', 'Lire', 'Vérifier sans ce site'],
+		dater: {
+			empreinte: 'une empreinte calculée par vous\u00A0; le libellé reste dans le reçu',
+			url: 'le service lit lui-même le document en ligne et date ses octets',
+			acte: 'un acte de collectivité, lu à son adresse, avec son objet\u00A0; reçu version 2, ligne publique inchangée',
+			cree: 'le reçu, son identifiant, la ligne publique',
+			flux: 'suivre un flux\u00A0: chaque heure, chaque article nouveau ou modifié est lu et daté\u00A0; rend l’identifiant du flux et son jeton',
+			editeur: 'le registre public d’un flux\u00A0: chaque version datée, sans adresse ni titre\u00A0; avec <code>#&lt;jeton&gt;</code>, les adresses et les reçus',
+			fluxPrive: 'le registre privé d’un flux, <code>authorization: Bearer &lt;jeton&gt;</code>',
+			fluxRetire: 'cesser de suivre un flux, <code>authorization: Bearer &lt;jeton&gt;</code>\u00A0; les dates déjà enregistrées restent',
+			plafond: `20 dépôts par jour et par adresse, 2${NBSP}000 par jour, <code>retry-after</code> jusqu’à minuit UTC`,
+			unJour: 'une même adresse en ligne lue une fois par jour',
+			illisible: 'lecture impossible\u00A0: 20 Mo, 30 s, 5 redirections au plus, adresses publiques seulement'
+		},
+		lire: {
+			jour: 'les dépôts du jour, une ligne <code>{"sha256","jour","place","recu"}</code> par dépôt',
+			recu: 'la page d’un reçu',
+			ligneDuRecu: 'la ligne publique d’un reçu',
+			depotsDeLEmpreinte: 'les dépôts d’une empreinte',
+			collectivite: 'les actes d’une commune lus sur son site officiel\u00A0: date, nature, empreinte, reçu\u00A0; le SIREN y renvoie',
+			communes: 'le nom de chaque commune, code INSEE ou SIREN vers <code>[nom, INSEE, SIREN]</code>',
+			sites: 'les sites officiels des communes, code INSEE ou SIREN vers <code>[hôte, préfixe]</code>, d’après l’annuaire Service-Public',
+			bilan: 'dépôts et déposants distincts, jour par jour',
+			tours: 'les tours du registre',
+			releve: 'le relevé d’un tour, avec <code>.racine</code>, <code>.racine.ots</code>, <code>.racine.tsr</code>',
+			depots: 'les dépôts lus par l’entrepôt, dans l’ordre de leur inscription',
+			sante: 'l’état du registre publié'
+		},
+		verifier: {
+			feuille: ['feuille'],
+			arbre: ['arbre', 'Merkle SHA-256 sur les octets des deux enfants\u00A0; un niveau impair double son dernier nœud'],
+			racine: ['racine', '\u00A0; le premier tour suit 64 zéros'],
+			depots: ['depots:&lt;n&gt;', 'la feuille des dépôts\u00A0: <code>sha256</code> des <code>n</code> premières lignes de <code>depots.jsonl</code>, chacune suivie de <code>"\\n"</code>'],
+			recu: ['reçu', 'identifiant\u00A0: <code>sha256</code> de sa forme canonique, clés triées, sans espace'],
+			bitcoin: ['Bitcoin'],
+			script: ['script']
+		}
 	},
 	mentions: {
 		description: (marque) => `Éditeur, hébergeur et données conservées par ${marque}.`,

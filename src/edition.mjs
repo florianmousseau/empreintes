@@ -6,7 +6,16 @@
 import fr from './textes/fr.mjs';
 import de from './textes/de.mjs';
 
-export const EDITIONS = { fr, de };
+/** L'heure d'un instant ISO, « 10:13 UTC », derriere le jour ecrit comme l'edition l'ecrit. */
+const avecDateHeure = (t) => ({
+	...t,
+	dateHeure: (iso) => {
+		const [j, h] = iso.split('T');
+		return `${t.jour(j)} ${h.slice(0, 5)}\u00A0UTC`;
+	}
+});
+
+export const EDITIONS = { fr: avecDateHeure(fr), de: avecDateHeure(de) };
 
 export const HOTES_ALLEMANDS = ['datumszeuge.de', 'www.datumszeuge.de', 'de.empreintes.pages.dev'];
 

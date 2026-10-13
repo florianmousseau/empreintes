@@ -1,7 +1,6 @@
 // L'edition allemande : Datumszeuge, sur datumszeuge.de. Meme moteur, meme
 // registre ; sans les actes de collectivite, qui sont francais.
 
-const NBSP = '\u00A0';
 const jour = (j) => j.split('-').reverse().join('.');
 const pluriel = (n, un, plusieurs) => (n > 1 ? plusieurs : un);
 const nombre = (n) => n.toLocaleString('de-DE');
@@ -21,10 +20,6 @@ export default {
 		mentions: { chemin: '/impressum', nom: 'Impressum', titre: 'Impressum' }
 	},
 	jour,
-	dateHeure: (iso) => {
-		const [j, h] = iso.split('T');
-		return `${jour(j)} ${h.slice(0, 5)}${NBSP}UTC`;
-	},
 	nombre,
 	structure: {
 		description: 'Kostenlos beweisen, dass ein Dokument an einem bestimmten Tag unverändert existiert hat: seine Prüfsumme wird in ein öffentliches, in Bitcoin verankertes Register eingetragen.'
@@ -113,41 +108,39 @@ export default {
 	introuvable: { titre: 'Seite nicht gefunden', description: 'Unter dieser Adresse gibt es keine Seite.' },
 	documentation: {
 		description: 'Adressen, Grenzen und Formeln des Datumsregisters: datieren, lesen und ohne diese Website prüfen.',
-		dater: [
-			'Datieren',
-			['POST /api/depots {"sha256": "&lt;64 hex&gt;", "libelle": "&lt;Text&gt;"}', 'eine von Ihnen berechnete Prüfsumme; der Name bleibt im Beleg'],
-			['POST /api/depots {"url": "https://&lt;Adresse&gt;"}', 'der Dienst liest das Dokument selbst im Internet und datiert seine Bytes'],
-			['201', 'der Beleg, seine Kennung, die öffentliche Zeile'],
-			['POST /api/flux {"url": "https://&lt;RSS- oder Atom-Feed&gt;"}', 'einen Feed verfolgen: jede Stunde wird jeder neue oder geänderte Artikel gelesen und datiert; gibt die Kennung des Feeds und sein Token zurück'],
-			['GET /editeur/&lt;id&gt;', 'das öffentliche Register eines Feeds: jede datierte Version, ohne Adresse und Titel; mit <code>#&lt;Token&gt;</code> auch die Adressen und Belege'],
-			['GET /api/flux/&lt;id&gt;', 'das private Register eines Feeds, <code>authorization: Bearer &lt;Token&gt;</code>'],
-			['DELETE /api/flux/&lt;id&gt;', 'einen Feed nicht mehr verfolgen, <code>authorization: Bearer &lt;Token&gt;</code>; die bereits eingetragenen Datierungen bleiben'],
-			['429', '20 Datierungen pro Tag und Adresse, 2.000 pro Tag, <code>retry-after</code> bis Mitternacht UTC'],
-			['409', 'dieselbe Internetadresse wird einmal pro Tag gelesen'],
-			['422', 'Lesen nicht möglich: höchstens 20 MB, 30 s, 5 Weiterleitungen, nur öffentliche Adressen']
-		],
-		lire: [
-			'Lesen',
-			['GET /depots/&lt;Tag&gt;.jsonl', 'die Datierungen des Tages, eine Zeile <code>{"sha256","jour","place","recu"}</code> je Datierung'],
-			['GET /recu/&lt;id&gt;', 'die Seite eines Belegs'],
-			['GET /api/recus/&lt;id&gt;', 'die öffentliche Zeile eines Belegs'],
-			['GET /api/depots/&lt;sha256&gt;', 'die Datierungen einer Prüfsumme'],
-			['GET /api/bilan', 'Datierungen und verschiedene Einreicher, Tag für Tag'],
-			['GET /tours.json', 'die Runden des Registers'],
-			['GET /empreintes/&lt;Runde&gt;.json', 'das Protokoll einer Runde, mit <code>.racine</code>, <code>.racine.ots</code>, <code>.racine.tsr</code>'],
-			['GET /empreintes/depots.jsonl', 'die vom Archiv gelesenen Datierungen, in der Reihenfolge ihrer Eintragung'],
-			['GET /health', 'der Zustand des veröffentlichten Registers']
-		],
-		verifier: [
-			'Ohne diese Website prüfen',
-			['Blatt', '<code>sha256(cle + "\\n" + sha256 + "\\n" + jour + "\\n")</code>'],
-			['Baum', 'Merkle-Baum, SHA-256 über die Bytes der beiden Kinder; eine ungerade Ebene verdoppelt ihren letzten Knoten'],
-			['Wurzel', '<code>sha256("entrepot\\n" + Runde + "\\n" + vorige + "\\n" + Baum + "\\n")</code>; die erste Runde folgt auf 64 Nullen'],
-			['depots:&lt;n&gt;', 'das Blatt der Datierungen: <code>sha256</code> der ersten <code>n</code> Zeilen von <code>depots.jsonl</code>, jede gefolgt von <code>"\\n"</code>'],
-			['Beleg', 'Kennung: <code>sha256</code> seiner kanonischen Form, Schlüssel sortiert, ohne Leerzeichen'],
-			['Bitcoin', '<code>ots verify &lt;Runde&gt;.racine.ots</code>'],
-			['Skript', '<a href="https://github.com/florianmousseau/empreintes/blob/main/scripts/verifier.mjs">node scripts/verifier.mjs &lt;Dokument | --chaine&gt;</a>']
-		]
+		titres: ['Datieren', 'Lesen', 'Ohne diese Website prüfen'],
+		dater: {
+			empreinte: 'eine von Ihnen berechnete Prüfsumme; der Name bleibt im Beleg',
+			url: 'der Dienst liest das Dokument selbst im Internet und datiert seine Bytes',
+			cree: 'der Beleg, seine Kennung, die öffentliche Zeile',
+			flux: 'einen Feed verfolgen: jede Stunde wird jeder neue oder geänderte Artikel gelesen und datiert; gibt die Kennung des Feeds und sein Token zurück',
+			editeur: 'das öffentliche Register eines Feeds: jede datierte Version, ohne Adresse und Titel; mit <code>#&lt;Token&gt;</code> auch die Adressen und Belege',
+			fluxPrive: 'das private Register eines Feeds, <code>authorization: Bearer &lt;Token&gt;</code>',
+			fluxRetire: 'einen Feed nicht mehr verfolgen, <code>authorization: Bearer &lt;Token&gt;</code>; die bereits eingetragenen Datierungen bleiben',
+			plafond: '20 Datierungen pro Tag und Adresse, 2.000 pro Tag, <code>retry-after</code> bis Mitternacht UTC',
+			unJour: 'dieselbe Internetadresse wird einmal pro Tag gelesen',
+			illisible: 'Lesen nicht möglich: höchstens 20 MB, 30 s, 5 Weiterleitungen, nur öffentliche Adressen'
+		},
+		lire: {
+			jour: 'die Datierungen des Tages, eine Zeile <code>{"sha256","jour","place","recu"}</code> je Datierung',
+			recu: 'die Seite eines Belegs',
+			ligneDuRecu: 'die öffentliche Zeile eines Belegs',
+			depotsDeLEmpreinte: 'die Datierungen einer Prüfsumme',
+			bilan: 'Datierungen und verschiedene Einreicher, Tag für Tag',
+			tours: 'die Runden des Registers',
+			releve: 'das Protokoll einer Runde, mit <code>.racine</code>, <code>.racine.ots</code>, <code>.racine.tsr</code>',
+			depots: 'die vom Archiv gelesenen Datierungen, in der Reihenfolge ihrer Eintragung',
+			sante: 'der Zustand des veröffentlichten Registers'
+		},
+		verifier: {
+			feuille: ['Blatt'],
+			arbre: ['Baum', 'Merkle-Baum, SHA-256 über die Bytes der beiden Kinder; eine ungerade Ebene verdoppelt ihren letzten Knoten'],
+			racine: ['Wurzel', '; die erste Runde folgt auf 64 Nullen'],
+			depots: ['depots:&lt;n&gt;', 'das Blatt der Datierungen: <code>sha256</code> der ersten <code>n</code> Zeilen von <code>depots.jsonl</code>, jede gefolgt von <code>"\\n"</code>'],
+			recu: ['Beleg', 'Kennung: <code>sha256</code> seiner kanonischen Form, Schlüssel sortiert, ohne Leerzeichen'],
+			bitcoin: ['Bitcoin'],
+			script: ['Skript']
+		}
 	},
 	mentions: {
 		description: (marque) => `Anbieter, Hosting und gespeicherte Daten von ${marque}.`,
