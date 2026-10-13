@@ -8,5 +8,3 @@
 - Registre public des dates : https://temoinpublic.fr/journal
 - API et formules de vérification sans le site : https://temoinpublic.fr/documentation
 - Code source et miroir du registre : https://github.com/florianmousseau/empreintes
-
-Éditeur : Florian Mousseau, https://florianmousseau.com

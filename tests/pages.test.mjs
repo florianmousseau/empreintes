@@ -16,8 +16,10 @@ test('aucun signe double ne suit une espace ordinaire dans le texte affiche', ()
 	assert.match(texteDe('<p>a :</p>'), / :/, 'le detecteur voit une espace ordinaire');
 });
 
-test("le nom de l'editeur est un lien vers son site", () => {
-	for (const html of pages) assert.match(html, /<a href="https:\/\/florianmousseau.com">Florian Mousseau<\/a>/);
+test("l'editeur n'est nomme qu'aux mentions legales, et son nom y est un lien", () => {
+	for (const html of pages.filter((html) => html !== pageMentions())) assert.doesNotMatch(html, /Florian Mousseau/);
+	assert.match(pageMentions(), /<a href="https:\/\/florianmousseau.com">Florian Mousseau<\/a>/);
+	assert.equal(DONNEES_STRUCTUREES.author, undefined);
 });
 
 test("le journal affiche le dernier tour, son ancrage et ses fichiers", () => {
