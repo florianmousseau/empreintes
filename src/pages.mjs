@@ -4,7 +4,7 @@
 
 import { NATURES } from './acte.mjs';
 import { EDITIONS, cheminsDe, planDe } from './edition.mjs';
-import { ADRESSES, FORMULES } from './textes/documentation.mjs';
+import { ADRESSES, FORMULES } from './documentation.mjs';
 
 const NBSP = '\u00A0';
 const DEPOT = 'https://github.com/florianmousseau/empreintes';
@@ -149,7 +149,7 @@ const optionsDeNature = () =>
 
 /** Le bloc qui s'ouvre quand le lien est sur le site officiel d'une commune : il en fait un acte. Francais seulement. */
 const blocActe = (e) =>
-	e.avecActes
+	e.actes.acte
 		? `<div id="acte" class="acte" hidden>
 <p class="acte-titre">Un acte de <strong id="acte-commune"></strong>${NBSP}?</p>
 <input type="hidden" id="collectivite">
@@ -480,7 +480,7 @@ ${lignes.map(([gauche, droite]) => `<tr><td><code>${gauche}</code></td><td>${dro
 </table>`;
 
 /** Les adresses qu'une edition explique, avec leur explication. */
-const lignesDAdresses = (adresses, textes) => adresses.filter(([cle]) => cle in textes).map(([cle, adresse]) => [adresse, textes[cle]]);
+const lignesDAdresses = (adresses, textes) => adresses.filter(([cle]) => textes[cle]).map(([cle, adresse]) => [adresse, textes[cle]]);
 
 /** Chaque formule derriere son nom, suivie de ce que l'edition en dit. */
 const lignesDeFormules = (textes) => Object.entries(FORMULES).map(([cle, formule]) => [textes[cle][0], `${formule}${textes[cle][1] ?? ''}`]);

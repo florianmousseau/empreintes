@@ -3,8 +3,7 @@
 // l'hote de la requete choisit la langue. `de.empreintes.pages.dev` est la voie
 // de controle de l'edition allemande avant son domaine.
 
-import fr from './textes/fr.mjs';
-import de from './textes/de.mjs';
+import { TEXTES, vue } from './textes.mjs';
 
 /** L'heure d'un instant ISO, « 10:13 UTC », derriere le jour ecrit comme l'edition l'ecrit. */
 const avecDateHeure = (t) => ({
@@ -15,7 +14,7 @@ const avecDateHeure = (t) => ({
 	}
 });
 
-export const EDITIONS = { fr: avecDateHeure(fr), de: avecDateHeure(de) };
+export const EDITIONS = Object.fromEntries(['fr', 'de'].map((langue) => [langue, avecDateHeure(vue(TEXTES, langue))]));
 
 export const HOTES_ALLEMANDS = ['datumszeuge.de', 'www.datumszeuge.de', 'de.empreintes.pages.dev'];
 

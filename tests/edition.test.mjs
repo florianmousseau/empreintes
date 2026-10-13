@@ -3,6 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { EDITIONS, HOTES_ALLEMANDS, cheminsDe, langueDe, planDe } from '../src/edition.mjs';
+import { TEXTES, vue } from '../src/textes.mjs';
 import { FONCTIONS, decider, horsIndex, pageAllemande } from '../src/hote.mjs';
 import { onRequest } from '../functions/_middleware.js';
 import { ACTES, donneesStructurees, pageAccueil, pageDeposer, pageDocumentation, pageIntrouvable, pageJournal, pageMentions, pageRecuInconnu, pageVerifier, planDuSite, robots } from '../src/pages.mjs';
@@ -10,6 +11,13 @@ import { ACTES, donneesStructurees, pageAccueil, pageDeposer, pageDocumentation,
 const tour = { id: '20261012T101314Z', instant: '2026-10-12T10:13:14Z', objets: 2018, racine: 'f'.repeat(64), ots: 'bitcoin', bloc: 971045, fichiers: ['20261012T101314Z.json', '20261012T101314Z.racine.ots'] };
 const de = [pageAccueil([tour], 'de'), pageDeposer('de'), pageVerifier('de'), pageJournal([tour, { ...tour, ots: 'calendrier', bloc: null }], 'de'), pageJournal([], 'de'), pageDocumentation('de'), pageMentions('de'), pageIntrouvable('de'), pageRecuInconnu('de'), pageAccueil([], 'de')];
 const texteDe = (html) => html.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<[^>]+>/g, '');
+
+test('la table bilingue se lit dans une langue, feuille par feuille, les absents compris', () => {
+	assert.deepEqual(vue({ a: { fr: 'x', de: 'y' }, b: { c: { fr: [1], de: [2] }, d: { fr: 'seul', de: undefined } } }, 'de'), { a: 'y', b: { c: [2], d: undefined } });
+	assert.equal(vue(TEXTES, 'fr').actes.acte.chemin, '/acte');
+	assert.equal(vue(TEXTES, 'de').actes.acte, undefined);
+	assert.equal(EDITIONS.fr.marque, 'Témoin public');
+});
 
 test("l'hote choisit la langue : datumszeuge.de et sa voie de controle en allemand, tout le reste en francais", () => {
 	for (const h of HOTES_ALLEMANDS) assert.equal(langueDe(h), 'de', h);
@@ -49,16 +57,16 @@ test("l'edition allemande n'a pas d'acte de collectivite : ni bloc, ni page, ni 
 
 test('les dates et les nombres sont allemands, et la typographie francaise ne s y impose pas', () => {
 	assert.equal(EDITIONS.de.jour('2026-10-13'), '13.10.2026');
-	assert.equal(EDITIONS.de.dateHeure('2026-10-12T10:13:14Z'), '12.10.2026 10:13 UTC');
+	assert.equal(EDITIONS.de.dateHeure('2026-10-12T10:13:14Z'), '12.10.2026 10:13\u00A0UTC');
 	assert.equal(EDITIONS.de.nombre(2018), '2.018');
 	assert.match(de[0], /2\.018 Datierungen seit dem 12\.10\.2026\./);
-	assert.match(de[3], /Letzte Wurzel, 12\.10\.2026 10:13 UTC/);
+	assert.match(de[3], /Letzte Wurzel, 12\.10\.2026 10:13\u00A0UTC/);
 	assert.match(de[3], /Bitcoin, Block 971045/);
 	assert.match(de[3], /Eintragung in Bitcoin läuft/);
 	assert.match(de[3], /href="\/empreintes\/20261012T101314Z.racine.ots">.ots</);
 	assert.match(de[4], /Noch keine Runde veröffentlicht\./);
 	assert.match(de[6], /<h2>Datenschutz<\/h2>\n<p>Es wird kein Dokument empfangen oder gespeichert, nur seine Prüfsumme\./, 'un deux-points allemand se colle au mot');
-	assert.ok(!texteDe(de[6]).includes(' :'), 'aucune espace insecable francaise avant un deux-points allemand');
+	assert.ok(!texteDe(de[6]).includes('\u00A0:'), 'aucune espace insecable francaise avant un deux-points allemand');
 });
 
 test("l'Impressum nomme l'anbieter en lien, l'hebergeur et le code ; aucune autre page ne nomme Florian", () => {
@@ -156,15 +164,14 @@ test('la Function intermediaire sert les actifs, les 404 de la bonne langue, les
 
 test('les scripts du navigateur lisent leurs textes dans la langue de la page', () => {
 	const textes = readFileSync(new URL('../public/textes.js', import.meta.url), 'utf8');
-	assert.match(textes, /export const T = document\.documentElement\.lang === 'de' \? DE : FR;/);
+	assert.match(textes, /export const T = vue\(TEXTES, document\.documentElement\.lang === 'de' \? 'de' : 'fr'\);/);
 	for (const script of ['deposer.js', 'verifier.js', 'recu.js', 'editeur.js', 'fichier.js']) {
 		const source = readFileSync(new URL(`../public/${script}`, import.meta.url), 'utf8');
 		assert.match(source, /import \{ T \} from '\/textes.js';/, script);
 		assert.ok(!source.includes('temoinpublic.fr'), `${script} ne fixe pas le domaine`);
 	}
-	assert.match(textes, /hote: 'temoinpublic.fr'/);
-	assert.match(textes, /hote: 'datumszeuge.de'/);
-	assert.ok(!textes.includes(' '), "l'insecable ne s'ecrit jamais en clair");
+	assert.match(textes, /hote: \{ fr: 'temoinpublic.fr', de: 'datumszeuge.de' \}/);
+	assert.ok(!textes.includes('\u00A0'), "l'insecable ne s'ecrit jamais en clair");
 	const routes = JSON.parse(readFileSync(new URL('../public/_routes.json', import.meta.url), 'utf8'));
 	assert.deepEqual(routes.include, ['/*']);
 	for (const partage of ['/style.css', '/deposer.js', '/textes.js', '/chaine.mjs', '/empreintes/*', '/index/*', '/annuaire/*', '/tours.json']) assert.ok(routes.exclude.includes(partage), partage);
