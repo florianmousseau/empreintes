@@ -38,8 +38,7 @@ export const DONNEES_STRUCTUREES = {
 	operatingSystem: 'Web',
 	inLanguage: 'fr',
 	isAccessibleForFree: true,
-	offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
-	author: { '@type': 'Person', name: 'Florian Mousseau', url: 'https://florianmousseau.com' }
+	offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' }
 };
 
 /** Un bloc JSON-LD sur, meme si une chaine contient `</script>`. */
@@ -118,7 +117,6 @@ ${corps}
 <footer><div class="pied">
 <p class="pied-marque">${SCEAU}<span>${MARQUE}</span></p>
 <p class="pied-liens">${lien('dater')} ${lien('verifier')} ${lien('journal')} ${lien('documentation')} ${lien('mentions')} <a href="${DEPOT}">Code source</a></p>
-<p>Éditeur${NBSP}: <a href="https://florianmousseau.com">Florian Mousseau</a></p>
 </div></footer>
 </body>
 </html>
