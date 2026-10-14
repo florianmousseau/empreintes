@@ -15,6 +15,7 @@
 		"/acte.mjs",
 		"/personne.mjs",
 		"/annuaire.mjs",
+		"/affichage.mjs",
 		"/tours.json",
 		"/version.json",
 		"/openapi.json",
