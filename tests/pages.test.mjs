@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { ACTES, SCEAU, TEXTES_DU_REGISTRE, pageRoles, pageSections, DONNEES_STRUCTUREES, PLAN, planDuSite, pageMentions, pageActe, pageCollectivite, pageEditeur, pageDocumentation, pageIntrouvable, ancrageDe, dateHeure, echapper, pageAccueil, pageDeposer, pageJournal, pageVerifier, pagePreuve, premierHorodatageQualifie, COPIES } from '../src/pages.mjs';
+import { ACTES, SCEAU, TEXTES_DU_REGISTRE, pageRoles, pageSections, DONNEES_STRUCTUREES, PLAN, planDuSite, pageMentions, pageActe, pageCollectivite, pageCommunes, pageDepartement, pageEditeur, pageDocumentation, pageIntrouvable, ancrageDe, dateHeure, echapper, pageAccueil, pageDeposer, pageJournal, pageVerifier, pagePreuve, premierHorodatageQualifie, COPIES } from '../src/pages.mjs';
 
 const t = { id: '20261012T101314Z', instant: '2026-10-12T10:13:14Z', objets: 2018, racine: 'f'.repeat(64), ots: 'bitcoin', bloc: 971045, fichiers: ['20261012T101314Z.json', '20261012T101314Z.racine.ots'] };
-const pages = [pageJournal([t, { ...t, id: '20261012T121314Z', ots: 'calendrier', bloc: null }]), pageVerifier(), pageJournal([]), pageDeposer(), pageAccueil([t]), pageAccueil([]), pageIntrouvable(), pageMentions(), pagePreuve([t]), pageActe(), pageDocumentation(), pageEditeur({ flux: { id: '0123456789abcdef', inscrit: '2026-10-12T00:00:00Z', retire: null }, total: 1, versions: [{ article: 'e'.repeat(64), jour: '2026-10-12', place: 4, sha256: 'c'.repeat(64), recu: 'd'.repeat(64) }] }), pageCollectivite({ code: '17133', commune: { nom: 'Cravans', insee: '17133', siren: '211701339' }, serie: { total: 1, actes: [{ jour: '2026-10-12', place: 3, sha256: 'c'.repeat(64), recu: 'd'.repeat(64), nature: 'deliberation' }] } }), pageSections('pratiques'), pageSections('conditions'), pageRoles()];
+const pages = [pageJournal([t, { ...t, id: '20261012T121314Z', ots: 'calendrier', bloc: null }]), pageVerifier(), pageJournal([]), pageDeposer(), pageAccueil([t]), pageAccueil([]), pageIntrouvable(), pageMentions(), pagePreuve([t]), pageActe(), pageDocumentation(), pageEditeur({ flux: { id: '0123456789abcdef', inscrit: '2026-10-12T00:00:00Z', retire: null }, total: 1, versions: [{ article: 'e'.repeat(64), jour: '2026-10-12', place: 4, sha256: 'c'.repeat(64), recu: 'd'.repeat(64) }] }), pageCollectivite({ code: '17133', commune: { nom: 'Cravans', insee: '17133', siren: '211701339' }, serie: { total: 1, actes: [{ jour: '2026-10-12', place: 3, sha256: 'c'.repeat(64), recu: 'd'.repeat(64), nature: 'deliberation' }] }, departement: '17' }), pageCommunes({ departements: [{ code: '17', nom: 'Charente-Maritime', communes: 1, actes: 2 }] }), pageDepartement({ code: '17', nom: 'Charente-Maritime', communes: [{ insee: '17133', nom: 'Cravans', actes: 2 }] }), pageSections('pratiques'), pageSections('conditions'), pageRoles()];
 const texteDe = (html) => html.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<[^>]+>/g, '');
 
 test('aucun signe double ne suit une espace ordinaire dans le texte affiche en francais', () => {
@@ -49,13 +49,13 @@ test("l'accueil dit a quoi sert le service et mene aux deux gestes, sans le voca
 	for (const mot of ['racine', 'tour', 'ancrage', 'bloc', '.ots', 'miroir', 'SHA']) assert.ok(!texte.includes(mot), mot);
 });
 
-test('un acte porte un seul nom sur toutes les pages, et le menu ne garde que trois gestes', () => {
+test('un acte porte un seul nom sur toutes les pages, et le menu garde trois gestes et les communes', () => {
 	for (const html of pages) {
 		for (const acte of Object.values(ACTES)) {
 			for (const m of html.matchAll(new RegExp(`href="${acte.chemin}"[^>]*>([^<]+)<`, 'g'))) assert.ok([acte.nom, acte.titre].includes(m[1]), m[1]);
 		}
 		const menu = html.match(/<nav aria-label="Principal">(.*)<\/nav>/)[1];
-		assert.deepEqual([...menu.matchAll(/>([^<]+)<\/a>/g)].map((m) => m[1]), ['Dater', 'Vérifier', 'Registre']);
+		assert.deepEqual([...menu.matchAll(/>([^<]+)<\/a>/g)].map((m) => m[1]), ['Dater', 'Vérifier', 'Communes', 'Registre']);
 	}
 	assert.match(pages[1], /<a href="\/verifier" aria-current="page">Vérifier<\/a>/);
 });

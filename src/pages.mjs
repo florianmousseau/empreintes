@@ -3,6 +3,7 @@
 // defaut ; les actes de collectivite ne se rendent qu'en francais.
 
 import { NATURES } from './acte.mjs';
+import { nomDuDepartement } from './departements.mjs';
 import { EDITIONS, cheminsDe, planDe } from './edition.mjs';
 import { ADRESSES, FORMULES } from './documentation.mjs';
 
@@ -23,13 +24,13 @@ ${chemins.map((c) => `<url><loc>${EDITIONS[langue].adresse}${c}</loc></url>`).jo
 </urlset>
 `;
 
-/** Les consignes aux robots d'une edition : tout, sauf l'index des empreintes, et son plan. */
+/** Les consignes aux robots d'une edition : tout, sauf l'index des empreintes, et ses plans (les communes, en francais). */
 export const robots = (langue = 'fr') => `User-agent: *
 Allow: /
 Disallow: /index/
 
 Sitemap: ${EDITIONS[langue].adresse}/sitemap.xml
-`;
+${EDITIONS[langue].actes.communes ? `Sitemap: ${EDITIONS[langue].adresse}/sitemap-communes.xml\n` : ''}`;
 
 /** Le service decrit pour les moteurs : gratuit, sans compte, dans la langue de l'edition. */
 export const donneesStructurees = (langue = 'fr') => {
@@ -85,10 +86,13 @@ ${ICONE_DOCUMENT}
 <span id="nom-fichier" class="zone-nom">${EDITIONS[langue].zone.aucun}</span>
 </label>`;
 
-/** Les trois gestes du menu, le courant marque pour les lecteurs d'ecran ; dater un acte reste dater. */
+/** Les gestes du menu, le courant marque pour les lecteurs d'ecran ; dater un acte reste dater, une page de commune reste Communes. */
 const navigation = (e, chemin) => {
-	const courant = chemin === e.actes.acte?.chemin ? e.actes.dater.chemin : chemin;
-	return ['dater', 'verifier', 'journal']
+	const communes = e.actes.communes?.chemin;
+	let courant = chemin === e.actes.acte?.chemin ? e.actes.dater.chemin : chemin;
+	if (communes && chemin.startsWith(`${communes}/`)) courant = communes;
+	return ['dater', 'verifier', 'communes', 'journal']
+		.filter((a) => e.actes[a])
 		.map((a) => `<a href="${e.actes[a].chemin}"${e.actes[a].chemin === courant ? ' aria-current="page"' : ''}>${e.actes[a].nom}</a>`)
 		.join(' ');
 };
@@ -129,7 +133,7 @@ ${corps}
 </main>
 <footer><div class="pied">
 <p class="pied-marque">${SCEAU}<span>${e.marque}</span></p>
-<p class="pied-liens">${lien(e, 'dater')} ${lien(e, 'verifier')} ${lien(e, 'journal')} ${lien(e, 'preuve')} ${lien(e, 'documentation')} ${lien(e, 'mentions')} <a href="${DEPOT}">${e.codeSource}</a></p>
+<p class="pied-liens">${lien(e, 'dater')} ${lien(e, 'verifier')} ${lien(e, 'journal')}${e.actes.communes ? ` ${lien(e, 'communes')}` : ''} ${lien(e, 'preuve')} ${lien(e, 'documentation')} ${lien(e, 'mentions')} <a href="${DEPOT}">${e.codeSource}</a></p>
 </div></footer>
 </body>
 </html>
@@ -343,10 +347,12 @@ const objetDe = (a, sansObjet = 'Sans objet') => {
 	return a.url ? `<a href="${echapper(a.url)}">${objet}</a>` : objet;
 };
 
+const lienDuDepartement = (code) => `<a href="/collectivite/departement/${code}">${nomDuDepartement(code)}</a>`;
+
 /** La serie d'une collectivite : ses actes lus sur son site officiel, chacun avec son reçu. */
-export function pageCollectivite({ code, commune, serie }) {
+export function pageCollectivite({ code, commune, serie, departement = null }) {
 	const nom = commune ? echapper(commune.nom) : `Collectivité ${code}`;
-	const codes = commune?.siren ? `Code INSEE ${code}, SIREN ${commune.siren}` : `Code ${code}`;
+	const codes = `${commune?.siren ? `Code INSEE ${code}, SIREN ${commune.siren}` : `Code ${code}`}${departement ? `, ${lienDuDepartement(departement)}` : ''}`;
 	const lignes = serie.actes
 		.map(
 			(a) =>
@@ -371,8 +377,70 @@ ${coupe(serie)}`
 <p class="sous-titre">${codes}</p>
 <h2>${titreDeSerie(serie.total)}</h2>
 ${tableau}
-<p class="compte">${serie.depuis ? `Actes datés ici depuis le ${jourFr(serie.depuis)}, lus` : 'Actes lus'} sur le site officiel de la commune.</p>
+<p class="compte">${serie.depuis ? `Actes datés ici depuis le ${jourFr(serie.depuis)}, lus` : 'Actes lus'} sur le site officiel de la commune. ${lien(EDITIONS.fr, 'preuve')}</p>
+<p class="appel">Cette page est celle de votre commune${NBSP}? Datez vos actes le jour de leur mise en ligne.</p>
 <p><a class="bouton principal" href="${ACTES.acte.chemin}">${ACTES.acte.titre}</a></p>`
+	});
+}
+
+const communeAbsente = `<p class="appel">Votre commune n’y figure pas${NBSP}? Datez la mise en ligne d’un de ses actes.</p>
+<p><a class="bouton principal" href="${ACTES.acte.chemin}">${ACTES.acte.titre}</a></p>`;
+
+const communesEtActes = (communes, actes) => `${nombre(communes)} commune${marqueDuPluriel(communes)}, ${nombre(actes)} acte${marqueDuPluriel(actes)} daté${marqueDuPluriel(actes)}`;
+
+/** L'index des communes : chaque departement qui en porte au moins une, avec ses comptes. */
+export function pageCommunes({ departements }) {
+	const communes = departements.reduce((n, d) => n + d.communes, 0);
+	const actes = departements.reduce((n, d) => n + d.actes, 0);
+	const lignes = departements
+		.map((d) => `<tr><td>${lienDuDepartement(d.code)}</td><td>${d.code}</td><td>${nombre(d.communes)}</td><td>${nombre(d.actes)}</td></tr>`)
+		.join('\n');
+	return gabarit(EDITIONS.fr, {
+		titre: ACTES.communes.titre,
+		description: `Les communes dont les actes sont datés à leur mise en ligne${NBSP}: ${communesEtActes(communes, actes)}, par département.`,
+		chemin: ACTES.communes.chemin,
+		indexer: communes > 0,
+		corps: `<h1>${ACTES.communes.titre}</h1>
+<h2>${communes ? communesEtActes(communes, actes) : 'Aucune commune'}</h2>
+${
+	communes
+		? `<table>
+<thead><tr><th>Département</th><th>Code</th><th>Communes</th><th>Actes</th></tr></thead>
+<tbody>
+${lignes}
+</tbody>
+</table>`
+		: ''
+}
+${communeAbsente}`
+	});
+}
+
+/** Les communes d'un departement qui ont un acte date, chacune avec son compte. */
+export function pageDepartement({ code, nom, communes }) {
+	const actes = communes.reduce((n, c) => n + c.actes, 0);
+	const lignes = communes
+		.map((c) => `<tr><td><a href="/collectivite/${c.insee}">${c.nom ? echapper(c.nom) : `Commune ${c.insee}`}</a></td><td>${c.insee}</td><td>${nombre(c.actes)}</td></tr>`)
+		.join('\n');
+	return gabarit(EDITIONS.fr, {
+		titre: `${nom}, actes des communes`,
+		description: `Actes des communes de ${nom} datés à leur mise en ligne${NBSP}: ${communesEtActes(communes.length, actes)}.`,
+		chemin: `/collectivite/departement/${code}`,
+		indexer: communes.length > 0,
+		corps: `<h1>${nom}</h1>
+<p class="sous-titre">Département ${code}</p>
+<h2>${communes.length ? communesEtActes(communes.length, actes) : 'Aucune commune'}</h2>
+${
+	communes.length
+		? `<table>
+<thead><tr><th>Commune</th><th>Code INSEE</th><th>Actes</th></tr></thead>
+<tbody>
+${lignes}
+</tbody>
+</table>`
+		: ''
+}
+${communeAbsente}`
 	});
 }
 

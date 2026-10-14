@@ -56,6 +56,12 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   `dist/annuaire/<fragment>.json`) ; un export muet publie sans elle et tout
   acte reste `declaree`. Un hote partage ou une plateforme (`PLATEFORMES`,
   ecrite a la main) ne rattache que sous le chemin propre a la commune.
+- Les communes (D-178) : `/collectivite` (departements), `/collectivite/departement/<code>`
+  (ses communes) et `sitemap-communes.xml` se lisent dans la table `acte` ; une commune
+  sans acte rattache ne figure nulle part, sa page reste `noindex`. Un acte depose sous
+  un SIREN compte a la commune que l'annuaire lui donne. `lecteurDeCommunes`
+  (`src/annuaire.mjs`) n'analyse chaque fragment qu'une fois par requete. Date de
+  jugement de la famille dans `docs/referencement.md`.
 - Un lien colle dans Dater sur le site officiel d'une commune propose d'en
   faire un acte, la commune deja reconnue : `communeDeLAdresse`
   (`src/annuaire.mjs`) lit l'index inverse `dist/annuaire/hotes/hote-<3

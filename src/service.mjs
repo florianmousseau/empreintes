@@ -241,6 +241,12 @@ export async function serieDeLaCollectivite({ db, codes, limite = SERIE_MAX }) {
 	return { total: Number(compte.n), depuis: compte.depuis ?? null, actes: results };
 }
 
+/** Le compte d'actes rattaches de chaque code de collectivite (INSEE ou SIREN), `[{ code, actes }]`. */
+export async function actesParCollectivite({ db }) {
+	const { results } = await db.prepare('SELECT collectivite AS code, COUNT(*) AS actes FROM acte GROUP BY collectivite').all();
+	return results.map((r) => ({ code: r.code, actes: Number(r.actes) }));
+}
+
 /** L'acte rattache que porte un recu, `{ collectivite, nature, objet, url }` ; null pour tout autre depot. */
 export async function acteDuRecu({ db, id }) {
 	if (!HEX64.test(id ?? '')) return null;

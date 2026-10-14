@@ -62,7 +62,7 @@ h2 { font-size: 1.3rem; line-height: 1.3; margin: 2.2rem 0 0.6rem; }
 code { font-family: var(--mono); font-size: 0.88em; }
 .racine { word-break: break-all; }
 
-/* En-tete : la marque et trois gestes */
+/* En-tete : la marque et les gestes ; sur un ecran etroit, les gestes passent sous la marque */
 header { background: var(--surface); border-bottom: 1px solid var(--trait); }
 .barre { max-width: 66rem; margin: 0 auto; padding: 0.75rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .marque { display: inline-flex; align-items: center; gap: 0.55rem; color: var(--texte); text-decoration: none; font-family: var(--titres); font-weight: 700; font-size: 1.2rem; letter-spacing: -0.01em; white-space: nowrap; }
@@ -222,7 +222,7 @@ footer { margin-top: 2rem; background: var(--surface); border-top: 1px solid var
 .pied-liens a:hover { color: var(--encre); }
 
 @media (max-width: 40rem) {
-	.barre { padding: 0.6rem 0.75rem; gap: 0.5rem; }
+	.barre { padding: 0.6rem 0.75rem; gap: 0.35rem 0.5rem; flex-wrap: wrap; }
 	.marque { font-size: 1.05rem; gap: 0.45rem; }
 	.sceau { width: 1.5rem; height: 1.5rem; }
 	nav { gap: 0; }

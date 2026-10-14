@@ -81,7 +81,7 @@ test("la page d'une commune liste ses actes rattaches, sous ses deux codes, du p
 	assert.ok(!r.corps.includes('Décision'), 'un acte declare reste hors de la serie');
 	assert.match(r.corps, /<a href="\/recu\/[0-9a-f]{64}">Reçu<\/a>/);
 	for (const absent of ['Service-Public', 'noindex', '1111111111111111']) assert.ok(!r.corps.includes(absent), absent);
-	assert.match(r.corps, /<p class="compte">Actes datés ici depuis le 11\/10\/2026, lus sur le site officiel de la commune.<\/p>/);
+	assert.match(r.corps, /<p class="compte">Actes datés ici depuis le 11\/10\/2026, lus sur le site officiel de la commune. <a href="\/preuve">Valeur de preuve<\/a><\/p>/);
 	assert.match(r.corps, /<a class="bouton principal" href="\/acte">Dater la mise en ligne d’un acte<\/a>/);
 });
 
@@ -116,7 +116,7 @@ test('une page par commune : le SIREN et les minuscules renvoient au code INSEE,
 	assert.equal(inconnue.statut, 200);
 	assert.match(inconnue.corps, /<h1>Collectivité 17999<\/h1>/);
 	assert.match(inconnue.corps, /Aucun acte daté/);
-	assert.match(inconnue.corps, /<p class="compte">Actes lus sur le site officiel de la commune.<\/p>/);
+	assert.match(inconnue.corps, /<p class="compte">Actes lus sur le site officiel de la commune. <a href="\/preuve">Valeur de preuve<\/a><\/p>/);
 	assert.match(inconnue.corps, /<meta name="robots" content="noindex">/);
 });
 
@@ -139,4 +139,130 @@ test('la Function sert la page et la redirection', async () => {
 	const renvoi = await onRequestGet({ params: { code: '211701339' }, env, request: new Request('https://empreintes.florianmousseau.com/collectivite/211701339') });
 	assert.equal(renvoi.status, 301);
 	assert.equal(renvoi.headers.get('location'), '/collectivite/17133');
+});
+
+import { DEPARTEMENTS, departementDe, nomDuDepartement } from '../src/departements.mjs';
+import { communesAvecActes, departementsDe, planDesCommunes, reponseCommunes, reponseDepartement, reponsePlanDesCommunes } from '../src/collectivite.mjs';
+import { lecteurDeCommunes } from '../src/annuaire.mjs';
+import { onRequestGet as indexGet } from '../functions/collectivite/index.js';
+import { onRequestGet as departementGet } from '../functions/collectivite/departement/[code].js';
+import { onRequestGet as planGet } from '../functions/sitemap-communes.xml.js';
+import { onRequestGet as bilanGet } from '../functions/api/communes.js';
+import { robots } from '../src/pages.mjs';
+import { decider } from '../src/hote.mjs';
+
+test('le departement se lit dans le code INSEE : deux caracteres, trois outre-mer, la Corse en lettres', () => {
+	assert.equal(departementDe('17133'), '17');
+	assert.equal(departementDe('2A004'), '2A');
+	assert.equal(departementDe('97411'), '974');
+	assert.equal(departementDe('98818'), '988');
+	assert.equal(nomDuDepartement('2B'), 'Haute-Corse');
+	assert.equal(nomDuDepartement('99'), '99');
+	assert.equal(Object.keys(DEPARTEMENTS).length, 107);
+});
+
+async function baseAvecDeuxDepartements() {
+	const db = await baseAvecActes();
+	db.sqlite.prepare("INSERT INTO acte (recu, collectivite, nature, objet, url) VALUES ('x1', '37018', 'arrete', 'Voirie', null), ('x2', '999999999', 'arrete', 'Voirie', null)").run();
+	return db;
+}
+
+test("l'index ne compte que les communes datees, un acte sous le SIREN a sa commune, un SIREN inconnu nulle part", async () => {
+	const db = await baseAvecDeuxDepartements();
+	const communes = await communesAvecActes({ db, commune });
+	assert.deepEqual(communes, [
+		{ insee: '17133', departement: '17', actes: 2 },
+		{ insee: '37018', departement: '37', actes: 1 }
+	]);
+	assert.deepEqual(departementsDe(communes), [
+		{ code: '17', nom: 'Charente-Maritime', communes: 1, actes: 2 },
+		{ code: '37', nom: 'Indre-et-Loire', communes: 1, actes: 1 }
+	]);
+	const r = await reponseCommunes({ db, commune });
+	assert.equal(r.statut, 200);
+	assert.equal(r.entetes['cache-control'], 'public, max-age=300');
+	assert.match(r.corps, /<h1>Actes des communes<\/h1>/);
+	assert.match(r.corps, /<h2>2 communes, 3 actes datés<\/h2>/);
+	assert.match(r.corps, /<td><a href="\/collectivite\/departement\/17">Charente-Maritime<\/a><\/td><td>17<\/td><td>1<\/td><td>2<\/td>/);
+	assert.match(r.corps, /<a href="\/collectivite" aria-current="page">Communes<\/a>/);
+	assert.doesNotMatch(r.corps, /noindex/);
+	const vide = await reponseCommunes({ db: baseDeTest(), commune });
+	assert.match(vide.corps, /<h2>Aucune commune<\/h2>/);
+	assert.match(vide.corps, /noindex/);
+});
+
+test('la page d un departement nomme ses communes datees, renvoie les minuscules et ignore un code inconnu', async () => {
+	const db = await baseAvecDeuxDepartements();
+	const r = await reponseDepartement({ db, code: '17', commune });
+	assert.equal(r.statut, 200);
+	assert.match(r.corps, /<h1>Charente-Maritime<\/h1>/);
+	assert.match(r.corps, /<tr><td><a href="\/collectivite\/17133">Cravans<\/a><\/td><td>17133<\/td><td>2<\/td><\/tr>/);
+	assert.match(r.corps, /<h2>1 commune, 2 actes datés<\/h2>/);
+	assert.match(r.corps, /<a href="\/collectivite" aria-current="page">Communes<\/a>/);
+	const sansNom = await reponseDepartement({ db, code: '37', commune });
+	assert.match(sansNom.corps, /<a href="\/collectivite\/37018">Commune 37018<\/a>/);
+	const vide = await reponseDepartement({ db, code: '2A', commune });
+	assert.match(vide.corps, /<h2>Aucune commune<\/h2>/);
+	assert.match(vide.corps, /noindex/);
+	assert.deepEqual((await reponseDepartement({ db, code: '2a', commune })).entetes.location, '/collectivite/departement/2A');
+	for (const code of ['99', 'abc', undefined]) assert.equal((await reponseDepartement({ db, code, commune })).statut, 404, String(code));
+});
+
+test('la page d une commune nomme son departement et invite la commune a dater ses actes', async () => {
+	const db = await baseAvecActes();
+	const r = await reponseCollectivite({ db, code: '17133', commune });
+	assert.match(r.corps, /Code INSEE 17133, SIREN 211701339, <a href="\/collectivite\/departement\/17">Charente-Maritime<\/a>/);
+	assert.match(r.corps, /Cette page est celle de votre commune \? Datez vos actes le jour de leur mise en ligne\./);
+	assert.ok(r.corps.indexOf('votre commune') < r.corps.indexOf('href="/acte"'));
+	assert.match(r.corps, /sur le site officiel de la commune\. <a href="\/preuve">Valeur de preuve<\/a>/);
+	for (const page of [(await reponseCommunes({ db, commune })).corps, (await reponseDepartement({ db, code: '17', commune })).corps]) {
+		assert.match(page, /Votre commune n’y figure pas\u00A0\? Datez la mise en ligne d’un de ses actes\.<\/p>\n<p><a class="bouton principal" href="\/acte">/);
+	}
+});
+
+test('le plan des communes porte l index, les departements et chaque commune datee ; les robots le nomment en francais seulement', async () => {
+	const db = await baseAvecDeuxDepartements();
+	const plan = planDesCommunes(await communesAvecActes({ db, commune }));
+	assert.deepEqual([...plan.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]), [
+		'https://temoinpublic.fr/collectivite',
+		'https://temoinpublic.fr/collectivite/departement/17',
+		'https://temoinpublic.fr/collectivite/departement/37',
+		'https://temoinpublic.fr/collectivite/17133',
+		'https://temoinpublic.fr/collectivite/37018'
+	]);
+	const r = await reponsePlanDesCommunes({ db, commune });
+	assert.equal(r.entetes['content-type'], 'application/xml; charset=utf-8');
+	assert.match(robots(), /Sitemap: https:\/\/temoinpublic.fr\/sitemap-communes.xml\n$/);
+	assert.doesNotMatch(robots('de'), /communes/);
+	assert.equal(decider('https://datumszeuge.de/collectivite').action, 'redirection');
+	assert.equal(decider('https://datumszeuge.de/sitemap-communes.xml').action, 'redirection');
+});
+
+test('le lecteur de communes ne lit et n analyse chaque fragment qu une fois, et un fragment absent ne nomme personne', async () => {
+	const lus = [];
+	const lire = lecteurDeCommunes(async (chemin) => {
+		lus.push(chemin);
+		return chemin.endsWith('insee-17.json') ? new Response(JSON.stringify(fragments({ 17133: ['Cravans', '17133', '211701339'] })['insee-17'])) : new Response('', { status: 404 });
+	});
+	assert.deepEqual(await lire('17133'), CRAVANS);
+	assert.equal(await lire('17134'), null);
+	assert.equal(await lire('37018'), null);
+	assert.deepEqual(lus, ['/annuaire/communes/insee-17.json', '/annuaire/communes/insee-37.json']);
+});
+
+test('les Functions de l index, du departement et du plan servent leurs reponses', async () => {
+	const db = await baseAvecDeuxDepartements();
+	const env = { DEPOTS: db, ASSETS: { fetch: async () => new Response('', { status: 404 }) } };
+	const request = new Request('https://temoinpublic.fr/collectivite');
+	const index = await indexGet({ env, request });
+	assert.equal(index.status, 200);
+	assert.match(await index.text(), /2 communes, 2 actes datés/, 'sans annuaire, le SIREN ne se rattache pas');
+	const dep = await departementGet({ env, request, params: { code: '17' } });
+	assert.match(await dep.text(), /Commune 17133/);
+	assert.equal((await departementGet({ env, request, params: { code: '2a' } })).status, 301);
+	const bilan = await (await bilanGet({ env, request })).json();
+	assert.deepEqual({ communes: bilan.communes, actes: bilan.actes }, { communes: 2, actes: 2 });
+	assert.equal(bilan.departements[0].code, '17');
+	const plan = await planGet({ env, request });
+	assert.match(await plan.text(), /<loc>https:\/\/temoinpublic.fr\/collectivite\/37018<\/loc>/);
 });
