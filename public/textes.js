@@ -26,9 +26,20 @@ const TEXTES = {
 	deposer: {
 		deja: { fr: (j) => `Déjà daté le ${j}.`, de: (j) => `Bereits datiert am ${j}.` },
 		refus: {
+			400: { fr: 'Dépôt refusé', de: 'Hinterlegung abgelehnt' },
 			409: { fr: 'Ce document en ligne a déjà été lu aujourd’hui', de: 'Dieses Dokument wurde heute schon gelesen' },
 			422: { fr: 'Le document en ligne n’a pas pu être lu', de: 'Das Dokument konnte nicht gelesen werden' },
 			429: { fr: 'Limite du jour atteinte, à demain', de: 'Tageslimit erreicht, bis morgen' }
+		},
+		motifs: {
+			'url illisible': { fr: 'Ce lien n’est pas une adresse web.', de: 'Dieser Link ist keine Webadresse.' },
+			'http ou https seulement': { fr: 'Le lien doit commencer par https:// ou http://.', de: 'Der Link muss mit https:// oder http:// beginnen.' },
+			'adresse privee, locale ou reservee': { fr: 'Seules les adresses publiques sont acceptées.', de: 'Nur öffentliche Adressen sind zulässig.' },
+			'nom d hote non public': { fr: 'Seules les adresses publiques sont acceptées.', de: 'Nur öffentliche Adressen sind zulässig.' },
+			'hote sans adresse': { fr: 'Ce site n’existe pas.', de: 'Diese Website existiert nicht.' },
+			'sha256 : 64 caracteres hexadecimaux': { fr: 'Une empreinte SHA-256 compte 64 caractères, chiffres et lettres de a à f.', de: 'Eine SHA-256-Prüfsumme hat 64 Zeichen, Ziffern und Buchstaben von a bis f.' },
+			'collectivite : code commune INSEE (5 caracteres) ou SIREN (9 chiffres)': { fr: 'Le code INSEE de la commune a 5 caractères, le SIREN de la collectivité 9 chiffres.', de: 'Der INSEE-Code der Gemeinde hat 5 Zeichen, die SIREN der Körperschaft 9 Ziffern.' },
+			'libelle : aucun nom de personne': { fr: 'Le nom ou l’objet ne doit nommer personne.', de: 'Name oder Gegenstand dürfen keine Person nennen.' }
 		},
 		commune: { fr: (insee) => `la commune ${insee}`, de: (insee) => `Gemeinde ${insee}` },
 		daterActe: { fr: 'Dater cet acte', de: 'Diesen Rechtsakt datieren' },
