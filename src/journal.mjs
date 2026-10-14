@@ -68,6 +68,8 @@ export const SEUIL_ATTENTION_H = 12;
 export const SEUIL_ROUGE_H = 36;
 /** Une preuve encore aux calendriers apres ce delai n'atteindra plus Bitcoin seule. */
 export const SEUIL_CALENDRIER_H = 48;
+/** Un horodatage qualifie par jour : au-dela, le dernier en manque au moins un. */
+export const SEUIL_HORODATAGE_H = 36;
 
 /**
  * Le verdict de la sonde : `ok`, `attention` ou `rouge`, avec ses constats.
@@ -95,6 +97,12 @@ export function verdict(tours, maintenant = new Date(), copie = null) {
 			monter('attention');
 			constats.push(`${t.id} : preuve ${t.ots ?? 'absente'} depuis plus de ${SEUIL_CALENDRIER_H} h`);
 		}
+	}
+	const horodate = tours.findLast((t) => t.fichiers?.includes(`${t.id}.racine.tsr`));
+	const ageHorodatage = horodate ? (maintenant - new Date(horodate.instant)) / HEURE : 0;
+	if (ageHorodatage > SEUIL_HORODATAGE_H) {
+		monter('attention');
+		constats.push(`dernier horodatage qualifie ${horodate.id}, il y a ${Math.round(ageHorodatage)} h`);
 	}
 	return { alerte, constats };
 }

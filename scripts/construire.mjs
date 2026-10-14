@@ -68,6 +68,6 @@ for (const [langue, e] of Object.entries(EDITIONS)) {
 	dans('llms.txt', e.llms);
 }
 ecrire('acte.html', pageActe());
-for (const m of ['chaine.mjs', 'depot.mjs', 'acte.mjs', 'personne.mjs', 'annuaire.mjs', 'affichage.mjs']) ecrire(m, fs.readFileSync(path.join(RACINE, 'src', m)));
+for (const m of ['chaine.mjs', 'horodatage.mjs', 'depot.mjs', 'acte.mjs', 'personne.mjs', 'annuaire.mjs', 'affichage.mjs']) ecrire(m, fs.readFileSync(path.join(RACINE, 'src', m)));
 for (const f of fs.readdirSync(path.join(RACINE, 'public'))) ecrire(f, fs.readFileSync(path.join(RACINE, 'public', f)));
 console.log(`${tours.length} tours, ${fichiers.length} fichiers du journal, ${preuves.length} preuves, dist/ ecrit`);

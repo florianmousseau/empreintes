@@ -16,6 +16,14 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   (`src/empreintes.mjs` la-bas) : ne pas importer le code du producteur. Le
   test de conformite est le journal reel de `donnees/` : chaque racine
   recalculee egale son fichier `.racine`.
+- L'horodatage eIDAS d'une racine (`<tour>.racine.tsr`, RFC 3161, sur les octets
+  de `<tour>.racine`) se relit dans `src/horodatage.mjs`, seconde ecriture sans
+  dependance comme `chaine.mjs` : l'autorite est EPINGLEE par le sha256 de son
+  certificat (`AUTORITES_QUALIFIEES`, lu sur la liste de confiance de son pays).
+  Une autorite nouvelle chez l'entrepot s'AJOUTE a la liste, les anciens `.tsr`
+  restent a verifier. `/health` passe `attention` quand le dernier horodatage a
+  plus de 36 h. Les pages ne disent ni « qualifie » ni « certifie »
+  (`tests/pages.test.mjs`) : « horodatage eIDAS ».
 - Rien que des empreintes : `FICHIER_PUBLIE` fixe ce qui se publie de
   `donnees/empreintes/`.
 - Une page affiche, elle n'explique pas ; deux-points soudes (` `),

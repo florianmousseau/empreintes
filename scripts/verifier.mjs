@@ -10,6 +10,7 @@
 
 import fs from 'node:fs';
 import { sha256, placeDuFichier, verifierChaine, verifierSignatureDuJournal, verifierSignatures } from '../src/chaine.mjs';
+import { tourHorodate, verifierHorodatage, verifierHorodatages } from '../src/horodatage.mjs';
 
 const SITE = 'https://temoinpublic.fr';
 
@@ -17,6 +18,20 @@ async function lireTexte(site, chemin) {
 	const r = await fetch(new URL(chemin, site));
 	if (!r.ok) throw new Error(`${chemin} : ${r.status}`);
 	return r.text();
+}
+
+async function lireOctets(site, chemin) {
+	const r = await fetch(new URL(chemin, site));
+	if (!r.ok) throw new Error(`${chemin} : ${r.status}`);
+	return new Uint8Array(await r.arrayBuffer());
+}
+
+/** L'horodatage qualifie qui couvre le tour `id` : le premier a partir de lui, relu contre sa racine ; null sans. */
+async function horodatageDu(site, tours, id) {
+	const tour = tourHorodate(tours, id);
+	if (!tour) return null;
+	const v = await verifierHorodatage(await lireOctets(site, `/empreintes/${tour.id}.racine.tsr`), tour.racine);
+	return { ok: v.ok, tour: tour.id, instant: v.instant, autorite: v.autorite, raisons: v.raisons };
 }
 
 async function lire(site, chemin) {
@@ -36,7 +51,9 @@ export async function verifierEmpreinte(site, empreinte) {
 		const place = await placeDuFichier(releve, empreinte);
 		const signee = tours.find((t) => t.id === vu.premier)?.fichiers?.includes(`${vu.premier}.racine.jws`);
 		const signature = signee ? await verifierSignatureDuJournal(await lireTexte(site, `/empreintes/${vu.premier}.racine.jws`), releve.racine) : null;
-		constats.push({ ...vu, racine: releve.racine, signature: signature && { ok: signature.ok, sigT: signature.sigT, raisons: signature.raisons }, ok: Boolean(place?.ok) && signature?.ok !== false });
+		const horodatage = await horodatageDu(site, tours, vu.premier);
+		const ok = Boolean(place?.ok) && signature?.ok !== false && horodatage?.ok !== false;
+		constats.push({ ...vu, racine: releve.racine, signature: signature && { ok: signature.ok, sigT: signature.sigT, raisons: signature.raisons }, horodatage, ok });
 	}
 	return constats;
 }
@@ -56,8 +73,10 @@ async function principal(args) {
 			(id) => lire(site, `/empreintes/${id}.json`)
 		);
 		const s = await verifierSignatures(tours, (chemin) => lireTexte(site, chemin));
-		console.log(JSON.stringify({ ...v, ok: v.ok && s.ok, signatures: s.signees, raisons: [...v.raisons, ...s.raisons] }, null, 1));
-		return v.ok && s.ok ? 0 : 1;
+		const h = await verifierHorodatages(tours, (chemin) => lireOctets(site, chemin));
+		const ok = v.ok && s.ok && h.ok;
+		console.log(JSON.stringify({ ...v, ok, signatures: s.signees, horodatages: h.horodates, raisons: [...v.raisons, ...s.raisons, ...h.raisons] }, null, 1));
+		return ok ? 0 : 1;
 	}
 	const empreinte = /^[0-9a-f]{64}$/i.test(cible) && !fs.existsSync(cible) ? cible.toLowerCase() : await sha256(fs.readFileSync(cible));
 	const constats = await verifierEmpreinte(site, empreinte);

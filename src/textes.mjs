@@ -272,6 +272,10 @@ export const TEXTES = {
 			},
 			bitcoin: { fr: ['Bitcoin'], de: ['Bitcoin'] },
 			signature: { fr: ['signature du journal', '\u00A0; ES256 sur <code>en-tête.charge</code>'], de: ['Signatur des Journals', '; ES256 über <code>Header.Nutzlast</code>'] },
+			horodatage: {
+				fr: ['horodatage eIDAS', '\u00A0; RFC 3161 sur les octets de <code>&lt;tour&gt;.racine</code>, autorité épinglée <code>sha256 = cd0a3e00a1bdae3a159fa9e3d70f8e664f560fdce16357cbe440ed0b0d88244f</code>'],
+				de: ['eIDAS-Zeitstempel', '; RFC 3161 über die Bytes von <code>&lt;tour&gt;.racine</code>, festgelegte Behörde <code>sha256 = cd0a3e00a1bdae3a159fa9e3d70f8e664f560fdce16357cbe440ed0b0d88244f</code>']
+			},
 			script: { fr: ['script'], de: ['Skript'] }
 		}
 	},
