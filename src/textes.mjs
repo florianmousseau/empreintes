@@ -187,6 +187,10 @@ export const TEXTES = {
 			empreinte: { fr: 'une empreinte calculée par vous\u00A0; le libellé reste dans le reçu', de: 'eine von Ihnen berechnete Prüfsumme; der Name bleibt im Beleg' },
 			url: { fr: 'le service lit lui-même le document en ligne et date ses octets', de: 'der Dienst liest das Dokument selbst im Internet und datiert seine Bytes' },
 			acte: { fr: 'un acte de collectivité, lu à son adresse, avec son objet\u00A0; reçu version 2, ligne publique inchangée', de: undefined },
+			affichage: {
+				fr: 'la photo du jour d’un panneau de permis de construire, son empreinte calculée par vous, le numéro du permis en libellé\u00A0; reçu version 3, ligne publique inchangée',
+				de: undefined
+			},
 			cree: { fr: 'le reçu, son identifiant, la ligne publique', de: 'der Beleg, seine Kennung, die öffentliche Zeile' },
 			flux: {
 				fr: 'suivre un flux\u00A0: chaque heure, chaque article nouveau ou modifié est lu et daté\u00A0; rend l’identifiant du flux et son jeton',

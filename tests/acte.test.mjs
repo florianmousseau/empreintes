@@ -28,7 +28,7 @@ test('la demande d un acte exige le temoin d URL, un code juste et une nature co
 	assert.match(erreurs(acte({ collectivite: '211701338' })), /collectivite : code commune INSEE/);
 	assert.match(erreurs(acte({ collectivite: 17133 })), /collectivite/);
 	assert.match(erreurs(acte({ nature: 'circulaire' })), /nature : deliberation, arrete, decision/);
-	assert.match(erreurs(acte({ type: 'document' })), /type : "acte" ou rien/);
+	assert.match(erreurs(acte({ type: 'document' })), /type : "acte", "affichage" ou rien/);
 	assert.match(erreurs({ url: 'https://x.fr/', collectivite: '17133' }), /seulement avec "type": "acte"/);
 	assert.match(erreurs({ url: 'https://x.fr/', nature: 'arrete' }), /seulement avec "type": "acte"/);
 	assert.deepEqual(Object.keys(NATURES), ['deliberation', 'arrete', 'decision']);
