@@ -56,6 +56,9 @@
     "responses": { "200": { "description": "sha256, jour, place, recu" }, "404": { "description": "Reçu inconnu" } }
    }
   },
+  "/api/communes": {
+   "get": { "operationId": "communes", "summary": "Communes qui ont un acte daté, par département", "responses": { "200": { "description": "communes, actes, departements" } } }
+  },
   "/api/bilan": {
    "get": { "operationId": "bilan", "summary": "Dépôts et déposants distincts, jour par jour", "responses": { "200": { "description": "jours, deposantsAuMoins" } } }
   },

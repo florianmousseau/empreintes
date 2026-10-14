@@ -27,6 +27,7 @@ export const TEXTES = {
 		dater: { chemin: { fr: '/deposer', de: '/datieren' }, nom: { fr: 'Dater', de: 'Datieren' }, titre: { fr: 'Dater un document', de: 'Ein Dokument datieren' } },
 		verifier: { chemin: { fr: '/verifier', de: '/pruefen' }, nom: { fr: 'Vérifier', de: 'Prüfen' }, titre: { fr: 'Vérifier un document', de: 'Ein Dokument prüfen' } },
 		journal: { chemin: { fr: '/journal', de: '/register' }, nom: { fr: 'Registre', de: 'Register' }, titre: { fr: 'Registre des dates', de: 'Datumsregister' } },
+		communes: { fr: { chemin: '/collectivite', nom: 'Communes', titre: 'Actes des communes' }, de: undefined },
 		acte: { fr: { chemin: '/acte', nom: 'Acte de collectivité', titre: 'Dater la mise en ligne d’un acte' }, de: undefined },
 		preuve: { chemin: { fr: '/preuve', de: '/beweiswert' }, nom: { fr: 'Valeur de preuve', de: 'Beweiswert' }, titre: { fr: 'Valeur de preuve', de: 'Beweiswert' } },
 		documentation: { chemin: { fr: '/documentation', de: '/dokumentation' }, nom: { fr: 'Documentation', de: 'Dokumentation' }, titre: { fr: 'Documentation', de: 'Dokumentation' } },
@@ -227,12 +228,15 @@ export const TEXTES = {
 			recu: { fr: 'la page d’un reçu', de: 'die Seite eines Belegs' },
 			ligneDuRecu: { fr: 'la ligne publique d’un reçu', de: 'die öffentliche Zeile eines Belegs' },
 			depotsDeLEmpreinte: { fr: 'les dépôts d’une empreinte', de: 'die Datierungen einer Prüfsumme' },
+			indexCommunes: { fr: 'les départements dont au moins une commune a un acte daté, avec leurs comptes', de: undefined },
+			departement: { fr: 'les communes d’un département qui ont un acte daté, avec leur compte', de: undefined },
 			collectivite: { fr: 'les actes d’une commune lus sur son site officiel\u00A0: date, nature, empreinte, reçu\u00A0; le SIREN y renvoie', de: undefined },
 			communes: { fr: 'le nom de chaque commune, code INSEE ou SIREN vers <code>[nom, INSEE, SIREN]</code>', de: undefined },
 			sites: {
 				fr: 'les sites officiels des communes, code INSEE ou SIREN vers <code>[hôte, préfixe]</code>. Source\u00A0: <a href="https://www.data.gouv.fr/datasets/service-public-fr-annuaire-de-l-administration-base-de-donnees-locales/">Annuaire de l’administration, Service-Public.fr</a> (DILA), <a href="https://www.etalab.gouv.fr/licence-ouverte-open-licence/">Licence Ouverte 2.0</a>',
 				de: undefined
 			},
+			bilanCommunes: { fr: 'les communes qui ont un acte daté, leurs actes et leurs départements', de: undefined },
 			bilan: { fr: 'dépôts et déposants distincts, jour par jour', de: 'Datierungen und verschiedene Einreicher, Tag für Tag' },
 			tours: { fr: 'les tours du registre', de: 'die Runden des Registers' },
 			releve: { fr: 'le relevé d’un tour, avec <code>.racine</code>, <code>.racine.ots</code>, <code>.racine.tsr</code>', de: 'das Protokoll einer Runde, mit <code>.racine</code>, <code>.racine.ots</code>, <code>.racine.tsr</code>' },

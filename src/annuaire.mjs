@@ -159,8 +159,21 @@ export async function communeDe(code, lire) {
 /** La lecture de la table publiee avec le site, par la liaison `ASSETS` d'une Function. */
 export const annuaireDesActifs = (env, base) => (code) => sitesDe(code, (chemin) => env.ASSETS.fetch(new URL(chemin, base)));
 
+/**
+ * Un lecteur de communes qui ne lit et n'analyse chaque fragment qu'une fois :
+ * l'index des communes en interroge des milliers dans la meme requete.
+ */
+export function lecteurDeCommunes(lire) {
+	const fragmentsLus = new Map();
+	const lireUneFois = (chemin) => {
+		if (!fragmentsLus.has(chemin)) fragmentsLus.set(chemin, lire(chemin).then(async (r) => (r.ok ? r.json() : {})));
+		return fragmentsLus.get(chemin);
+	};
+	return (code) => communeDe(code, async (chemin) => ({ ok: true, json: () => lireUneFois(chemin) }));
+}
+
 /** La lecture des noms publies avec le site, par la liaison `ASSETS` d'une Function. */
-export const communeDesActifs = (env, base) => (code) => communeDe(code, (chemin) => env.ASSETS.fetch(new URL(chemin, base)));
+export const communeDesActifs = (env, base) => lecteurDeCommunes((chemin) => env.ASSETS.fetch(new URL(chemin, base)));
 
 /** Le fragment de l'index des hotes qui porte un hote : `hote-mai` pour mairie-x.fr. */
 export const fragmentDeLHote = (hote) => `hote-${hote.slice(0, 3).replace(/[^a-z0-9-]/g, '_')}`;
