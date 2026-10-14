@@ -11,6 +11,7 @@
 		"/fichier.js",
 		"/textes.js",
 		"/chaine.mjs",
+		"/horodatage.mjs",
 		"/depot.mjs",
 		"/acte.mjs",
 		"/personne.mjs",

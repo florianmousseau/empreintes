@@ -11,6 +11,10 @@ const TEXTES = {
 		fr: (id) => `${id.slice(6, 8)}/${id.slice(4, 6)}/${id.slice(0, 4)} ${id.slice(9, 11)}:${id.slice(11, 13)}${NBSP}UTC`,
 		de: (id) => `${id.slice(6, 8)}.${id.slice(4, 6)}.${id.slice(0, 4)} ${id.slice(9, 11)}:${id.slice(11, 13)}${NBSP}UTC`
 	},
+	instant: {
+		fr: (iso) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)} ${iso.slice(11, 16)}${NBSP}UTC`,
+		de: (iso) => `${iso.slice(8, 10)}.${iso.slice(5, 7)}.${iso.slice(0, 4)} ${iso.slice(11, 16)}${NBSP}UTC`
+	},
 	aucunDocument: { fr: 'Aucun document choisi', de: 'Kein Dokument ausgewählt' },
 	choisir: { fr: 'Choisir le document.', de: 'Bitte ein Dokument auswählen.' },
 	erreur: { fr: 'Erreur', de: 'Fehler' },
@@ -75,7 +79,10 @@ const TEXTES = {
 		signature: { fr: 'Signature du journal', de: 'Signatur des Journals' },
 		signatureValide: { fr: 'valide', de: 'gültig' },
 		signatureNonConforme: { fr: 'non conforme', de: 'ungültig' },
-		signatures: { fr: (n) => `${n} signatures du journal valides`, de: (n) => `${n} gültige Signaturen des Journals` }
+		signatures: { fr: (n) => `${n} signatures du journal valides`, de: (n) => `${n} gültige Signaturen des Journals` },
+		horodatage: { fr: 'Horodatage eIDAS', de: 'eIDAS-Zeitstempel' },
+		horodatageValide: { fr: (h) => `valide, ${h}`, de: (h) => `gültig, ${h}` },
+		horodatages: { fr: (n) => `${n} horodatages eIDAS valides`, de: (n) => `${n} gültige eIDAS-Zeitstempel` }
 	},
 	recu: {
 		inscrit: { fr: (h) => `inscrit le ${h}`, de: (h) => `eingetragen am ${h}` },

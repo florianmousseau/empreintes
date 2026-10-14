@@ -64,3 +64,10 @@ test('une copie suspendue dit attention et la nomme, sans passer rouge sur un jo
 	assert.equal(verdict([], maintenant, copie).alerte, 'rouge');
 	assert.equal(verdict([tour('2026-10-12T10:00:00Z')], maintenant, { etat: 'active' }).alerte, 'ok');
 });
+
+test("l'horodatage eIDAS du jour manque au-dela de 36 h : attention ; un recent ou aucun ne dit rien", () => {
+	const horodate = (instant) => ({ ...tour(instant), fichiers: [`${instant.replace(/[-:]/g, '')}.racine.tsr`] });
+	const v = verdict([horodate('2026-10-10T20:00:00Z'), tour('2026-10-12T10:00:00Z')], maintenant);
+	assert.deepEqual(v, { alerte: 'attention', constats: ['dernier horodatage qualifie 20261010T200000Z, il y a 40 h'] });
+	assert.deepEqual(verdict([horodate('2026-10-11T04:00:00Z'), tour('2026-10-12T10:00:00Z')], maintenant), { alerte: 'ok', constats: [] });
+});
