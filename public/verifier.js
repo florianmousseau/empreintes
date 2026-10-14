@@ -90,8 +90,8 @@ async function verifier(empreinte) {
 		sortie.innerHTML = `<article class="ko"><h2>${t.jamais}</h2></article>`;
 		return;
 	}
-	for (const l of deposes) sortie.innerHTML += depot(l);
-	for (const vu of vus) sortie.innerHTML += await constat(empreinte, vu);
+	const constats = await Promise.all(vus.map((vu) => constat(empreinte, vu)));
+	sortie.innerHTML = [...deposes.map(depot), ...constats].join('');
 }
 
 /** Le recu telecharge, s'il en est un : sa forme, puis son identifiant cherche dans les depots. */
