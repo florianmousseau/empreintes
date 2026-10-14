@@ -182,6 +182,21 @@ export async function inscriptionDuRecu(id, lire) {
  */
 export const CERTIFICAT_DU_JOURNAL = '5263feba5fc71c4725c93328c0c75a94fc4e1b632bb9ff01574239551ab34b80';
 
+/**
+ * L'historique des certificats du journal, du plus ancien au plus recent : un
+ * certificat signe les tours a partir de `depuis` jusqu'au `depuis` du suivant.
+ * Un nouveau certificat s'ajoute ici sans retirer l'ancien, et les signatures
+ * deja publiees restent verifiables. `retire` (un identifiant de tour) refuse
+ * les signatures de ce certificat a partir de ce tour : une cle compromise.
+ */
+export const CERTIFICATS_DU_JOURNAL = [{ empreinte: CERTIFICAT_DU_JOURNAL, depuis: '20261012T000000Z', retire: null }];
+
+/** L'empreinte du certificat qui signe le tour `id`, ou null si aucun ne le couvre. */
+export function certificatDuTour(id, certificats = CERTIFICATS_DU_JOURNAL) {
+	const c = certificats.findLast((x) => x.depuis <= id);
+	return c && !(c.retire && c.retire <= id) ? c.empreinte : null;
+}
+
 const depuisBase64 = (texte) => {
 	const b64 = texte.replace(/-/g, '+').replace(/_/g, '/');
 	return Uint8Array.from(atob(b64 + '='.repeat((4 - (b64.length % 4)) % 4)), (c) => c.charCodeAt(0));
@@ -255,7 +270,7 @@ export async function verifierSignatures(tours, lireTexte) {
 	const raisons = [];
 	let signees = 0;
 	for (const t of tours.filter((t) => t.fichiers?.includes(`${t.id}.racine.jws`))) {
-		const v = await verifierSignatureDuJournal(await lireTexte(`/empreintes/${t.id}.racine.jws`), t.racine);
+		const v = await verifierSignatureDuJournal(await lireTexte(`/empreintes/${t.id}.racine.jws`), t.racine, certificatDuTour(t.id));
 		signees += 1;
 		raisons.push(...v.raisons.map((r) => `${t.id} : ${r}`));
 	}

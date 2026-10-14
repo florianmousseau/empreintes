@@ -9,7 +9,7 @@
 // Sortie 0 : servi tel quel (ou chaine intacte) ; 1 : inconnu ou rompu ; 2 : usage.
 
 import fs from 'node:fs';
-import { sha256, placeDuFichier, verifierChaine, verifierSignatureDuJournal, verifierSignatures } from '../src/chaine.mjs';
+import { sha256, placeDuFichier, verifierChaine, verifierSignatureDuJournal, verifierSignatures, certificatDuTour } from '../src/chaine.mjs';
 import { tourHorodate, verifierHorodatage, verifierHorodatages } from '../src/horodatage.mjs';
 
 const SITE = 'https://temoinpublic.fr';
@@ -50,7 +50,7 @@ export async function verifierEmpreinte(site, empreinte) {
 		const releve = await lire(site, `/empreintes/${vu.premier}.json`);
 		const place = await placeDuFichier(releve, empreinte);
 		const signee = tours.find((t) => t.id === vu.premier)?.fichiers?.includes(`${vu.premier}.racine.jws`);
-		const signature = signee ? await verifierSignatureDuJournal(await lireTexte(site, `/empreintes/${vu.premier}.racine.jws`), releve.racine) : null;
+		const signature = signee ? await verifierSignatureDuJournal(await lireTexte(site, `/empreintes/${vu.premier}.racine.jws`), releve.racine, certificatDuTour(vu.premier)) : null;
 		const horodatage = await horodatageDu(site, tours, vu.premier);
 		const ok = Boolean(place?.ok) && signature?.ok !== false && horodatage?.ok !== false;
 		constats.push({ ...vu, racine: releve.racine, signature: signature && { ok: signature.ok, sigT: signature.sigT, raisons: signature.raisons }, horodatage, ok });
