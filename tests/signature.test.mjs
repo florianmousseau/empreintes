@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { CERTIFICAT_DU_JOURNAL, clePubliqueDuCertificat, verifierSignatureDuJournal, verifierSignatures } from '../src/chaine.mjs';
+import { CERTIFICAT_DU_JOURNAL, CERTIFICATS_DU_JOURNAL, certificatDuTour, clePubliqueDuCertificat, verifierSignatureDuJournal, verifierSignatures } from '../src/chaine.mjs';
 
 const DONNEES = path.resolve(import.meta.dirname, '..', 'donnees', 'empreintes');
 const signes = fs
@@ -49,6 +49,20 @@ test("un en-tete substitue se voit : algorithme, sigT hors de crit, x5t d'un aut
 	assert.ok((await verifierSignatureDuJournal(avec({ 'x5t#S256': 'AAAA' }), racineDe(id))).raisons.includes('x5t#S256 ne designe pas le certificat'));
 	const tronque = (await verifierSignatureDuJournal(avec({ x5c: [e.x5c[0].slice(0, 40)] }), racineDe(id))).raisons;
 	assert.ok(tronque.includes("le certificat n'est pas celui du journal") && tronque.includes('la signature ne correspond pas'));
+});
+
+test("un nouveau certificat s'ajoute sans defaire les signatures publiees ; un certificat retire refuse les tours suivants", async () => {
+	assert.equal(certificatDuTour(id), CERTIFICAT_DU_JOURNAL);
+	assert.equal(certificatDuTour('20261011T235959Z'), null, 'aucun certificat avant le premier');
+	const rotation = [...CERTIFICATS_DU_JOURNAL, { empreinte: 'a'.repeat(64), depuis: '20270101T000000Z', retire: null }];
+	assert.equal(certificatDuTour(id, rotation), CERTIFICAT_DU_JOURNAL, "l'ancien certificat garde ses tours");
+	assert.equal(certificatDuTour('20270101T000000Z', rotation), 'a'.repeat(64));
+	assert.deepEqual((await verifierSignatureDuJournal(jwsDe(id), racineDe(id), certificatDuTour(id, rotation))).raisons, []);
+	const compromis = [{ ...CERTIFICATS_DU_JOURNAL[0], retire: id }];
+	assert.equal(certificatDuTour(id, compromis), null);
+	assert.deepEqual((await verifierSignatureDuJournal(jwsDe(id), racineDe(id), certificatDuTour(id, compromis))).raisons, ["le certificat n'est pas celui du journal"]);
+	const avant = signes.filter((s) => s < signes.at(-1));
+	for (const s of avant) assert.equal(certificatDuTour(s, [{ ...CERTIFICATS_DU_JOURNAL[0], retire: signes.at(-1) }]), CERTIFICAT_DU_JOURNAL, s);
 });
 
 test("ce qui n'est pas un JWS ne se lit pas", async () => {

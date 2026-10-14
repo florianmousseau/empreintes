@@ -1,4 +1,4 @@
-import { sha256, placeDuFichier, verifierChaine, verifierSignatureDuJournal, verifierSignatures } from '/chaine.mjs';
+import { sha256, placeDuFichier, verifierChaine, verifierSignatureDuJournal, verifierSignatures, certificatDuTour } from '/chaine.mjs';
 import { tourHorodate, verifierHorodatage, verifierHorodatages } from '/horodatage.mjs';
 import { montrer, suivreLeChoix } from '/fichier.js';
 import { idDuRecu } from '/depot.mjs';
@@ -29,7 +29,7 @@ async function signatureDe(tour, racine) {
 	const nom = `${tour.id}.racine.jws`;
 	if (!tour.fichiers?.includes(nom)) return null;
 	const r = await fetch(`/empreintes/${nom}`);
-	const v = r.ok ? await verifierSignatureDuJournal(await r.text(), racine) : { ok: false };
+	const v = r.ok ? await verifierSignatureDuJournal(await r.text(), racine, certificatDuTour(tour.id)) : { ok: false };
 	return { ...v, nom };
 }
 
