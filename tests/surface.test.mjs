@@ -76,3 +76,16 @@ test('la sonde repond 200 en JSON, sans cache, avec le commit servi', async () =
 	const vide = await onRequestGet({ request: new Request('https://x/health'), env: { ASSETS: { fetch: async () => new Response('', { status: 404 }) } } });
 	assert.equal((await vide.json()).alerte, 'rouge');
 });
+
+test('chaque module importe par un script servi est servi, hors de la Function', () => {
+	const routes = JSON.parse(fs.readFileSync(path.join(DIST, '_routes.json'), 'utf8'));
+	const scripts = fs.readdirSync(DIST).filter((f) => /\.m?js$/.test(f));
+	for (const script of scripts) {
+		const source = fs.readFileSync(path.join(DIST, script), 'utf8');
+		for (const [, cible] of source.matchAll(/^import [^'"]*['"](\.?\/[^'"]+)['"]/gm)) {
+			const nom = cible.replace(/^\.?\//, '');
+			assert.ok(fs.existsSync(path.join(DIST, nom)), `${script} importe ${cible}, absent de dist/`);
+			assert.ok(routes.exclude.includes(`/${nom}`), `${script} importe ${cible}, que la Function intercepte`);
+		}
+	}
+});
