@@ -159,7 +159,7 @@ async function envoyer(corps) {
 	const r = await fetch('/api/depots', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(corps) });
 	const reponse = await r.json();
 	if (r.status === 201) afficher(reponse);
-	else $('resultat').innerHTML = `<article class="ko"><h2>${t.refus[r.status] ?? echapper(reponse.erreur)}</h2>${(reponse.details ?? []).map((d) => `<p>${echapper(d)}</p>`).join('')}</article>`;
+	else $('resultat').innerHTML = `<article class="ko"><h2>${t.refus[r.status] ?? echapper(reponse.erreur)}</h2>${(reponse.details ?? []).map((d) => `<p>${echapper(t.motifs[d] ?? d)}</p>`).join('')}</article>`;
 }
 
 $('formulaire').addEventListener('submit', async (e) => {
