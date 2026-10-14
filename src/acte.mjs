@@ -40,12 +40,8 @@ export function lireActe(corps, erreurs) {
 	const type = texte(corps.type);
 	const collectivite = texte(corps.collectivite);
 	const nature = texte(corps.nature);
-	if (type === undefined) {
-		if (collectivite !== undefined || nature !== undefined) erreurs.push('collectivite, nature : seulement avec "type": "acte"');
-		return null;
-	}
 	if (type !== 'acte') {
-		erreurs.push('type : "acte" ou rien');
+		if (collectivite !== undefined || nature !== undefined) erreurs.push('collectivite, nature : seulement avec "type": "acte"');
 		return null;
 	}
 	if (corps.url === undefined) erreurs.push('acte : l url est requise, le service lit lui-meme l acte en ligne');

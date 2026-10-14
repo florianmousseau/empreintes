@@ -7,6 +7,7 @@ export const ADRESSES = {
 		['empreinte', 'POST /api/depots {"sha256": "&lt;64 hex&gt;", "libelle": "&lt;texte&gt;"}'],
 		['url', 'POST /api/depots {"url": "https://&lt;adresse&gt;"}'],
 		['acte', 'POST /api/depots {"type": "acte", "url": "https://&lt;adresse&gt;", "collectivite": "&lt;INSEE | SIREN&gt;", "nature": "deliberation | arrete | decision", "libelle": "&lt;objet&gt;"}'],
+		['affichage', 'POST /api/depots {"type": "affichage", "sha256": "&lt;64 hex&gt;", "libelle": "&lt;numéro du permis&gt;"}'],
 		['cree', '201'],
 		['flux', 'POST /api/flux {"url": "https://&lt;flux RSS ou Atom&gt;"}'],
 		['editeur', 'GET /editeur/&lt;id&gt;'],

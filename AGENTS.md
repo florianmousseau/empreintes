@@ -41,6 +41,14 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   de truecopydev/corpus et de verites, a corriger des trois cotes). Sa ligne
   publique reste a QUATRE champs (l'entrepot refuse toute ligne elargie) : la
   collectivite, la nature et le rattachement vivent dans le recu, version 2.
+- L'affichage d'un permis de construire (D-166, edifiable) est un depot de type
+  `affichage` (`src/affichage.mjs`) : empreinte DECLAREE seulement (la photo
+  reste sur le telephone, pas d'URL), libelle = le numero du permis lu par sa
+  forme (`PC 069 123 24 A0001`), `nommeUnePersonne` dessus, memes plafonds que
+  tout depot ; recu version 3 (`affichage.permis`), ligne publique a quatre
+  champs. Aucune table, aucune serie, aucune regle « un depot par numero et par
+  jour » cote serveur : un tiers qui lit le numero sur le panneau prendrait la
+  place du petitionnaire.
 - Un acte n'est RATTACHE a sa collectivite (`rattachement: site-officiel`, une
   ligne dans la table D1 `acte`) que si l'adresse demandee et l'adresse lue
   sont sur un site que l'annuaire Service-Public lui donne. La table se
