@@ -488,7 +488,7 @@ const lignesDeFormules = (textes) => Object.entries(FORMULES).map(([cle, formule
 /** La documentation : les adresses, les limites et les formules, pour verifier sans ce site. */
 export function pageDocumentation(langue = 'fr') {
 	const e = EDITIONS[langue];
-	const [dater, agents, lire, verifier] = e.documentation.titres;
+	const [dater, agents, lire, verifier, textes] = e.documentation.titres;
 	return gabarit(e, {
 		titre: e.actes.documentation.titre,
 		description: e.documentation.description,
@@ -498,8 +498,49 @@ export function pageDocumentation(langue = 'fr') {
 ${tableDoc(dater, lignesDAdresses(ADRESSES.dater, e.documentation.dater))}
 ${tableDoc(agents, lignesDAdresses(ADRESSES.agents, e.documentation.agents))}
 ${tableDoc(lire, lignesDAdresses(ADRESSES.lire, e.documentation.lire))}
-${tableDoc(verifier, lignesDeFormules(e.documentation.verifier))}`
+${tableDoc(verifier, lignesDeFormules(e.documentation.verifier))}
+<h2>${textes}</h2>
+${elements(TEXTES_DU_REGISTRE.map((acte) => lien(e, acte)))}`
 	});
+}
+
+/** Les textes de reference du registre, chacun sur sa page. */
+export const TEXTES_DU_REGISTRE = ['pratiques', 'conditions', 'roles'];
+
+/** La version en vigueur des textes du registre ; une version nouvelle ne remplace jamais un texte en place. */
+export const VERSION_DES_TEXTES = { numero: 1, jour: '2026-10-14' };
+
+/** Le debut d'une page de texte du registre : son titre et sa version. */
+const enTeteDeTexte = (e, acte) => `<h1>${e.actes[acte].titre}</h1>
+<p class="sous-titre">${e.version(VERSION_DES_TEXTES.numero, e.jour(VERSION_DES_TEXTES.jour))}</p>`;
+
+const pageDeTexte = (e, acte, corps) =>
+	gabarit(e, { titre: e.actes[acte].titre, description: e[acte].description, chemin: e.actes[acte].chemin, chemins: cheminsDe(acte), corps: `${enTeteDeTexte(e, acte)}\n${corps}` });
+
+/** Une page de texte faite de sections : un titre, un paragraphe ; un paragraphe peut citer une autre page. */
+export function pageSections(acte, langue = 'fr') {
+	const e = EDITIONS[langue];
+	const liens = { documentation: lien(e, 'documentation'), mentions: lien(e, 'mentions') };
+	return pageDeTexte(e, acte, e[acte].sections.map(([titre, texte]) => `<h2>${titre}</h2>\n<p>${typeof texte === 'function' ? texte(liens) : texte}</p>`).join('\n'));
+}
+
+/** Les roles de confiance : chacun, ce qu'il fait, son garde-fou, qui les tient, et les formations. */
+export function pageRoles(langue = 'fr') {
+	const e = EDITIONS[langue];
+	const [role, fait, garde] = e.roles.colonnes;
+	const lignes = e.roles.liste.map(([nom, mission, gardeFou]) => `<tr><td><strong>${nom}</strong></td><td>${mission}</td><td>${gardeFou}</td></tr>`).join('\n');
+	return pageDeTexte(
+		e,
+		'roles',
+		`<table>
+<thead><tr><th>${role}</th><th>${fait}</th><th>${garde}</th></tr></thead>
+<tbody>
+${lignes}
+</tbody>
+</table>
+<p>${e.roles.titulaire(lien(e, 'mentions'), e.jour('2026-10-11'))}</p>
+<h2>${e.roles.formations}</h2>`
+	);
 }
 
 /** Les copies du registre hors de ce site. */
