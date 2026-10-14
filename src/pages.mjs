@@ -140,6 +140,9 @@ ${corps}
 `;
 }
 
+/** Les conditions, lues avant tout depot (ETSI EN 319 401, 6.2). */
+const accepterConditions = (e) => `<p class="recoit">${e.formulaire.accepter} ${lien(e, 'conditions')}.</p>`;
+
 const champEmpreinte = (e) => `<details>
 <summary>${e.empreinte.question}</summary>
 <label for="empreinte">${e.empreinte.libelle}</label>
@@ -185,6 +188,7 @@ ${blocActe(e)}<details>
 ${avecEmpreinte ? champEmpreinte(e) : ''}
 <button type="submit" class="principal large-bouton">${e.formulaire.bouton}</button>
 <p class="recoit">${e.formulaire.recoit}</p>
+${accepterConditions(e)}
 </form>
 <div id="resultat" aria-live="polite"></div>`;
 
@@ -323,6 +327,7 @@ export function pageActe() {
 <p class="avertir">À faire le jour de la mise en ligne${NBSP}: le reçu porte le jour où vous cliquez.</p>
 <button type="submit" class="principal large-bouton">Dater cet acte</button>
 <p class="recoit">Vous recevez un reçu à imprimer ou à télécharger. Il atteste que ce fichier était en ligne à cette adresse à cet instant.</p>
+${accepterConditions(e)}
 </form>
 <div id="resultat" aria-live="polite"></div>
 <p class="compte">Gratuit, sans compte, jusqu’à 20 actes par jour.</p>`

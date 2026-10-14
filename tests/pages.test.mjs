@@ -187,3 +187,12 @@ test('les textes du registre : une page chacun, versionnee, liee depuis la docum
 	assert.match(textes[2], /Les quatre rôles sont tenus par l’éditeur nommé aux <a href="\/mentions-legales">Mentions légales<\/a>, depuis le 11\/10\/2026\./);
 	assert.match(textes[2], /<h2>Aucune formation enregistrée<\/h2>/);
 });
+
+test('chaque formulaire de depot montre les conditions avant de rendre un recu', () => {
+	const formulaires = [pageAccueil([t]), pageDeposer(), pageActe(), pageDeposer('de'), pageAccueil([t], 'de')];
+	for (const html of formulaires) {
+		const formulaire = html.slice(html.indexOf('<form id="formulaire"'), html.indexOf('</form>'));
+		assert.ok(formulaire.length > 0);
+		assert.match(formulaire, /<p class="recoit">(En datant, vous acceptez les <a href="\/conditions">Conditions générales<\/a>|Mit dem Datieren akzeptieren Sie die <a href="\/bedingungen">Nutzungsbedingungen<\/a>)\.<\/p>\n$/);
+	}
+});
