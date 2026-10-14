@@ -69,6 +69,7 @@ export const TEXTES = {
 		nommer: { fr: 'Lui donner un nom (facultatif)', de: 'Einen Namen vergeben (optional)' },
 		nom: { fr: 'Un nom', de: 'Name' },
 		bouton: { fr: 'Dater ce document', de: 'Dieses Dokument datieren' },
+		accepter: { fr: 'En datant, vous acceptez les', de: 'Mit dem Datieren akzeptieren Sie die' },
 		recoit: {
 			fr: 'Vous recevez un reçu à imprimer ou à télécharger, à garder avec le document. Un fichier déposé ne quitte jamais votre appareil.',
 			de: 'Sie erhalten einen Beleg zum Ausdrucken oder Herunterladen, den Sie zusammen mit dem Dokument aufbewahren. Eine abgelegte Datei verlässt Ihr Gerät nie.'
