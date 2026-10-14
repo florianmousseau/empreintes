@@ -1,5 +1,5 @@
 {
- "produites": "2026-10-13T22:14:16.582Z",
+ "produites": "2026-10-14T04:46:33.347Z",
  "comptes": {
   "adresses": 635,
   "attestees": 293,
@@ -14,9 +14,9 @@
    "sha256": "2705066e823658a45f4150e5f1de2024dabaa46d74bcb04e1331530e498d9479",
    "octets": 17423444,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/2705066e823658a45f4150e5f1de2024dabaa46d74bcb04e1331530e498d9479.json"
   },
   {
@@ -25,9 +25,9 @@
    "sha256": "132fbac1061455335636235102dd437ad74936a690c6d8d0a9a56122825ef722",
    "octets": 2281177,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/132fbac1061455335636235102dd437ad74936a690c6d8d0a9a56122825ef722.json"
   },
   {
@@ -36,9 +36,9 @@
    "sha256": "e9eb1598b63027f0cebda91761267a5fcc3f5d8268b68024b1aac5e61f0c11c0",
    "octets": 3369575,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/e9eb1598b63027f0cebda91761267a5fcc3f5d8268b68024b1aac5e61f0c11c0.json"
   },
   {
@@ -47,9 +47,9 @@
    "sha256": "a75acbf5512c30b71b64b047ef4d46e9fec2adc96959ecb19dc32ac8cbc05c19",
    "octets": 3160156,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/a75acbf5512c30b71b64b047ef4d46e9fec2adc96959ecb19dc32ac8cbc05c19.json"
   },
   {
@@ -58,9 +58,9 @@
    "sha256": "37485bd32210a93896daa53e47f8392e50f6b9c3f0ecf23cede60fc3226bbb07",
    "octets": 9128052,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/37485bd32210a93896daa53e47f8392e50f6b9c3f0ecf23cede60fc3226bbb07.json"
   },
   {
@@ -69,9 +69,9 @@
    "sha256": "4cfd2244166c512743fa1a1ee1b157cf9e240861ee6ccb9f86484c45c18cd4bc",
    "octets": 3308185,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/4cfd2244166c512743fa1a1ee1b157cf9e240861ee6ccb9f86484c45c18cd4bc.json"
   },
   {
@@ -80,9 +80,9 @@
    "sha256": "731eda982911d123937f76563b65f43afd87057111a9f2ff895424de2315ff6b",
    "octets": 2790037,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/731eda982911d123937f76563b65f43afd87057111a9f2ff895424de2315ff6b.json"
   },
   {
@@ -91,9 +91,9 @@
    "sha256": "8e7943f809f28d9b78db253a66c0b0e02f471df7588adddd71a3682c92497b9b",
    "octets": 699993,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/8e7943f809f28d9b78db253a66c0b0e02f471df7588adddd71a3682c92497b9b.json"
   },
   {
@@ -102,9 +102,9 @@
    "sha256": "3bfba23f7cfc759e984739a17dde72a024b8fc4bfe4251d5f1444e3524fc4bb7",
    "octets": 2474878,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/3bfba23f7cfc759e984739a17dde72a024b8fc4bfe4251d5f1444e3524fc4bb7.json"
   },
   {
@@ -113,9 +113,9 @@
    "sha256": "972ad6d144d92e48b33afe91b2edad02701e62a0618bb1c0ed3aaebae6a38fbf",
    "octets": 3133593,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/972ad6d144d92e48b33afe91b2edad02701e62a0618bb1c0ed3aaebae6a38fbf.json"
   },
   {
@@ -124,9 +124,9 @@
    "sha256": "bca0219128b54f54cb4570f866ea69cfaedf7b825d08fc4d6e39a157b6821a55",
    "octets": 11685146,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/bca0219128b54f54cb4570f866ea69cfaedf7b825d08fc4d6e39a157b6821a55.json"
   },
   {
@@ -135,9 +135,9 @@
    "sha256": "e5ec6a6abe59da0816401703560af0561fa3e6c2687a9d0a7aebc35aa873edfc",
    "octets": 7254675,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/e5ec6a6abe59da0816401703560af0561fa3e6c2687a9d0a7aebc35aa873edfc.json"
   },
   {
@@ -146,9 +146,9 @@
    "sha256": "5bcee3eccacff062c4b6d6f8944b783a9745f2d5d37050d24f68fe9e15918f07",
    "octets": 8664391,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/5bcee3eccacff062c4b6d6f8944b783a9745f2d5d37050d24f68fe9e15918f07.json"
   },
   {
@@ -157,9 +157,9 @@
    "sha256": "abc31637cdf383767aa92e02320eb187978be4ff33ca1a7f5d1db448fa156c33",
    "octets": 7225757,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/abc31637cdf383767aa92e02320eb187978be4ff33ca1a7f5d1db448fa156c33.json"
   },
   {
@@ -168,9 +168,9 @@
    "sha256": "688bfdefaa3c1865842707dec688637617830a209d8591c7be14f7abc4ae41a7",
    "octets": 5607543,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/688bfdefaa3c1865842707dec688637617830a209d8591c7be14f7abc4ae41a7.json"
   },
   {
@@ -179,9 +179,9 @@
    "sha256": "15961d533d417f2da0ea908c0704b66841c77e64ac1013057bea4a61857129b2",
    "octets": 6650366,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/15961d533d417f2da0ea908c0704b66841c77e64ac1013057bea4a61857129b2.json"
   },
   {
@@ -190,9 +190,9 @@
    "sha256": "75371586aa9b61e1d903707285b249d94b83f5b474065050efdaede71db4a8e9",
    "octets": 6727077,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/75371586aa9b61e1d903707285b249d94b83f5b474065050efdaede71db4a8e9.json"
   },
   {
@@ -201,9 +201,9 @@
    "sha256": "f7ac6e46faa89286ea461d52c0ccae67ce7bee16c3b84bd99142df6f9b1841b9",
    "octets": 6672122,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/f7ac6e46faa89286ea461d52c0ccae67ce7bee16c3b84bd99142df6f9b1841b9.json"
   },
   {
@@ -212,9 +212,9 @@
    "sha256": "e79798d6a2eb218e1b168e9ff12a33e230a2e11b6e629364f5cb2e090f5fd02f",
    "octets": 7489593,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/e79798d6a2eb218e1b168e9ff12a33e230a2e11b6e629364f5cb2e090f5fd02f.json"
   },
   {
@@ -223,9 +223,9 @@
    "sha256": "f8de319649c9d5a348ea59cae9854970034fbe30ebaa2d7b9349247a6500b8ad",
    "octets": 6691651,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/f8de319649c9d5a348ea59cae9854970034fbe30ebaa2d7b9349247a6500b8ad.json"
   },
   {
@@ -234,9 +234,9 @@
    "sha256": "7918d393ed42623b5554c7f8d20bfa8a7f9f9c9443e88477dd2ff3efc403eef1",
    "octets": 6730709,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/7918d393ed42623b5554c7f8d20bfa8a7f9f9c9443e88477dd2ff3efc403eef1.json"
   },
   {
@@ -245,9 +245,9 @@
    "sha256": "8761f562fe36da75532292afbfd7cffa0794e2a3f74b87303e90a4076ae2c4aa",
    "octets": 6960247,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/8761f562fe36da75532292afbfd7cffa0794e2a3f74b87303e90a4076ae2c4aa.json"
   },
   {
@@ -256,9 +256,9 @@
    "sha256": "dbe021cf94846de00ce566672a4f5de6b48f10efe1cad0071f262604fa4e441c",
    "octets": 6820961,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/dbe021cf94846de00ce566672a4f5de6b48f10efe1cad0071f262604fa4e441c.json"
   },
   {
@@ -267,9 +267,9 @@
    "sha256": "c6505cc28d30f12942a105e7419b251318aa45ea426c9becf5596e41b3e4fb20",
    "octets": 2281353,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/c6505cc28d30f12942a105e7419b251318aa45ea426c9becf5596e41b3e4fb20.json"
   },
   {
@@ -278,9 +278,9 @@
    "sha256": "25c427246417ce985ca43476b18466208b1e02d798eb42fccdef97b074aad119",
    "octets": 2335899,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/25c427246417ce985ca43476b18466208b1e02d798eb42fccdef97b074aad119.json"
   },
   {
@@ -289,9 +289,9 @@
    "sha256": "5aa7f4f0a935abcdad4247d206d24351570fa4055e201620ed30410945b214bb",
    "octets": 2481065,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/5aa7f4f0a935abcdad4247d206d24351570fa4055e201620ed30410945b214bb.json"
   },
   {
@@ -300,9 +300,9 @@
    "sha256": "d4e0c651e851ba07ced29f672d5da93f887ce43102547904a4d788833b6f95c7",
    "octets": 2322623,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/d4e0c651e851ba07ced29f672d5da93f887ce43102547904a4d788833b6f95c7.json"
   },
   {
@@ -311,9 +311,9 @@
    "sha256": "96e0c264435e6e6d5f16a3a783f820489e7cdd64ae021d4c0d2bb0207ca84c0e",
    "octets": 1980932,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/96e0c264435e6e6d5f16a3a783f820489e7cdd64ae021d4c0d2bb0207ca84c0e.json"
   },
   {
@@ -322,9 +322,9 @@
    "sha256": "3eda44a2abee485e703ef4ae66f639bcfa5e2f1d6eb06ce1777178c3dabb5d53",
    "octets": 1948165,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/3eda44a2abee485e703ef4ae66f639bcfa5e2f1d6eb06ce1777178c3dabb5d53.json"
   },
   {
@@ -333,9 +333,9 @@
    "sha256": "e24af4919d4c9238abf0f1ddd1bf978c8f17aa4c855c46782fdd3af94a2ab318",
    "octets": 2243173,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/e24af4919d4c9238abf0f1ddd1bf978c8f17aa4c855c46782fdd3af94a2ab318.json"
   },
   {
@@ -344,9 +344,9 @@
    "sha256": "312f6e8af0db1647a8aec6ab1b2da159153b1e89e5408cb7c3ff1f0f0d9f3382",
    "octets": 2696646,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/312f6e8af0db1647a8aec6ab1b2da159153b1e89e5408cb7c3ff1f0f0d9f3382.json"
   },
   {
@@ -355,9 +355,9 @@
    "sha256": "1a6508bf13a5af59eb7be79c4dba61b7b2f1fd72304cf4bbc5110ee6fbf6e9d3",
    "octets": 2503165,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/1a6508bf13a5af59eb7be79c4dba61b7b2f1fd72304cf4bbc5110ee6fbf6e9d3.json"
   },
   {
@@ -366,9 +366,9 @@
    "sha256": "b5d8f9f73cf6589f61288540e8c8f3502a19e97cbc1932d5dc8ecae3233ec6cc",
    "octets": 2573862,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/b5d8f9f73cf6589f61288540e8c8f3502a19e97cbc1932d5dc8ecae3233ec6cc.json"
   },
   {
@@ -377,9 +377,9 @@
    "sha256": "ba5f43cd19f2583a113ea0bd34c5041767fdcdb99a7145472296ad9114f0ec61",
    "octets": 15617171,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/ba5f43cd19f2583a113ea0bd34c5041767fdcdb99a7145472296ad9114f0ec61.json"
   },
   {
@@ -388,9 +388,9 @@
    "sha256": "0830ceb528d75709fa9a72d72a9d50f6a540cde7f4777af0d987b7be8d54d7dc",
    "octets": 30754430,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/0830ceb528d75709fa9a72d72a9d50f6a540cde7f4777af0d987b7be8d54d7dc.json"
   },
   {
@@ -399,9 +399,9 @@
    "sha256": "321c209253d2052a65fbfaa06317e128562ca6332abc6f9f1216f467382a6bd9",
    "octets": 3972147,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/321c209253d2052a65fbfaa06317e128562ca6332abc6f9f1216f467382a6bd9.json"
   },
   {
@@ -410,9 +410,9 @@
    "sha256": "c232d8b8e12011930a072c6b7df8665f4fbf2de0199fd24b70fcda9eb60089ac",
    "octets": 89423410,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/c232d8b8e12011930a072c6b7df8665f4fbf2de0199fd24b70fcda9eb60089ac.json"
   },
   {
@@ -421,9 +421,9 @@
    "sha256": "4cd8b977ba89d72c89672656db1bf83d1480a7d6e4d04471ad8eb6e9b9432283",
    "octets": 40235823,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/4cd8b977ba89d72c89672656db1bf83d1480a7d6e4d04471ad8eb6e9b9432283.json"
   },
   {
@@ -432,9 +432,9 @@
    "sha256": "91b892ab930703f6ebb149d1bc1730ae967e302b375682e4aec9efe894de2095",
    "octets": 75072227,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/91b892ab930703f6ebb149d1bc1730ae967e302b375682e4aec9efe894de2095.json"
   },
   {
@@ -443,9 +443,9 @@
    "sha256": "1661b1f81c9272fbca328622a050ba70335d71d2b40d55bc05d8414b62cbf0bc",
    "octets": 618111,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/1661b1f81c9272fbca328622a050ba70335d71d2b40d55bc05d8414b62cbf0bc.json"
   },
   {
@@ -454,9 +454,9 @@
    "sha256": "6d08935a2d2eb1cb581b8f447424ddc042a48209e97fe7c5da52ed3b784550f1",
    "octets": 12987539,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/6d08935a2d2eb1cb581b8f447424ddc042a48209e97fe7c5da52ed3b784550f1.json"
   },
   {
@@ -465,9 +465,9 @@
    "sha256": "bb98d84bedda4096a3a8d91303189df3562a4b898722ddd1e06b62a79891dc8d",
    "octets": 83229457,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/bb98d84bedda4096a3a8d91303189df3562a4b898722ddd1e06b62a79891dc8d.json"
   },
   {
@@ -476,9 +476,9 @@
    "sha256": "9e8196cabc1a8d6fe1d6f491cc434cdc6a0983f5cfb50298a488da7be01cd328",
    "octets": 6548157,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/9e8196cabc1a8d6fe1d6f491cc434cdc6a0983f5cfb50298a488da7be01cd328.json"
   },
   {
@@ -487,9 +487,9 @@
    "sha256": "b58c6c7394bc1f9159f6988d88f72459779fcaaf40b9bec59451373af85490ca",
    "octets": 77814859,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/b58c6c7394bc1f9159f6988d88f72459779fcaaf40b9bec59451373af85490ca.json"
   },
   {
@@ -498,9 +498,9 @@
    "sha256": "5e31c83d2a5209a9cd7718a47927f588734f0e5013a94b78b97a5589981daf8f",
    "octets": 9809689,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/5e31c83d2a5209a9cd7718a47927f588734f0e5013a94b78b97a5589981daf8f.json"
   },
   {
@@ -509,9 +509,9 @@
    "sha256": "c90d85d2dc3111b98222e40b74bdcec132ccce2c346b7be117fb4da80a1199e1",
    "octets": 4866465,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/c90d85d2dc3111b98222e40b74bdcec132ccce2c346b7be117fb4da80a1199e1.json"
   },
   {
@@ -520,9 +520,9 @@
    "sha256": "f6a29e5d12bb65dc1c5245ba4750534680bdb18e2c34c86be19fbf341c2a1781",
    "octets": 26084278,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/f6a29e5d12bb65dc1c5245ba4750534680bdb18e2c34c86be19fbf341c2a1781.json"
   },
   {
@@ -531,9 +531,9 @@
    "sha256": "ce79db9a52669d70fa2cd556fa24767324ded08cf168f40c9a416f87a5b6e947",
    "octets": 13701343,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/ce79db9a52669d70fa2cd556fa24767324ded08cf168f40c9a416f87a5b6e947.json"
   },
   {
@@ -542,9 +542,9 @@
    "sha256": "0b8c3c101e50844a3950b3d9b2bfd0400579c2cb9d03fb3371c02350082f1a1a",
    "octets": 4842165,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/0b8c3c101e50844a3950b3d9b2bfd0400579c2cb9d03fb3371c02350082f1a1a.json"
   },
   {
@@ -553,9 +553,9 @@
    "sha256": "c6f524d39f9489303ce8d798f401a799d549eaae7536f9e5d341dbc74e0e5007",
    "octets": 6708364,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/c6f524d39f9489303ce8d798f401a799d549eaae7536f9e5d341dbc74e0e5007.json"
   },
   {
@@ -564,9 +564,9 @@
    "sha256": "fc32e916294f362f28e60080e0046fde45bebeb7225d5e16495958591af4dae5",
    "octets": 16392887,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/fc32e916294f362f28e60080e0046fde45bebeb7225d5e16495958591af4dae5.json"
   },
   {
@@ -575,9 +575,9 @@
    "sha256": "6927c5327594ae9bfae6772e4b11520f4299959049dd3cd71010163c86575f9d",
    "octets": 10802957,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/6927c5327594ae9bfae6772e4b11520f4299959049dd3cd71010163c86575f9d.json"
   },
   {
@@ -586,9 +586,9 @@
    "sha256": "e6dfe6f0a9eaa60d574d2c914cdd03cad467eca32bbb9208cfa9d4165501808a",
    "octets": 10325226,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/e6dfe6f0a9eaa60d574d2c914cdd03cad467eca32bbb9208cfa9d4165501808a.json"
   },
   {
@@ -597,9 +597,9 @@
    "sha256": "67302dea568d8a8efe377be0640b0aefeb2f1785dd3efbfc4d367b70c0ba1f67",
    "octets": 1682003,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/67302dea568d8a8efe377be0640b0aefeb2f1785dd3efbfc4d367b70c0ba1f67.json"
   },
   {
@@ -608,9 +608,9 @@
    "sha256": "64e0420c56f7f4c78fe012ad15730955317e48c90513bc270ed4a83834edb488",
    "octets": 24852239,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/64e0420c56f7f4c78fe012ad15730955317e48c90513bc270ed4a83834edb488.json"
   },
   {
@@ -619,9 +619,9 @@
    "sha256": "c101f1f78d9ada4b7d6150107a8eec2c78a70a57d58ed59ca8825d40fda80d43",
    "octets": 5218517,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/c101f1f78d9ada4b7d6150107a8eec2c78a70a57d58ed59ca8825d40fda80d43.json"
   },
   {
@@ -630,9 +630,9 @@
    "sha256": "ad2a9ff169fbe3d634ab2d4a5608f89c05f1b06d99fd4c90e2aeb9cf2b8042c6",
    "octets": 47128467,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/ad2a9ff169fbe3d634ab2d4a5608f89c05f1b06d99fd4c90e2aeb9cf2b8042c6.json"
   },
   {
@@ -641,9 +641,9 @@
    "sha256": "ebbfa2f58fc64b1bd60f2a43f2a54e92eff764ca4f90ab486ebc8e49e66bdf95",
    "octets": 5888022,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/ebbfa2f58fc64b1bd60f2a43f2a54e92eff764ca4f90ab486ebc8e49e66bdf95.json"
   },
   {
@@ -652,9 +652,9 @@
    "sha256": "8548001a50b563d748ac8efc2005755ebe7bf330669c912a70b0f91c4cb235b0",
    "octets": 56319355,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/8548001a50b563d748ac8efc2005755ebe7bf330669c912a70b0f91c4cb235b0.json"
   },
   {
@@ -663,9 +663,9 @@
    "sha256": "72d8501564a7c89ddf1a133c4c44871e6fbbb70d56fb09659b0539a286362f3f",
    "octets": 5729007,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/72d8501564a7c89ddf1a133c4c44871e6fbbb70d56fb09659b0539a286362f3f.json"
   },
   {
@@ -674,9 +674,9 @@
    "sha256": "6e4f17b4cc459735c43def35c9a37559eaa3c53e8a40e2dd05e7729f8d7a0e95",
    "octets": 4774902,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/6e4f17b4cc459735c43def35c9a37559eaa3c53e8a40e2dd05e7729f8d7a0e95.json"
   },
   {
@@ -685,9 +685,9 @@
    "sha256": "44332130f48eabc9ab4a7c5063dd626a3bb3b48559ec890fe78b8782daed7491",
    "octets": 96394842,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/44332130f48eabc9ab4a7c5063dd626a3bb3b48559ec890fe78b8782daed7491.json"
   },
   {
@@ -696,9 +696,9 @@
    "sha256": "22bb695879ce37f9e6b4bca7beabcb60b54183c5b93230a7bb7b540606152424",
    "octets": 76395665,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/22bb695879ce37f9e6b4bca7beabcb60b54183c5b93230a7bb7b540606152424.json"
   },
   {
@@ -707,9 +707,9 @@
    "sha256": "6c9087b21e9c8cf850d579e8a23828bceb27081ed79fb06565f0154c098f179a",
    "octets": 17538122,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/6c9087b21e9c8cf850d579e8a23828bceb27081ed79fb06565f0154c098f179a.json"
   },
   {
@@ -718,9 +718,9 @@
    "sha256": "19041b76d262cc04f21a6d39e6d35f70e82f7916498487f245c35e282990f754",
    "octets": 31372187,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/19041b76d262cc04f21a6d39e6d35f70e82f7916498487f245c35e282990f754.json"
   },
   {
@@ -729,9 +729,9 @@
    "sha256": "67472b09077e7c1d08f42001b30a8e4c0b85765274cfc58559c32afea50557c3",
    "octets": 28934841,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/67472b09077e7c1d08f42001b30a8e4c0b85765274cfc58559c32afea50557c3.json"
   },
   {
@@ -740,9 +740,9 @@
    "sha256": "3f70e67652271830b0dae0d316f04007d053fa1a0a7a99b96a66ef17809e94b6",
    "octets": 15479774,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/3f70e67652271830b0dae0d316f04007d053fa1a0a7a99b96a66ef17809e94b6.json"
   },
   {
@@ -751,9 +751,9 @@
    "sha256": "1528cd51e622aeefffccd2c5ad148136baa54e8919109b143b542c256bb249cc",
    "octets": 2565055,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/1528cd51e622aeefffccd2c5ad148136baa54e8919109b143b542c256bb249cc.json"
   },
   {
@@ -762,9 +762,9 @@
    "sha256": "da1e925010a08e0b5f1ed3e3027439f54cf3edbdec75a53ff9a1a169b7d7be5f",
    "octets": 47888436,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/da1e925010a08e0b5f1ed3e3027439f54cf3edbdec75a53ff9a1a169b7d7be5f.json"
   },
   {
@@ -773,9 +773,9 @@
    "sha256": "cb5b3fa61fa213da97e3694b66d19a47226d50dd6439ea6eef51ef4e3cdafb8f",
    "octets": 11071616,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/cb5b3fa61fa213da97e3694b66d19a47226d50dd6439ea6eef51ef4e3cdafb8f.json"
   },
   {
@@ -784,9 +784,9 @@
    "sha256": "56a40c7fba2c67dd5372a4b36ee92d739f082df64b63aa378200149aac01d288",
    "octets": 14558755,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/56a40c7fba2c67dd5372a4b36ee92d739f082df64b63aa378200149aac01d288.json"
   },
   {
@@ -795,9 +795,9 @@
    "sha256": "8d4e407f2e0fd608810cc746cf58fb9f075afcb391a8e57ff7f5c30da8f41604",
    "octets": 33002870,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/8d4e407f2e0fd608810cc746cf58fb9f075afcb391a8e57ff7f5c30da8f41604.json"
   },
   {
@@ -806,9 +806,9 @@
    "sha256": "0282ee0c956bb8d6b72d25337e50a6bce25295a331b2003b8d5b6614c6043f82",
    "octets": 9218395,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/0282ee0c956bb8d6b72d25337e50a6bce25295a331b2003b8d5b6614c6043f82.json"
   },
   {
@@ -817,9 +817,9 @@
    "sha256": "7d1ed597940eabf3f79b75502a4e1d7f14a9bb85ae0de6c120c15b0b8727f084",
    "octets": 9625639,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/7d1ed597940eabf3f79b75502a4e1d7f14a9bb85ae0de6c120c15b0b8727f084.json"
   },
   {
@@ -828,9 +828,9 @@
    "sha256": "55cc6bfc2666eb2988c327356d54638cbcff718921a5dbfafaf384c403d42b57",
    "octets": 12511975,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/55cc6bfc2666eb2988c327356d54638cbcff718921a5dbfafaf384c403d42b57.json"
   },
   {
@@ -839,9 +839,9 @@
    "sha256": "5f2fee988d9acea948d2619ea5cce5e4c4681afcf17442f036159b387edbe00e",
    "octets": 10814627,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/5f2fee988d9acea948d2619ea5cce5e4c4681afcf17442f036159b387edbe00e.json"
   },
   {
@@ -850,9 +850,9 @@
    "sha256": "0b90715209d010ebeca0ddfe2a144f18049ed8307da5bac62dabab788bbccff1",
    "octets": 11036913,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/0b90715209d010ebeca0ddfe2a144f18049ed8307da5bac62dabab788bbccff1.json"
   },
   {
@@ -861,9 +861,9 @@
    "sha256": "afb8a152726289ca3656162811000af4af786a8799034c30520bff926cfd179a",
    "octets": 8006979,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/afb8a152726289ca3656162811000af4af786a8799034c30520bff926cfd179a.json"
   },
   {
@@ -872,9 +872,9 @@
    "sha256": "ee87a0b3df2cb2e8615314a2d71964616d43217198aadf4462c0931ab2773720",
    "octets": 5901600,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/ee87a0b3df2cb2e8615314a2d71964616d43217198aadf4462c0931ab2773720.json"
   },
   {
@@ -883,9 +883,9 @@
    "sha256": "79919dffa1a8ef285a9bfbb5d98b56c4628a66500a6defe78707a10851eb6f06",
    "octets": 7750514,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/79919dffa1a8ef285a9bfbb5d98b56c4628a66500a6defe78707a10851eb6f06.json"
   },
   {
@@ -894,9 +894,9 @@
    "sha256": "3b92e46323313ec05ac7742343c59933d66023602b824d55657ae99c7c93f7dd",
    "octets": 14480654,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/3b92e46323313ec05ac7742343c59933d66023602b824d55657ae99c7c93f7dd.json"
   },
   {
@@ -905,9 +905,9 @@
    "sha256": "f24f94e5fbfc6f500514d1f1422a4c645b2b72d1162d08bc077095a872d1668c",
    "octets": 3284655,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/f24f94e5fbfc6f500514d1f1422a4c645b2b72d1162d08bc077095a872d1668c.json"
   },
   {
@@ -916,9 +916,9 @@
    "sha256": "1922f320ae4d79a3029dbf7fac29da7b37308018b556e9864b3a1c41ab839682",
    "octets": 40158076,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/1922f320ae4d79a3029dbf7fac29da7b37308018b556e9864b3a1c41ab839682.json"
   },
   {
@@ -927,9 +927,9 @@
    "sha256": "3d53d7cd9eba2573970255a9fa17ae239725bec90b6bc5c49fa6036c54dc1fc1",
    "octets": 78654721,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/3d53d7cd9eba2573970255a9fa17ae239725bec90b6bc5c49fa6036c54dc1fc1.json"
   },
   {
@@ -938,9 +938,9 @@
    "sha256": "c29342c46123f0adaaffe8265d827d9c2ca559800cd9a60b1ebcebbf24c611fd",
    "octets": 4804464,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/c29342c46123f0adaaffe8265d827d9c2ca559800cd9a60b1ebcebbf24c611fd.json"
   },
   {
@@ -949,9 +949,9 @@
    "sha256": "2da87f69f8723190c47ef033a6df510d4ab3bd55f2b67fd321de03ede3832f29",
    "octets": 10024430,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/2da87f69f8723190c47ef033a6df510d4ab3bd55f2b67fd321de03ede3832f29.json"
   },
   {
@@ -960,9 +960,9 @@
    "sha256": "229fe11a57085d511b75590451979acaafed83597850fe2a14541e0a63aa771a",
    "octets": 3961806,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/229fe11a57085d511b75590451979acaafed83597850fe2a14541e0a63aa771a.json"
   },
   {
@@ -971,9 +971,9 @@
    "sha256": "5ef24f650e15beea0acd60bd7a86d9787780714e1eec3c55bef237ec2eedb411",
    "octets": 3158355,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/5ef24f650e15beea0acd60bd7a86d9787780714e1eec3c55bef237ec2eedb411.json"
   },
   {
@@ -982,9 +982,9 @@
    "sha256": "6f5385c2c6e413b261d6e3939c30c1a09e9c37ad268b1b9fcd0fed5f854d2737",
    "octets": 27690264,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/6f5385c2c6e413b261d6e3939c30c1a09e9c37ad268b1b9fcd0fed5f854d2737.json"
   },
   {
@@ -993,9 +993,9 @@
    "sha256": "c33b152b05a3e4d396cc2e551416ef634afdef5c04ba2369e7f85120bcf80ecc",
    "octets": 6598208,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/c33b152b05a3e4d396cc2e551416ef634afdef5c04ba2369e7f85120bcf80ecc.json"
   },
   {
@@ -1004,9 +1004,9 @@
    "sha256": "3cccbb238626b781dce351db53af46e74e0bd1e5078f11442d13767efc410daa",
    "octets": 3630847,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/3cccbb238626b781dce351db53af46e74e0bd1e5078f11442d13767efc410daa.json"
   },
   {
@@ -1015,9 +1015,9 @@
    "sha256": "1c98f94812638bbb95c845e6f7652041f14a3d677c5b2ed57852d859aeb39dee",
    "octets": 27181091,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/1c98f94812638bbb95c845e6f7652041f14a3d677c5b2ed57852d859aeb39dee.json"
   },
   {
@@ -1026,9 +1026,9 @@
    "sha256": "a09aa65edc3eac0c8eb9f51223f58d08d2f35d91e0f96fe1a93eb1f05c333d48",
    "octets": 10674101,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/a09aa65edc3eac0c8eb9f51223f58d08d2f35d91e0f96fe1a93eb1f05c333d48.json"
   },
   {
@@ -1037,9 +1037,9 @@
    "sha256": "e2e39e7e50c462100d95cc09954ee1801983c6035580d48019501f5045eb0103",
    "octets": 106459122,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/e2e39e7e50c462100d95cc09954ee1801983c6035580d48019501f5045eb0103.json"
   },
   {
@@ -1048,9 +1048,9 @@
    "sha256": "40fab50d62443d345163381da4652277cce50e8d11d2608ff31d50c46ad88858",
    "octets": 14077211,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/40fab50d62443d345163381da4652277cce50e8d11d2608ff31d50c46ad88858.json"
   },
   {
@@ -1059,9 +1059,9 @@
    "sha256": "099d74171da2731ac816e48e6709b240a69e61ad3f5561beb009822cf0e2a4b2",
    "octets": 31529672,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/099d74171da2731ac816e48e6709b240a69e61ad3f5561beb009822cf0e2a4b2.json"
   },
   {
@@ -1070,9 +1070,9 @@
    "sha256": "c79334cb3aef081c796c5114984fe77bcd0c9dc803cbe87dce0e021d7022459e",
    "octets": 21065628,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/c79334cb3aef081c796c5114984fe77bcd0c9dc803cbe87dce0e021d7022459e.json"
   },
   {
@@ -1081,9 +1081,9 @@
    "sha256": "012fef5e41a3c7721a52f5a97658089e2bb37cb7be93d02f089a0f510122e22d",
    "octets": 8609721,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/012fef5e41a3c7721a52f5a97658089e2bb37cb7be93d02f089a0f510122e22d.json"
   },
   {
@@ -1092,9 +1092,9 @@
    "sha256": "511cf92544d819914d7a1ee48e724faed9132d400109b2c57dd4a5144bca7c6f",
    "octets": 125220815,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/511cf92544d819914d7a1ee48e724faed9132d400109b2c57dd4a5144bca7c6f.json"
   },
   {
@@ -1103,9 +1103,9 @@
    "sha256": "8ab4556bb28150060baec8bf10f30119d85e110045b298564426f3bf4a2cb568",
    "octets": 128776683,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/8ab4556bb28150060baec8bf10f30119d85e110045b298564426f3bf4a2cb568.json"
   },
   {
@@ -1114,9 +1114,9 @@
    "sha256": "16bc621981f66a97dec873c2be4f316149f2175c9811a3dd74a34d7845529088",
    "octets": 3208828,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/16bc621981f66a97dec873c2be4f316149f2175c9811a3dd74a34d7845529088.json"
   },
   {
@@ -1125,9 +1125,9 @@
    "sha256": "d3f54788cda78d647106a81b5b7acf26e0d9f693eb5412a2ae8f8f9138564038",
    "octets": 65846314,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/d3f54788cda78d647106a81b5b7acf26e0d9f693eb5412a2ae8f8f9138564038.json"
   },
   {
@@ -1136,9 +1136,9 @@
    "sha256": "b4b29f69e76a8b9fdbd412f4f8a2ef07eb9aaf5e89f483ad7fa6649c69df6192",
    "octets": 65664858,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/b4b29f69e76a8b9fdbd412f4f8a2ef07eb9aaf5e89f483ad7fa6649c69df6192.json"
   },
   {
@@ -1147,9 +1147,9 @@
    "sha256": "ee758e08c112915dc5221df51b6ff431c6a1b32bf60797eb3095e5a22c4cea22",
    "octets": 135968756,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/ee758e08c112915dc5221df51b6ff431c6a1b32bf60797eb3095e5a22c4cea22.json"
   },
   {
@@ -1158,9 +1158,9 @@
    "sha256": "e3ce5d9b163b358b183004db51579e2d7ca25031a7428a2b06f1a59a32772b8f",
    "octets": 9525636,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/e3ce5d9b163b358b183004db51579e2d7ca25031a7428a2b06f1a59a32772b8f.json"
   },
   {
@@ -1169,9 +1169,9 @@
    "sha256": "a3524daee8b25b58627e7d14ef5895f41cf6a5ccfe4de534ab9f376e85ec4200",
    "octets": 17858382,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/a3524daee8b25b58627e7d14ef5895f41cf6a5ccfe4de534ab9f376e85ec4200.json"
   },
   {
@@ -1180,9 +1180,9 @@
    "sha256": "54df9201c32203abfed9c310c8665b4693ce23ae4b42fd5150c07a57bae2b887",
    "octets": 18608128,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/54df9201c32203abfed9c310c8665b4693ce23ae4b42fd5150c07a57bae2b887.json"
   },
   {
@@ -1191,9 +1191,9 @@
    "sha256": "0b5a6d6273506ad74e574fa2e647cea301f8d787af8cfa5fb7850cf7acf31848",
    "octets": 76524556,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/0b5a6d6273506ad74e574fa2e647cea301f8d787af8cfa5fb7850cf7acf31848.json"
   },
   {
@@ -1202,9 +1202,9 @@
    "sha256": "cb8e13148798c0c43c5d3336b0abc5344f0888ce06854bf7ed06604154b4fcf2",
    "octets": 10139458,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/cb8e13148798c0c43c5d3336b0abc5344f0888ce06854bf7ed06604154b4fcf2.json"
   },
   {
@@ -1213,9 +1213,9 @@
    "sha256": "0e75a49a0484bc60c7e905d29cb10731a28383ad896e4f7483e324678598ad60",
    "octets": 15884866,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/0e75a49a0484bc60c7e905d29cb10731a28383ad896e4f7483e324678598ad60.json"
   },
   {
@@ -1224,9 +1224,9 @@
    "sha256": "ff36942e8c8f6fbfb594cc2051cb8b7c3eea2647c6c835ae8b575472868d996a",
    "octets": 37693910,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/ff36942e8c8f6fbfb594cc2051cb8b7c3eea2647c6c835ae8b575472868d996a.json"
   },
   {
@@ -1235,9 +1235,9 @@
    "sha256": "efed9f4caf3b808ef2b830ed4c3f42c2b772c771b676af549f01c988b518c2e7",
    "octets": 7255786,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/efed9f4caf3b808ef2b830ed4c3f42c2b772c771b676af549f01c988b518c2e7.json"
   },
   {
@@ -1246,9 +1246,9 @@
    "sha256": "72830598bddd3f3c9d9fb97c275b072b793af73d9fd8288684964a0a0f89673a",
    "octets": 13412381,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/72830598bddd3f3c9d9fb97c275b072b793af73d9fd8288684964a0a0f89673a.json"
   },
   {
@@ -1257,9 +1257,9 @@
    "sha256": "5c00c5534f9da8e11a0aad496027819eebf8d540d4542fc94ff3dacfda55afec",
    "octets": 46110445,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/5c00c5534f9da8e11a0aad496027819eebf8d540d4542fc94ff3dacfda55afec.json"
   },
   {
@@ -1268,9 +1268,9 @@
    "sha256": "36fb30208260d95c5d6810c5de7148b8574c1e1858516afd2b24e8334198db68",
    "octets": 20584837,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/36fb30208260d95c5d6810c5de7148b8574c1e1858516afd2b24e8334198db68.json"
   },
   {
@@ -1279,9 +1279,9 @@
    "sha256": "5bfd678c2b2c451c8f4f191a3a91217aa9f0cdf24fb5e32f4c3b2c692b734fc1",
    "octets": 14637706,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/5bfd678c2b2c451c8f4f191a3a91217aa9f0cdf24fb5e32f4c3b2c692b734fc1.json"
   },
   {
@@ -1290,9 +1290,9 @@
    "sha256": "055680005c7077dfb514f7452811f7b879694c4be6262cb4aea839f57a4e06c4",
    "octets": 3490797,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/055680005c7077dfb514f7452811f7b879694c4be6262cb4aea839f57a4e06c4.json"
   },
   {
@@ -1301,9 +1301,9 @@
    "sha256": "51607f872e74c75be471facfb2e71a77c684ecde9fbddcb7110191e2618f9d8e",
    "octets": 3424782,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/51607f872e74c75be471facfb2e71a77c684ecde9fbddcb7110191e2618f9d8e.json"
   },
   {
@@ -1312,9 +1312,9 @@
    "sha256": "fdf26ed22348da3a83c3f3d0afb233101b050933ac5dcf4ea1dfc89cef0acd29",
    "octets": 46513259,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/fdf26ed22348da3a83c3f3d0afb233101b050933ac5dcf4ea1dfc89cef0acd29.json"
   },
   {
@@ -1323,9 +1323,9 @@
    "sha256": "94820ed9c2b97fba2d937ac542dd3fd67f32a5b09746cdf930cc04748a406429",
    "octets": 55138168,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/94820ed9c2b97fba2d937ac542dd3fd67f32a5b09746cdf930cc04748a406429.json"
   },
   {
@@ -1334,9 +1334,9 @@
    "sha256": "7179e105490a5d463a5aca88ce47008247e68d2b56eecbd2bf70f3bcb00f0f23",
    "octets": 67671030,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/7179e105490a5d463a5aca88ce47008247e68d2b56eecbd2bf70f3bcb00f0f23.json"
   },
   {
@@ -1345,9 +1345,9 @@
    "sha256": "d9bf7b1b2ffebab6490ef8b8730dcbbf07c0320c69f1114ea9b6412123b9bcb5",
    "octets": 15585091,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/d9bf7b1b2ffebab6490ef8b8730dcbbf07c0320c69f1114ea9b6412123b9bcb5.json"
   },
   {
@@ -1356,9 +1356,9 @@
    "sha256": "bd400e8cde23c5c1c5b81449f4cec2e24f960ca60b51cb50ef9f9e01fe859a93",
    "octets": 17702364,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/bd400e8cde23c5c1c5b81449f4cec2e24f960ca60b51cb50ef9f9e01fe859a93.json"
   },
   {
@@ -1367,9 +1367,9 @@
    "sha256": "e9f9832a3c1da7d0b0f2b18f018bab4963468cd2c8c5e3eb8bad81ee994d278c",
    "octets": 38400862,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/e9f9832a3c1da7d0b0f2b18f018bab4963468cd2c8c5e3eb8bad81ee994d278c.json"
   },
   {
@@ -1378,9 +1378,9 @@
    "sha256": "3608646a3f01f3b83b825136d7a7272b446733eaab6fadd49206f43bdcd6836f",
    "octets": 93570144,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/3608646a3f01f3b83b825136d7a7272b446733eaab6fadd49206f43bdcd6836f.json"
   },
   {
@@ -1389,9 +1389,9 @@
    "sha256": "aed12ed8346164bd6e79f2517d230a399222f561148251166207e91312d1027b",
    "octets": 34239710,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/aed12ed8346164bd6e79f2517d230a399222f561148251166207e91312d1027b.json"
   },
   {
@@ -1400,9 +1400,9 @@
    "sha256": "7f24d532a1615a3a83bead850ed0f4636aaf34c52b5c6c690ea0ac4ac26dd8d7",
    "octets": 17383504,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/7f24d532a1615a3a83bead850ed0f4636aaf34c52b5c6c690ea0ac4ac26dd8d7.json"
   },
   {
@@ -1411,9 +1411,9 @@
    "sha256": "d2eb966ed84c54dae7358e1ad18d082c5819d20b6c426c7163f3d83ebdb3377a",
    "octets": 77215788,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/d2eb966ed84c54dae7358e1ad18d082c5819d20b6c426c7163f3d83ebdb3377a.json"
   },
   {
@@ -1422,9 +1422,9 @@
    "sha256": "a0e97cbcb38782390a52a6fddb0ab7e479a3f0fde3eacdaa4f4e8e27ec1bda67",
    "octets": 78046180,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/a0e97cbcb38782390a52a6fddb0ab7e479a3f0fde3eacdaa4f4e8e27ec1bda67.json"
   },
   {
@@ -1433,9 +1433,9 @@
    "sha256": "496e06e22ee090ea6d8648fd96e9baeb8538ef66b0cdbf5c1e4182f2ea4eb7ef",
    "octets": 36198575,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/496e06e22ee090ea6d8648fd96e9baeb8538ef66b0cdbf5c1e4182f2ea4eb7ef.json"
   },
   {
@@ -1444,9 +1444,9 @@
    "sha256": "50a663baef7d3150ba367663402cb358932ae50191e306fea18d7314aeb9127a",
    "octets": 133696563,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/50a663baef7d3150ba367663402cb358932ae50191e306fea18d7314aeb9127a.json"
   },
   {
@@ -1455,9 +1455,9 @@
    "sha256": "238858893344cab9f8dc50ce71704abfa8b1e8c69317afe81800828bff0ceaa8",
    "octets": 74870346,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/238858893344cab9f8dc50ce71704abfa8b1e8c69317afe81800828bff0ceaa8.json"
   },
   {
@@ -1466,9 +1466,9 @@
    "sha256": "66db8636677a67f8d5f1395052b8916b2a73ecbedafcaf2ca61329f069778c93",
    "octets": 83036667,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/66db8636677a67f8d5f1395052b8916b2a73ecbedafcaf2ca61329f069778c93.json"
   },
   {
@@ -1477,9 +1477,9 @@
    "sha256": "42ca4ad285e42357f98a4dfd6b27f566a91f6eeb4f4567dd8734bfc4f66daaec",
    "octets": 98050984,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/42ca4ad285e42357f98a4dfd6b27f566a91f6eeb4f4567dd8734bfc4f66daaec.json"
   },
   {
@@ -1488,9 +1488,9 @@
    "sha256": "18e77c429ee47698521a298b80a4dd0f0b3d91f95d04ea21bb9f85c73138a478",
    "octets": 81853275,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/18e77c429ee47698521a298b80a4dd0f0b3d91f95d04ea21bb9f85c73138a478.json"
   },
   {
@@ -1499,9 +1499,9 @@
    "sha256": "daa10c8fe076d3af780e2a79a41102920d0d199899b34f357b248d07159a19fa",
    "octets": 20794133,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/daa10c8fe076d3af780e2a79a41102920d0d199899b34f357b248d07159a19fa.json"
   },
   {
@@ -1510,9 +1510,9 @@
    "sha256": "3c9845fb069d8cd2f6e1702913b720815e6b2b21ccbebd15a57471c8cf8e3bf4",
    "octets": 19596799,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/3c9845fb069d8cd2f6e1702913b720815e6b2b21ccbebd15a57471c8cf8e3bf4.json"
   },
   {
@@ -1521,9 +1521,9 @@
    "sha256": "df0fb2d44fe7b5236e595f856f01ae94682e913ae750f26a6ec2e6d183641623",
    "octets": 92729242,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/df0fb2d44fe7b5236e595f856f01ae94682e913ae750f26a6ec2e6d183641623.json"
   },
   {
@@ -1532,9 +1532,9 @@
    "sha256": "8de748545e996824e7199571e9c4e06334092ca28899f3fd61601e6c80d13476",
    "octets": 14847969,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/8de748545e996824e7199571e9c4e06334092ca28899f3fd61601e6c80d13476.json"
   },
   {
@@ -1543,9 +1543,9 @@
    "sha256": "3510de2e923dedd1b160d618afd0832cd8fe84d73e17a1ddcc1d3908995dc930",
    "octets": 49236419,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/3510de2e923dedd1b160d618afd0832cd8fe84d73e17a1ddcc1d3908995dc930.json"
   },
   {
@@ -1554,9 +1554,9 @@
    "sha256": "691ae247ee7848fc5c8524276d3afd1f948e1c308c16bd8e9d1b760a1431ed13",
    "octets": 19965229,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/691ae247ee7848fc5c8524276d3afd1f948e1c308c16bd8e9d1b760a1431ed13.json"
   },
   {
@@ -1565,9 +1565,9 @@
    "sha256": "451cde9c95ab3a3c9212b3e174d05e2151d160ebf4ffacd2f989f1036abead98",
    "octets": 98887587,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/451cde9c95ab3a3c9212b3e174d05e2151d160ebf4ffacd2f989f1036abead98.json"
   },
   {
@@ -1576,9 +1576,9 @@
    "sha256": "a4f8d32d2755bd0e2f36ebdb81c761a58141b76b8276d59706bb38be3407a99c",
    "octets": 59868228,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/a4f8d32d2755bd0e2f36ebdb81c761a58141b76b8276d59706bb38be3407a99c.json"
   },
   {
@@ -1587,9 +1587,9 @@
    "sha256": "65aa339147cfe24fe2c0d985c466829f3e1159792dea58c67c13c9074185ab9f",
    "octets": 78885194,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/65aa339147cfe24fe2c0d985c466829f3e1159792dea58c67c13c9074185ab9f.json"
   },
   {
@@ -1598,9 +1598,9 @@
    "sha256": "1b4473ef95073af0a8967fcaf9ef434fe033bab8db059c91a77161b668f37575",
    "octets": 27286136,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/1b4473ef95073af0a8967fcaf9ef434fe033bab8db059c91a77161b668f37575.json"
   },
   {
@@ -1609,9 +1609,9 @@
    "sha256": "e03671731df71f92d4b6066cf48e2653eafe477b0ac8790eddf5d4f5b319483d",
    "octets": 45750168,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/e03671731df71f92d4b6066cf48e2653eafe477b0ac8790eddf5d4f5b319483d.json"
   },
   {
@@ -1620,9 +1620,9 @@
    "sha256": "59de230fec7c2ca7ffb32a512a0c01dfcda7dc95efbc495af349c3ffffb007d8",
    "octets": 69333615,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/59de230fec7c2ca7ffb32a512a0c01dfcda7dc95efbc495af349c3ffffb007d8.json"
   },
   {
@@ -1631,9 +1631,9 @@
    "sha256": "d6c65db97c5a0b038e7ac4efd348f968005320d98488e132cdc80db9c0fdb6d9",
    "octets": 78594726,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/d6c65db97c5a0b038e7ac4efd348f968005320d98488e132cdc80db9c0fdb6d9.json"
   },
   {
@@ -1642,9 +1642,9 @@
    "sha256": "d645d64a82bb20fdca09fac43c4477b9aa5de7dc75e04461769267c216a5202f",
    "octets": 100586592,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/d645d64a82bb20fdca09fac43c4477b9aa5de7dc75e04461769267c216a5202f.json"
   },
   {
@@ -1653,9 +1653,9 @@
    "sha256": "f29df9cd4a43f5983468723df4a8d1fab7a06e9819683d966dc61937e3e49d2c",
    "octets": 90143225,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/f29df9cd4a43f5983468723df4a8d1fab7a06e9819683d966dc61937e3e49d2c.json"
   },
   {
@@ -1664,9 +1664,9 @@
    "sha256": "35da5f1ed5110480c519208581956130c3f6039910235223249a4aa7d3806862",
    "octets": 10146113,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/35da5f1ed5110480c519208581956130c3f6039910235223249a4aa7d3806862.json"
   },
   {
@@ -1675,9 +1675,9 @@
    "sha256": "e627a285e8ed4889cb2857bd69ecf8435a85784248661170cd1351b95f9dff84",
    "octets": 6292590,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/e627a285e8ed4889cb2857bd69ecf8435a85784248661170cd1351b95f9dff84.json"
   },
   {
@@ -1686,9 +1686,9 @@
    "sha256": "4c1554ed1087a56a6f1c761f6c94ac607c867aa17022e7cc341b151ca0972824",
    "octets": 67929983,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/4c1554ed1087a56a6f1c761f6c94ac607c867aa17022e7cc341b151ca0972824.json"
   },
   {
@@ -1697,9 +1697,9 @@
    "sha256": "452d802242b868fbc7e66cb3664c093e3c8c3ec61bf530405ee2f7bc25ba7284",
    "octets": 28078588,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/452d802242b868fbc7e66cb3664c093e3c8c3ec61bf530405ee2f7bc25ba7284.json"
   },
   {
@@ -1708,9 +1708,9 @@
    "sha256": "e48dcb2b8cb4c013f0d3329cfc92a484a84108b6f1895871bee79d21867da707",
    "octets": 37076573,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/e48dcb2b8cb4c013f0d3329cfc92a484a84108b6f1895871bee79d21867da707.json"
   },
   {
@@ -1719,9 +1719,9 @@
    "sha256": "950908eb482c644b885b55b30414b1c559559ad6ba1043a6b3820995695dd188",
    "octets": 28291346,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/950908eb482c644b885b55b30414b1c559559ad6ba1043a6b3820995695dd188.json"
   },
   {
@@ -1730,9 +1730,9 @@
    "sha256": "6d44b2d0d013dd186a07313805158f697b56332eb9c3faae4fc005f6824ff0ea",
    "octets": 96977233,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/6d44b2d0d013dd186a07313805158f697b56332eb9c3faae4fc005f6824ff0ea.json"
   },
   {
@@ -1741,9 +1741,9 @@
    "sha256": "f7f7100d445807272ae12a2fc30938a076299599661d725387dcb2a3975b299d",
    "octets": 4668009,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/f7f7100d445807272ae12a2fc30938a076299599661d725387dcb2a3975b299d.json"
   },
   {
@@ -1752,9 +1752,9 @@
    "sha256": "9b237cdbc80a5740f5032020acf571feb4ac4395ed7094634e149de93fb7785d",
    "octets": 20988718,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/9b237cdbc80a5740f5032020acf571feb4ac4395ed7094634e149de93fb7785d.json"
   },
   {
@@ -1763,9 +1763,9 @@
    "sha256": "e7c2979b8230b1b59b8e24e55cd0b8ce9f6320e969230fe93ccdf134e3fe9e2d",
    "octets": 25812176,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/e7c2979b8230b1b59b8e24e55cd0b8ce9f6320e969230fe93ccdf134e3fe9e2d.json"
   },
   {
@@ -1774,9 +1774,9 @@
    "sha256": "3e72af479e7475b68b2e650c0287fa08790ee043fcf713bfcfe66f20506b8d76",
    "octets": 22092707,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/3e72af479e7475b68b2e650c0287fa08790ee043fcf713bfcfe66f20506b8d76.json"
   },
   {
@@ -1785,9 +1785,9 @@
    "sha256": "79522e3933c0f6e46b5d125ef1d0ee119bc2628dd80970fae49e7d492b78b25e",
    "octets": 47710181,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/79522e3933c0f6e46b5d125ef1d0ee119bc2628dd80970fae49e7d492b78b25e.json"
   },
   {
@@ -1796,9 +1796,9 @@
    "sha256": "7413c4cf5243c21c007a794a2289121eb2d6e0bfff74be41f6805035e4ddf6cd",
    "octets": 123495798,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/7413c4cf5243c21c007a794a2289121eb2d6e0bfff74be41f6805035e4ddf6cd.json"
   },
   {
@@ -1807,9 +1807,9 @@
    "sha256": "ecdc98007b408e78e23840e91a55d4b66eea978955f4deef1f598f21ce4ab1da",
    "octets": 75480730,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/ecdc98007b408e78e23840e91a55d4b66eea978955f4deef1f598f21ce4ab1da.json"
   },
   {
@@ -1818,9 +1818,9 @@
    "sha256": "99220b71fcc598b84948261b80b042b828fd9b5c065a22008ebddd48526e3a1b",
    "octets": 140411119,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/99220b71fcc598b84948261b80b042b828fd9b5c065a22008ebddd48526e3a1b.json"
   },
   {
@@ -1829,9 +1829,9 @@
    "sha256": "3667b98bb787c244392e3f7eb7ff0d710efdd2e380f871729fb185e974998046",
    "octets": 95217102,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/3667b98bb787c244392e3f7eb7ff0d710efdd2e380f871729fb185e974998046.json"
   },
   {
@@ -1840,9 +1840,9 @@
    "sha256": "cb3b9235468cc9116f8dfcd4f07e3228539bbc465c7f533286de3210028c317f",
    "octets": 37649323,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/cb3b9235468cc9116f8dfcd4f07e3228539bbc465c7f533286de3210028c317f.json"
   },
   {
@@ -1851,9 +1851,9 @@
    "sha256": "76f4197b1f4f32d2eb0aca01f097da165429c54fc2878d34348f234dde310fae",
    "octets": 2457673,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/76f4197b1f4f32d2eb0aca01f097da165429c54fc2878d34348f234dde310fae.json"
   },
   {
@@ -1862,9 +1862,9 @@
    "sha256": "9341d0932677e5df2563bb456def328ecad0520d35b70c0daf0263984bc69a19",
    "octets": 2425712,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/9341d0932677e5df2563bb456def328ecad0520d35b70c0daf0263984bc69a19.json"
   },
   {
@@ -1873,9 +1873,9 @@
    "sha256": "6796b3c0a576b53dfd836e1637d65b80c87662bbbb39caf7978dd6db85697a56",
    "octets": 10998197,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/6796b3c0a576b53dfd836e1637d65b80c87662bbbb39caf7978dd6db85697a56.json"
   },
   {
@@ -1884,9 +1884,9 @@
    "sha256": "013e9cb1da7792c6662825e95a4a6c5bc67a8b5ebbadbe3890eca38ba3769052",
    "octets": 5061090,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/013e9cb1da7792c6662825e95a4a6c5bc67a8b5ebbadbe3890eca38ba3769052.json"
   },
   {
@@ -1895,9 +1895,9 @@
    "sha256": "85f8859cc84bc80cbb7c712ec42c38e534cea94c640cbe238f5480bb79ea3cca",
    "octets": 112254306,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/85f8859cc84bc80cbb7c712ec42c38e534cea94c640cbe238f5480bb79ea3cca.json"
   },
   {
@@ -1906,9 +1906,9 @@
    "sha256": "898f23903080dfd2940418d6fde9a3de374ebc85380d6fede2d03ad47a064722",
    "octets": 21597091,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/898f23903080dfd2940418d6fde9a3de374ebc85380d6fede2d03ad47a064722.json"
   },
   {
@@ -1917,9 +1917,9 @@
    "sha256": "532db8ad65532e77f78e133c8fce8e67b9d50f301bd60aa42af948144760fbd9",
    "octets": 20438774,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/532db8ad65532e77f78e133c8fce8e67b9d50f301bd60aa42af948144760fbd9.json"
   },
   {
@@ -1928,9 +1928,9 @@
    "sha256": "dc57786b3bcb8cf30626a3fdcea44c54962b1021e0f6d6aa5e5252eb51aa1ba8",
    "octets": 45832662,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/dc57786b3bcb8cf30626a3fdcea44c54962b1021e0f6d6aa5e5252eb51aa1ba8.json"
   },
   {
@@ -1939,9 +1939,9 @@
    "sha256": "282fc5549bd451ae2e44a2244b849fd3e0d66ce3736b5a1e5692d9a7b45d551c",
    "octets": 5029305,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/282fc5549bd451ae2e44a2244b849fd3e0d66ce3736b5a1e5692d9a7b45d551c.json"
   },
   {
@@ -1950,9 +1950,9 @@
    "sha256": "e7a8711738a99d5bc180d636694144084e9a15095a619fc9fda1945acb8bcdb0",
    "octets": 41643185,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/e7a8711738a99d5bc180d636694144084e9a15095a619fc9fda1945acb8bcdb0.json"
   },
   {
@@ -1961,9 +1961,9 @@
    "sha256": "325849dbeda7f330b9899adcaffd2951a889a21f703681359a70748d8867349f",
    "octets": 5253848,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/325849dbeda7f330b9899adcaffd2951a889a21f703681359a70748d8867349f.json"
   },
   {
@@ -1972,9 +1972,9 @@
    "sha256": "7671eb4338274f3f2fef61a1b6265369affad0e459a1e522245448d71024a4b1",
    "octets": 47966005,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/7671eb4338274f3f2fef61a1b6265369affad0e459a1e522245448d71024a4b1.json"
   },
   {
@@ -1983,9 +1983,9 @@
    "sha256": "03a3e20e8ae816d483a409c55e96c2e3bb34b46fc6f9600e6830209c01850aa2",
    "octets": 5584575,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/03a3e20e8ae816d483a409c55e96c2e3bb34b46fc6f9600e6830209c01850aa2.json"
   },
   {
@@ -1994,9 +1994,9 @@
    "sha256": "485f9f45b593ff0ee1a215ad2380b46ec3a4d7fcd66e932b8a73d6096b1b4167",
    "octets": 27871956,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/485f9f45b593ff0ee1a215ad2380b46ec3a4d7fcd66e932b8a73d6096b1b4167.json"
   },
   {
@@ -2005,9 +2005,9 @@
    "sha256": "09e2981e8d7622b22fafd20a392a83155bfd77f977874bdbba048cd7f69d0720",
    "octets": 104094689,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/09e2981e8d7622b22fafd20a392a83155bfd77f977874bdbba048cd7f69d0720.json"
   },
   {
@@ -2016,9 +2016,9 @@
    "sha256": "e4e84f9c2b8652ac067c9c4648a1456421fc2747648e1acfbe7d7e25451c2c6c",
    "octets": 95739040,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/e4e84f9c2b8652ac067c9c4648a1456421fc2747648e1acfbe7d7e25451c2c6c.json"
   },
   {
@@ -2027,9 +2027,9 @@
    "sha256": "5423ab06f8c264db2b16f3784abcd8ce2beda49a2becbc617232cff31104f624",
    "octets": 7671193,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/5423ab06f8c264db2b16f3784abcd8ce2beda49a2becbc617232cff31104f624.json"
   },
   {
@@ -2038,9 +2038,9 @@
    "sha256": "13a33f3c7144050bd9bfd39bd970404971769b68b4197bc33a66fdf4b115f61f",
    "octets": 16904555,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/13a33f3c7144050bd9bfd39bd970404971769b68b4197bc33a66fdf4b115f61f.json"
   },
   {
@@ -2049,9 +2049,9 @@
    "sha256": "874a6a6129d2a10305ebab74ab4c3f47c801275acd84f5cd52099262eee46aea",
    "octets": 7170444,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/874a6a6129d2a10305ebab74ab4c3f47c801275acd84f5cd52099262eee46aea.json"
   },
   {
@@ -2060,9 +2060,9 @@
    "sha256": "6006c834bdab53ac80a0625e3bdb42e45923a4c31bfb77fa904fc04d1215419e",
    "octets": 40826175,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/6006c834bdab53ac80a0625e3bdb42e45923a4c31bfb77fa904fc04d1215419e.json"
   },
   {
@@ -2071,9 +2071,9 @@
    "sha256": "7d6f980b9a73ddde5c852dfb182eb5084efa9cdc2438d6140980f9416f2fa25a",
    "octets": 46480578,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/7d6f980b9a73ddde5c852dfb182eb5084efa9cdc2438d6140980f9416f2fa25a.json"
   },
   {
@@ -2082,9 +2082,9 @@
    "sha256": "9196b94ae020ae563b0afdee48d71b3b82cf5bf9d357b6bde2563549887c9fce",
    "octets": 1660150,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/9196b94ae020ae563b0afdee48d71b3b82cf5bf9d357b6bde2563549887c9fce.json"
   },
   {
@@ -2093,9 +2093,9 @@
    "sha256": "a92e79244384ef60bb0dc2d21e991da139ab4f3fb107807021ab5b29c01ee854",
    "octets": 19162486,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/a92e79244384ef60bb0dc2d21e991da139ab4f3fb107807021ab5b29c01ee854.json"
   },
   {
@@ -2104,9 +2104,9 @@
    "sha256": "03fba9ec765ada9157b9e5f5ac43bc2961903f2d15904e3f6593e2d960f7964e",
    "octets": 1087108,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/03fba9ec765ada9157b9e5f5ac43bc2961903f2d15904e3f6593e2d960f7964e.json"
   },
   {
@@ -2115,9 +2115,9 @@
    "sha256": "0a97a88484d922eba4bf28242cee095468c446dbfd8292e61b15cb84392fd647",
    "octets": 3286032,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/0a97a88484d922eba4bf28242cee095468c446dbfd8292e61b15cb84392fd647.json"
   },
   {
@@ -2126,9 +2126,9 @@
    "sha256": "e30682fd81e549b6b7cacacb70adce3a97e5dad0efbc0756bc47484a72fb3499",
    "octets": 2559632,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/e30682fd81e549b6b7cacacb70adce3a97e5dad0efbc0756bc47484a72fb3499.json"
   },
   {
@@ -2137,9 +2137,9 @@
    "sha256": "920705321f3bc53d7b86c546222eaf142850e5d6889ae6141f04e40d20b6a592",
    "octets": 28288661,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/920705321f3bc53d7b86c546222eaf142850e5d6889ae6141f04e40d20b6a592.json"
   },
   {
@@ -2148,9 +2148,9 @@
    "sha256": "44b84b8c39efbe7ec85637642c32b4fa3c001a137d75ece2dc82efbb781133d6",
    "octets": 48535482,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/44b84b8c39efbe7ec85637642c32b4fa3c001a137d75ece2dc82efbb781133d6.json"
   },
   {
@@ -2159,9 +2159,9 @@
    "sha256": "9a5d18cd741e90f890657cadc59745195dfb3eb4c9384ee0fac382838204b644",
    "octets": 15797092,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/9a5d18cd741e90f890657cadc59745195dfb3eb4c9384ee0fac382838204b644.json"
   },
   {
@@ -2170,9 +2170,9 @@
    "sha256": "5e48d3113c06f9010b43c4fcb2d1a26964e50ad386216425083fae0f0bec0cc8",
    "octets": 7366207,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/5e48d3113c06f9010b43c4fcb2d1a26964e50ad386216425083fae0f0bec0cc8.json"
   },
   {
@@ -2181,9 +2181,9 @@
    "sha256": "f1585d44f7af6ffd7e75602ffa8f90c69f658d9b2709536e910f71be5cde3694",
    "octets": 6526042,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/f1585d44f7af6ffd7e75602ffa8f90c69f658d9b2709536e910f71be5cde3694.json"
   },
   {
@@ -2192,9 +2192,9 @@
    "sha256": "62b7d1244f623ec2914c3b52d3e3f27b65194f315d68f258a06c9548cf2fd50a",
    "octets": 5830774,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/62b7d1244f623ec2914c3b52d3e3f27b65194f315d68f258a06c9548cf2fd50a.json"
   },
   {
@@ -2203,9 +2203,9 @@
    "sha256": "f66bf3fd96757d214d339083f7b99a2db9d4cb2b61d4c88cf6ab8810e0ec5a19",
    "octets": 27477499,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/f66bf3fd96757d214d339083f7b99a2db9d4cb2b61d4c88cf6ab8810e0ec5a19.json"
   },
   {
@@ -2214,9 +2214,9 @@
    "sha256": "118b4db0e453b817bf4de4b3c75a5f3a76fd33a911144f874e4e5c9888a7d564",
    "octets": 10372614,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/118b4db0e453b817bf4de4b3c75a5f3a76fd33a911144f874e4e5c9888a7d564.json"
   },
   {
@@ -2225,9 +2225,9 @@
    "sha256": "a4aa8b9c2d88edb74aa9bc9ba029efa302e6c2d8e2f1e1eeab0f4673cba145f7",
    "octets": 154190464,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/a4aa8b9c2d88edb74aa9bc9ba029efa302e6c2d8e2f1e1eeab0f4673cba145f7.json"
   },
   {
@@ -2236,9 +2236,9 @@
    "sha256": "33b531a791e292b1a3b57519b1259b2bc555cbbbe0806ae67755fc1e2515657b",
    "octets": 23293617,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/33b531a791e292b1a3b57519b1259b2bc555cbbbe0806ae67755fc1e2515657b.json"
   },
   {
@@ -2247,9 +2247,9 @@
    "sha256": "cdc7d75600090cfe5f23b9504e9310158e0009a25bac7d979fe848dee6594d2a",
    "octets": 9040003,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/cdc7d75600090cfe5f23b9504e9310158e0009a25bac7d979fe848dee6594d2a.json"
   },
   {
@@ -2258,9 +2258,9 @@
    "sha256": "3389c81ae6d0cadbd557ca3958c99014fba8827a7958a9018d3769d6ab8935be",
    "octets": 36428122,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/3389c81ae6d0cadbd557ca3958c99014fba8827a7958a9018d3769d6ab8935be.json"
   },
   {
@@ -2269,9 +2269,9 @@
    "sha256": "6dac9c3cfda60f02db02a99aa28ad31616eed9ea30fe6f3e900b8857ce8aa6f4",
    "octets": 15087461,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/6dac9c3cfda60f02db02a99aa28ad31616eed9ea30fe6f3e900b8857ce8aa6f4.json"
   },
   {
@@ -2280,9 +2280,9 @@
    "sha256": "0113c26e6794b6b663d75fd3b24b1ede0b5904a41d319faeb5d817e63621c888",
    "octets": 6676746,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/0113c26e6794b6b663d75fd3b24b1ede0b5904a41d319faeb5d817e63621c888.json"
   },
   {
@@ -2291,9 +2291,9 @@
    "sha256": "5c441d15f2322f6abb36e4cf6e3695489db0bf837f985817e30c71adcc72d765",
    "octets": 21632891,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/5c441d15f2322f6abb36e4cf6e3695489db0bf837f985817e30c71adcc72d765.json"
   },
   {
@@ -2302,9 +2302,9 @@
    "sha256": "a99a478fb5f5b7823ddb0c0a616174a80c8b9ccf69b74d4e89bdd1d63705e1fc",
    "octets": 9688784,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/a99a478fb5f5b7823ddb0c0a616174a80c8b9ccf69b74d4e89bdd1d63705e1fc.json"
   },
   {
@@ -2313,9 +2313,9 @@
    "sha256": "57acff68eed4cd72127bac8d5f9e33bfc2734d567af2a7950eecea3f88e9daeb",
    "octets": 11170502,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/57acff68eed4cd72127bac8d5f9e33bfc2734d567af2a7950eecea3f88e9daeb.json"
   },
   {
@@ -2324,9 +2324,9 @@
    "sha256": "6e4e740e1d2397974e2b54b060a373f780d425cd01af2b9cfec53eb38ae64767",
    "octets": 99661653,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/6e4e740e1d2397974e2b54b060a373f780d425cd01af2b9cfec53eb38ae64767.json"
   },
   {
@@ -2335,9 +2335,9 @@
    "sha256": "9d43b0aa9e96c5042ef2480cd53a9debf84eab708a6c27d97d527707961b563f",
    "octets": 24553672,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/9d43b0aa9e96c5042ef2480cd53a9debf84eab708a6c27d97d527707961b563f.json"
   },
   {
@@ -2346,9 +2346,9 @@
    "sha256": "aecbc8a3bd64638778ae0a4eda031efe3620f99390594c27794b3869bef3c251",
    "octets": 46036185,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/aecbc8a3bd64638778ae0a4eda031efe3620f99390594c27794b3869bef3c251.json"
   },
   {
@@ -2357,9 +2357,9 @@
    "sha256": "6c8e6c776d47d24671591df1b4a986521c28079a8082da4f13a23c2a44abe443",
    "octets": 66028598,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/6c8e6c776d47d24671591df1b4a986521c28079a8082da4f13a23c2a44abe443.json"
   },
   {
@@ -2368,9 +2368,9 @@
    "sha256": "7a21febb025fa97a39b326f1d9f1bd3edb6b1be5ec0b58fa6dbe62033efd601c",
    "octets": 100532279,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/7a21febb025fa97a39b326f1d9f1bd3edb6b1be5ec0b58fa6dbe62033efd601c.json"
   },
   {
@@ -2379,9 +2379,9 @@
    "sha256": "0e1efa9db75dd8497290a55973205f5cdef6703c4d84a4c75904d39e8ec057f5",
    "octets": 12219634,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/0e1efa9db75dd8497290a55973205f5cdef6703c4d84a4c75904d39e8ec057f5.json"
   },
   {
@@ -2390,9 +2390,9 @@
    "sha256": "35f7ac81cb39a50df390e3e57e2c9b7aee6a6e3d74d58c845df162bb18182a79",
    "octets": 64507995,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/35f7ac81cb39a50df390e3e57e2c9b7aee6a6e3d74d58c845df162bb18182a79.json"
   },
   {
@@ -2401,9 +2401,9 @@
    "sha256": "6336363a347e1f0a1397c38a79b6c22f0e33cf06df01be3b85dc654517d50670",
    "octets": 11173655,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/6336363a347e1f0a1397c38a79b6c22f0e33cf06df01be3b85dc654517d50670.json"
   },
   {
@@ -2412,9 +2412,9 @@
    "sha256": "ad161b86b701deed9eea8f204acc2ddc76613d58f6ab0a8dfcb247ac1a7f9fc7",
    "octets": 11099822,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/ad161b86b701deed9eea8f204acc2ddc76613d58f6ab0a8dfcb247ac1a7f9fc7.json"
   },
   {
@@ -2423,9 +2423,9 @@
    "sha256": "7cd8c43ee2bffac84c107cd37e8446cb327789ae76913239f5735724bef60f51",
    "octets": 43345844,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/7cd8c43ee2bffac84c107cd37e8446cb327789ae76913239f5735724bef60f51.json"
   },
   {
@@ -2434,9 +2434,9 @@
    "sha256": "854fcbf57f6264a2ee23a04c936431e733f33b973a2b3ac53902131a3f4014b4",
    "octets": 21090994,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/854fcbf57f6264a2ee23a04c936431e733f33b973a2b3ac53902131a3f4014b4.json"
   },
   {
@@ -2445,9 +2445,9 @@
    "sha256": "03c7dddf4dde273b651bdb53c0bf270248995b753809b8db5433fa569283f2db",
    "octets": 25339100,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/03c7dddf4dde273b651bdb53c0bf270248995b753809b8db5433fa569283f2db.json"
   },
   {
@@ -2456,9 +2456,9 @@
    "sha256": "f0663243f793cab3983953f09cebdb08c0e4fe2873cf22f45b943f291b158945",
    "octets": 30488652,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/f0663243f793cab3983953f09cebdb08c0e4fe2873cf22f45b943f291b158945.json"
   },
   {
@@ -2467,9 +2467,9 @@
    "sha256": "5373037a56a740b2db696446afed92df8c02e401bf052db64d801b08f774117f",
    "octets": 114175779,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/5373037a56a740b2db696446afed92df8c02e401bf052db64d801b08f774117f.json"
   },
   {
@@ -2478,9 +2478,9 @@
    "sha256": "082248b3b984eedcad71e327b3eebc8e51d75c03c4520bcbf9429c3d3a2ecc98",
    "octets": 3130599,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/082248b3b984eedcad71e327b3eebc8e51d75c03c4520bcbf9429c3d3a2ecc98.json"
   },
   {
@@ -2489,9 +2489,9 @@
    "sha256": "df84d97756844be42e6ad9754cd778a981a57ba1a139940b9ed34485e9941213",
    "octets": 48088099,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/df84d97756844be42e6ad9754cd778a981a57ba1a139940b9ed34485e9941213.json"
   },
   {
@@ -2500,9 +2500,9 @@
    "sha256": "47396a340bb0e34d854ae9f9c0268d5e64aa1bad929b0f0c4ce054cc2e2ecb2c",
    "octets": 7836452,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/47396a340bb0e34d854ae9f9c0268d5e64aa1bad929b0f0c4ce054cc2e2ecb2c.json"
   },
   {
@@ -2511,9 +2511,9 @@
    "sha256": "f0dd6f9e8ce95ce62862234616cd2896cfba35fe76fb7e14d46568e8af948a97",
    "octets": 48211281,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/f0dd6f9e8ce95ce62862234616cd2896cfba35fe76fb7e14d46568e8af948a97.json"
   },
   {
@@ -2522,9 +2522,9 @@
    "sha256": "c50bb8acfcaea1d8267e08a2db787029a75a1be564c00eb632579a1dd294156e",
    "octets": 68803738,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/c50bb8acfcaea1d8267e08a2db787029a75a1be564c00eb632579a1dd294156e.json"
   },
   {
@@ -2533,9 +2533,9 @@
    "sha256": "1902eb0db77abe9c7c83978804666bfa5f046ff7b57f24ee7e673e46602a27e4",
    "octets": 100066151,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/1902eb0db77abe9c7c83978804666bfa5f046ff7b57f24ee7e673e46602a27e4.json"
   },
   {
@@ -2544,9 +2544,9 @@
    "sha256": "bfd35cff34ff2cc875aa9dd7fea1154349d7c3669b31a92bc70a16b492e24bd0",
    "octets": 27472245,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/bfd35cff34ff2cc875aa9dd7fea1154349d7c3669b31a92bc70a16b492e24bd0.json"
   },
   {
@@ -2555,9 +2555,9 @@
    "sha256": "e02ae889444d0461e21aa398c964c247575f6d690ae7d95124ea44d2fcd39e06",
    "octets": 39827459,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/e02ae889444d0461e21aa398c964c247575f6d690ae7d95124ea44d2fcd39e06.json"
   },
   {
@@ -2566,9 +2566,9 @@
    "sha256": "f4f92f4e8f90da0ff6cc9fa340bf567ce1dc00349158cb167bb64ce2e83d6e98",
    "octets": 20855126,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/f4f92f4e8f90da0ff6cc9fa340bf567ce1dc00349158cb167bb64ce2e83d6e98.json"
   },
   {
@@ -2577,9 +2577,9 @@
    "sha256": "10f073173e6e1c43859bb01e091c02388493e1d234d32cd0e6f00c7632fe4f51",
    "octets": 35656497,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/10f073173e6e1c43859bb01e091c02388493e1d234d32cd0e6f00c7632fe4f51.json"
   },
   {
@@ -2588,9 +2588,9 @@
    "sha256": "9ca2d79a3acf68fd1406afd33d40001089b3e6aec4ade01dcb5c9f87bee756e4",
    "octets": 1089729,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/9ca2d79a3acf68fd1406afd33d40001089b3e6aec4ade01dcb5c9f87bee756e4.json"
   },
   {
@@ -2599,9 +2599,9 @@
    "sha256": "ffefc792ca2b2f88df4465c81f6c4a4823e76a6baf17bd2e701ae951252eb9a1",
    "octets": 34940870,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/ffefc792ca2b2f88df4465c81f6c4a4823e76a6baf17bd2e701ae951252eb9a1.json"
   },
   {
@@ -2610,9 +2610,9 @@
    "sha256": "b87904f14878d922d45b1802345b885f286e43dd579a4a9963b1618331489cfe",
    "octets": 31286119,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/b87904f14878d922d45b1802345b885f286e43dd579a4a9963b1618331489cfe.json"
   },
   {
@@ -2621,9 +2621,9 @@
    "sha256": "858a47f034cbe16b61a7fd1a6af11cae3d88106c67e88c5fc9867cd496592f28",
    "octets": 83533447,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/858a47f034cbe16b61a7fd1a6af11cae3d88106c67e88c5fc9867cd496592f28.json"
   },
   {
@@ -2632,9 +2632,9 @@
    "sha256": "574bbe805750c4f2e7a8d89e37155f3757eed69b358fd670197a74b01469fa46",
    "octets": 20086356,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/574bbe805750c4f2e7a8d89e37155f3757eed69b358fd670197a74b01469fa46.json"
   },
   {
@@ -2643,9 +2643,9 @@
    "sha256": "be83afdbd60a71227e7d4057ca3a1c3d67e36c82dffe512eff0a8033cc790f81",
    "octets": 9857314,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/be83afdbd60a71227e7d4057ca3a1c3d67e36c82dffe512eff0a8033cc790f81.json"
   },
   {
@@ -2654,9 +2654,9 @@
    "sha256": "0ebee2f48a04a1c3901b57d7ba85c8f822c233565dd7b1fcba4acd3468ce6c0e",
    "octets": 81578274,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/0ebee2f48a04a1c3901b57d7ba85c8f822c233565dd7b1fcba4acd3468ce6c0e.json"
   },
   {
@@ -2665,9 +2665,9 @@
    "sha256": "9922726cd6d11728b982a41b35029f0389271028caeeab6ca05f6da085e5e987",
    "octets": 20533806,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/9922726cd6d11728b982a41b35029f0389271028caeeab6ca05f6da085e5e987.json"
   },
   {
@@ -2676,9 +2676,9 @@
    "sha256": "f3a512a4cdf3fe3e24bee48874525783862cabec0eb88613240a925243db8c3b",
    "octets": 95722418,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/f3a512a4cdf3fe3e24bee48874525783862cabec0eb88613240a925243db8c3b.json"
   },
   {
@@ -2687,9 +2687,9 @@
    "sha256": "291643d34ad4f98f3defb5671e019bc68c15061d33cc6abf1be16b066192c8e2",
    "octets": 66968201,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/291643d34ad4f98f3defb5671e019bc68c15061d33cc6abf1be16b066192c8e2.json"
   },
   {
@@ -2698,9 +2698,9 @@
    "sha256": "c61d4692166a3dc777847030de7e5c4c39b93fb19296c211c8a6c720d5fab05a",
    "octets": 119405065,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/c61d4692166a3dc777847030de7e5c4c39b93fb19296c211c8a6c720d5fab05a.json"
   },
   {
@@ -2709,9 +2709,9 @@
    "sha256": "1285886a3f84792740ce54a19a25fd93ebb10eb0e4f1a9b96587bdad0b9a2809",
    "octets": 102557703,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/1285886a3f84792740ce54a19a25fd93ebb10eb0e4f1a9b96587bdad0b9a2809.json"
   },
   {
@@ -2720,9 +2720,9 @@
    "sha256": "fdccc3268b0474f25caa3c3c52178b65c966bc767e609381dee9b889a72dc1c7",
    "octets": 16771307,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/fdccc3268b0474f25caa3c3c52178b65c966bc767e609381dee9b889a72dc1c7.json"
   },
   {
@@ -2731,9 +2731,9 @@
    "sha256": "9f2a2bd951880c9eb2107d51a330d026f73f6a093593ef11cd244cad8b5db117",
    "octets": 38766973,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/9f2a2bd951880c9eb2107d51a330d026f73f6a093593ef11cd244cad8b5db117.json"
   },
   {
@@ -2742,9 +2742,9 @@
    "sha256": "9a4bb6a4a0f2318c70fa8163d306625abebb6823d348976cbc50fe5826b520fa",
    "octets": 16802119,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/9a4bb6a4a0f2318c70fa8163d306625abebb6823d348976cbc50fe5826b520fa.json"
   },
   {
@@ -2753,9 +2753,9 @@
    "sha256": "d022e81d8fe8f6b09af583eacc0975f4fe54d75ec19fcf631991f36000da3f51",
    "octets": 61826224,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/d022e81d8fe8f6b09af583eacc0975f4fe54d75ec19fcf631991f36000da3f51.json"
   },
   {
@@ -2764,9 +2764,9 @@
    "sha256": "0abc9822bdc503d6910aefd659a8b46e73dfbeb9760b8a3129180bd09aba02ea",
    "octets": 86628603,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/0abc9822bdc503d6910aefd659a8b46e73dfbeb9760b8a3129180bd09aba02ea.json"
   },
   {
@@ -2775,9 +2775,9 @@
    "sha256": "14646decefeabb787241360891fac32fa95a6e835f02a0834040c2cda1f69429",
    "octets": 94279063,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/14646decefeabb787241360891fac32fa95a6e835f02a0834040c2cda1f69429.json"
   },
   {
@@ -2786,9 +2786,9 @@
    "sha256": "e5859cf35d8ed92bc345c9d922b3fc07be390b0fe74d41b8a9360f65fb95293f",
    "octets": 33720046,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/e5859cf35d8ed92bc345c9d922b3fc07be390b0fe74d41b8a9360f65fb95293f.json"
   },
   {
@@ -2797,9 +2797,9 @@
    "sha256": "da0b327989c88887f8f9ddbdcf52e341fcd0bd654a0270dbab920b3d62371605",
    "octets": 56855832,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/da0b327989c88887f8f9ddbdcf52e341fcd0bd654a0270dbab920b3d62371605.json"
   },
   {
@@ -2808,9 +2808,9 @@
    "sha256": "f5298cd67438048618383e0d281d609150413c3d25dabaf7ab32f118d18bed32",
    "octets": 32793590,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/f5298cd67438048618383e0d281d609150413c3d25dabaf7ab32f118d18bed32.json"
   },
   {
@@ -2819,9 +2819,9 @@
    "sha256": "828816e9d2768a1761bf81729e6683cd27fe892d0a28e733f798725ade64ab42",
    "octets": 29089692,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/828816e9d2768a1761bf81729e6683cd27fe892d0a28e733f798725ade64ab42.json"
   },
   {
@@ -2830,9 +2830,9 @@
    "sha256": "35e38c89edc58cd887f6f0ca68b0f48e53b419d108057931d7e65aa2dd83fed1",
    "octets": 8673497,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/35e38c89edc58cd887f6f0ca68b0f48e53b419d108057931d7e65aa2dd83fed1.json"
   },
   {
@@ -2841,9 +2841,9 @@
    "sha256": "f748f68505b1104eb3ea51acf9f6f296a00fcef4ce32386e32d2cf39db3c2619",
    "octets": 26703801,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/f748f68505b1104eb3ea51acf9f6f296a00fcef4ce32386e32d2cf39db3c2619.json"
   },
   {
@@ -2852,9 +2852,9 @@
    "sha256": "4d7adba82d36ae3ed4898b5a4173b1c1a2b794def6935b20c0281e95a73acf83",
    "octets": 6131986,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/4d7adba82d36ae3ed4898b5a4173b1c1a2b794def6935b20c0281e95a73acf83.json"
   },
   {
@@ -2863,9 +2863,9 @@
    "sha256": "d29463af10761e6605a6b42e54b6da8ef5d3a99530d047c227c71d93027b188d",
    "octets": 23143563,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/d29463af10761e6605a6b42e54b6da8ef5d3a99530d047c227c71d93027b188d.json"
   },
   {
@@ -2874,9 +2874,9 @@
    "sha256": "084cbca936885408c738fc11927e363294bcd389b721e65819516549a0f87663",
    "octets": 10221560,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/084cbca936885408c738fc11927e363294bcd389b721e65819516549a0f87663.json"
   },
   {
@@ -2885,9 +2885,9 @@
    "sha256": "c455b03c9bb3c01a0ad1f5b08a7d2610be901132e02d161f4603a24bf02edccb",
    "octets": 52330451,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/c455b03c9bb3c01a0ad1f5b08a7d2610be901132e02d161f4603a24bf02edccb.json"
   },
   {
@@ -2896,9 +2896,9 @@
    "sha256": "343f850b2feda1ff9045421cbf4022d4c24b24cdb4d3f8453c4b83cdad7ff1f9",
    "octets": 14630754,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/343f850b2feda1ff9045421cbf4022d4c24b24cdb4d3f8453c4b83cdad7ff1f9.json"
   },
   {
@@ -2907,9 +2907,9 @@
    "sha256": "2eb83018f4748ef9b9b5bd28527072b54c18fcc10c14eb6db8a6cc4662e11e8e",
    "octets": 5850473,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/2eb83018f4748ef9b9b5bd28527072b54c18fcc10c14eb6db8a6cc4662e11e8e.json"
   },
   {
@@ -2918,9 +2918,9 @@
    "sha256": "a4a3a006632e3e61f6cc4acbdb7cab46740c77e1752bbf974dba985fc43f243f",
    "octets": 65844208,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/a4a3a006632e3e61f6cc4acbdb7cab46740c77e1752bbf974dba985fc43f243f.json"
   },
   {
@@ -2929,9 +2929,9 @@
    "sha256": "82ccb4ae72d979821760878e1eecce741361f84a9acd22e272072136ca982e86",
    "octets": 28463152,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/82ccb4ae72d979821760878e1eecce741361f84a9acd22e272072136ca982e86.json"
   },
   {
@@ -2940,9 +2940,9 @@
    "sha256": "af2b622fd12688e9abdb3b49cba5f55a0bd02ba87165c55384c5d2cd3bbf3d3a",
    "octets": 10279003,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/af2b622fd12688e9abdb3b49cba5f55a0bd02ba87165c55384c5d2cd3bbf3d3a.json"
   },
   {
@@ -2951,9 +2951,9 @@
    "sha256": "e3dd0cf18ee431382985fd3c7766fdce6cd58e1f9f3ffea6556a63879cfb790d",
    "octets": 31323524,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/e3dd0cf18ee431382985fd3c7766fdce6cd58e1f9f3ffea6556a63879cfb790d.json"
   },
   {
@@ -2962,9 +2962,9 @@
    "sha256": "52031fe2be31c6aab0995008e82d0b740f06c13d6d348f068699408b48b86b66",
    "octets": 127197033,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/52031fe2be31c6aab0995008e82d0b740f06c13d6d348f068699408b48b86b66.json"
   },
   {
@@ -2973,9 +2973,9 @@
    "sha256": "d4a43b47fd24684dc9796e680d09c00bd46a6cd5dba2888694d8f9b14269a1f7",
    "octets": 13442721,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/d4a43b47fd24684dc9796e680d09c00bd46a6cd5dba2888694d8f9b14269a1f7.json"
   },
   {
@@ -2984,9 +2984,9 @@
    "sha256": "1c9f7c119b18a42eea7dd9c4901d708e9d66b84b56f0471b845d24a700d668c8",
    "octets": 100452787,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/1c9f7c119b18a42eea7dd9c4901d708e9d66b84b56f0471b845d24a700d668c8.json"
   },
   {
@@ -2995,9 +2995,9 @@
    "sha256": "c85342ed451fd4151b2708a462e780479cb059ce333490f428c24f49958b7c76",
    "octets": 12650458,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/c85342ed451fd4151b2708a462e780479cb059ce333490f428c24f49958b7c76.json"
   },
   {
@@ -3006,9 +3006,9 @@
    "sha256": "cf5ec02a565e9a89e7c3467ec77b97ace624823e0322fd1876e3b6d27785a428",
    "octets": 34818507,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/cf5ec02a565e9a89e7c3467ec77b97ace624823e0322fd1876e3b6d27785a428.json"
   },
   {
@@ -3017,9 +3017,9 @@
    "sha256": "ac65c0d9b28af9da18f21877f4b6e8fca4fe52c0b66b9ce70984759e53c53fc3",
    "octets": 30493435,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/ac65c0d9b28af9da18f21877f4b6e8fca4fe52c0b66b9ce70984759e53c53fc3.json"
   },
   {
@@ -3028,9 +3028,9 @@
    "sha256": "be4156f49f125eb8ca1211e334dc0e35d4a7e0820563d2b21792a7463c5d2928",
    "octets": 111888360,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/be4156f49f125eb8ca1211e334dc0e35d4a7e0820563d2b21792a7463c5d2928.json"
   },
   {
@@ -3039,9 +3039,9 @@
    "sha256": "a3f5ea174a22b8a22911091cae91150a2819b4393c840819d71337edd730ff11",
    "octets": 38670127,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/a3f5ea174a22b8a22911091cae91150a2819b4393c840819d71337edd730ff11.json"
   },
   {
@@ -3050,9 +3050,9 @@
    "sha256": "6da8fec3ab94311a857cb4abfc64beec71f3b74963bdc84ff65568887d0c84fd",
    "octets": 6940684,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/6da8fec3ab94311a857cb4abfc64beec71f3b74963bdc84ff65568887d0c84fd.json"
   },
   {
@@ -3061,9 +3061,9 @@
    "sha256": "21fb863aa3f2ff3c81942125ebdc569a508f5cf92199276364935d451149b543",
    "octets": 21844466,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/21fb863aa3f2ff3c81942125ebdc569a508f5cf92199276364935d451149b543.json"
   },
   {
@@ -3072,9 +3072,9 @@
    "sha256": "10e3c9b590c685a52aa64af9e6d46f94067025ddd65598038806738e2e851bf0",
    "octets": 12489170,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/10e3c9b590c685a52aa64af9e6d46f94067025ddd65598038806738e2e851bf0.json"
   },
   {
@@ -3083,9 +3083,9 @@
    "sha256": "42be74e4bf9a963b35d8b52daeb4371065b654df13a20a3067ba957b16619964",
    "octets": 33437003,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/42be74e4bf9a963b35d8b52daeb4371065b654df13a20a3067ba957b16619964.json"
   },
   {
@@ -3094,9 +3094,9 @@
    "sha256": "90bdb510d2d983d313fb33ed97567b444bd96d4b23fc7e2c0ac72094bd71adce",
    "octets": 23764081,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/90bdb510d2d983d313fb33ed97567b444bd96d4b23fc7e2c0ac72094bd71adce.json"
   },
   {
@@ -3105,9 +3105,9 @@
    "sha256": "305ab5645d9e0d6ef3abe79e612c0380d43a41dad8c14a98d0156f21d43f0b3c",
    "octets": 16278088,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/305ab5645d9e0d6ef3abe79e612c0380d43a41dad8c14a98d0156f21d43f0b3c.json"
   },
   {
@@ -3116,9 +3116,9 @@
    "sha256": "26949c9ca027813561bb4c5692f3b1350c3cdf3f4ba879785ebd709ceb49c251",
    "octets": 9876800,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/26949c9ca027813561bb4c5692f3b1350c3cdf3f4ba879785ebd709ceb49c251.json"
   },
   {
@@ -3127,9 +3127,9 @@
    "sha256": "e905b48c0ffe755fcd29d617f818cd8f37e9537bd51a9e334f1f43068e136c12",
    "octets": 13236225,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/e905b48c0ffe755fcd29d617f818cd8f37e9537bd51a9e334f1f43068e136c12.json"
   },
   {
@@ -3138,9 +3138,9 @@
    "sha256": "43d952f4ec8edabcbab1c094efbca7b3b33de1921065769b321beac893d67211",
    "octets": 26371704,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/43d952f4ec8edabcbab1c094efbca7b3b33de1921065769b321beac893d67211.json"
   },
   {
@@ -3149,9 +3149,9 @@
    "sha256": "cd03bce5c46c8e6883f27924af67abb2ed9f0c9c918e335c7f2e66d4d4551629",
    "octets": 5345441,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/cd03bce5c46c8e6883f27924af67abb2ed9f0c9c918e335c7f2e66d4d4551629.json"
   },
   {
@@ -3160,9 +3160,9 @@
    "sha256": "bd7b931472cc7634fd7497fd209aa1ac2cea540d056b7cbbf1ab57dbfee3736b",
    "octets": 32024321,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/bd7b931472cc7634fd7497fd209aa1ac2cea540d056b7cbbf1ab57dbfee3736b.json"
   },
   {
@@ -3171,9 +3171,9 @@
    "sha256": "cc2609063943d988564f2e5c2e20c72dac1909059a7f27d974da417699abf7a3",
    "octets": 22598557,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/cc2609063943d988564f2e5c2e20c72dac1909059a7f27d974da417699abf7a3.json"
   },
   {
@@ -3182,9 +3182,9 @@
    "sha256": "f606af1a125e7518882213a9a824806667352ced7547e2669188bbb960c6029c",
    "octets": 87100058,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/f606af1a125e7518882213a9a824806667352ced7547e2669188bbb960c6029c.json"
   },
   {
@@ -3193,9 +3193,9 @@
    "sha256": "d2bd31baa879e78927940c8f79c75bf32f58e632ebaf6f4f89f25f1ee07ae43c",
    "octets": 12653516,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/d2bd31baa879e78927940c8f79c75bf32f58e632ebaf6f4f89f25f1ee07ae43c.json"
   },
   {
@@ -3204,9 +3204,9 @@
    "sha256": "5588e753301afb4def237ebc25d7964aafb1be7662a9c5045afbbfa27f2328d8",
    "octets": 30656664,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/5588e753301afb4def237ebc25d7964aafb1be7662a9c5045afbbfa27f2328d8.json"
   },
   {
@@ -3215,9 +3215,9 @@
    "sha256": "8c34291dd67a5d8a8d771622f82a799baa4a54289de7121526967778202599ad",
    "octets": 76498743,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/8c34291dd67a5d8a8d771622f82a799baa4a54289de7121526967778202599ad.json"
   },
   {
@@ -3226,9 +3226,9 @@
    "sha256": "1030f762dc531bf854330155502cd8aee9ef3870842d2b0bf63a029c5775191f",
    "octets": 22463376,
    "premierJour": "2026-10-12",
-   "dernierJour": "2026-10-13",
+   "dernierJour": "2026-10-14",
    "tour": "20261012T184850Z",
-   "dernierTour": "20261013T221004Z",
+   "dernierTour": "20261014T041808Z",
    "preuve": "preuves/1030f762dc531bf854330155502cd8aee9ef3870842d2b0bf63a029c5775191f.json"
   }
  ]
