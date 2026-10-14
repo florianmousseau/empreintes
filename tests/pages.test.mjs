@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { ACTES, SCEAU, DONNEES_STRUCTUREES, PLAN, planDuSite, pageMentions, pageActe, pageCollectivite, pageEditeur, pageDocumentation, pageIntrouvable, ancrageDe, dateHeure, echapper, pageAccueil, pageDeposer, pageJournal, pageVerifier, pagePreuve, premierHorodatageQualifie, COPIES } from '../src/pages.mjs';
+import { ACTES, SCEAU, TEXTES_DU_REGISTRE, pageRoles, pageSections, DONNEES_STRUCTUREES, PLAN, planDuSite, pageMentions, pageActe, pageCollectivite, pageEditeur, pageDocumentation, pageIntrouvable, ancrageDe, dateHeure, echapper, pageAccueil, pageDeposer, pageJournal, pageVerifier, pagePreuve, premierHorodatageQualifie, COPIES } from '../src/pages.mjs';
 
 const t = { id: '20261012T101314Z', instant: '2026-10-12T10:13:14Z', objets: 2018, racine: 'f'.repeat(64), ots: 'bitcoin', bloc: 971045, fichiers: ['20261012T101314Z.json', '20261012T101314Z.racine.ots'] };
-const pages = [pageJournal([t, { ...t, id: '20261012T121314Z', ots: 'calendrier', bloc: null }]), pageVerifier(), pageJournal([]), pageDeposer(), pageAccueil([t]), pageAccueil([]), pageIntrouvable(), pageMentions(), pagePreuve([t]), pageActe(), pageDocumentation(), pageEditeur({ flux: { id: '0123456789abcdef', inscrit: '2026-10-12T00:00:00Z', retire: null }, total: 1, versions: [{ article: 'e'.repeat(64), jour: '2026-10-12', place: 4, sha256: 'c'.repeat(64), recu: 'd'.repeat(64) }] }), pageCollectivite({ code: '17133', commune: { nom: 'Cravans', insee: '17133', siren: '211701339' }, serie: { total: 1, actes: [{ jour: '2026-10-12', place: 3, sha256: 'c'.repeat(64), recu: 'd'.repeat(64), nature: 'deliberation' }] } })];
+const pages = [pageJournal([t, { ...t, id: '20261012T121314Z', ots: 'calendrier', bloc: null }]), pageVerifier(), pageJournal([]), pageDeposer(), pageAccueil([t]), pageAccueil([]), pageIntrouvable(), pageMentions(), pagePreuve([t]), pageActe(), pageDocumentation(), pageEditeur({ flux: { id: '0123456789abcdef', inscrit: '2026-10-12T00:00:00Z', retire: null }, total: 1, versions: [{ article: 'e'.repeat(64), jour: '2026-10-12', place: 4, sha256: 'c'.repeat(64), recu: 'd'.repeat(64) }] }), pageCollectivite({ code: '17133', commune: { nom: 'Cravans', insee: '17133', siren: '211701339' }, serie: { total: 1, actes: [{ jour: '2026-10-12', place: 3, sha256: 'c'.repeat(64), recu: 'd'.repeat(64), nature: 'deliberation' }] } }), pageSections('pratiques'), pageSections('conditions'), pageRoles()];
 const texteDe = (html) => html.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<[^>]+>/g, '');
 
 test('aucun signe double ne suit une espace ordinaire dans le texte affiche en francais', () => {
@@ -169,4 +169,21 @@ test("le recu imprime tient sur une page : l'impression rend au corps sa hauteur
 	assert.match(impression, /html, body \{ min-height: 0; height: auto; \}/);
 	assert.match(impression, /body \{ display: block;/);
 	assert.match(impression, /@page \{ margin: 12mm; \}/);
+});
+
+test('les textes du registre : une page chacun, versionnee, liee depuis la documentation, et vraie aujourd hui', () => {
+	const textes = [pageSections('pratiques'), pageSections('conditions'), pageRoles()];
+	const doc = pageDocumentation();
+	for (const [i, acte] of TEXTES_DU_REGISTRE.entries()) {
+		assert.ok(PLAN.includes(ACTES[acte].chemin), acte);
+		assert.ok(doc.includes(`<li><a href="${ACTES[acte].chemin}">${ACTES[acte].nom}</a></li>`), acte);
+		assert.match(textes[i], new RegExp(`<h1>${ACTES[acte].titre}</h1>\n<p class="sous-titre">Version 1, 14/10/2026</p>`));
+	}
+	const tout = texteDe(textes.join(''));
+	for (const interdit of [/qualifi/i, /cachet/i, /certifi/i, /palier/i, /cockpit/i, /payant/i, /D-1\d\d/]) assert.doesNotMatch(tout, interdit);
+	assert.match(textes[0], /la signature du journal, un JWS compact ES256/);
+	assert.match(textes[1], /Gratuit, sans compte\. Le prestataire est l’éditeur nommé aux <a href="\/mentions-legales">Mentions légales<\/a>\./);
+	assert.match(textes[2], /<td><strong>Audit interne<\/strong><\/td>/);
+	assert.match(textes[2], /Les quatre rôles sont tenus par l’éditeur nommé aux <a href="\/mentions-legales">Mentions légales<\/a>, depuis le 11\/10\/2026\./);
+	assert.match(textes[2], /<h2>Aucune formation enregistrée<\/h2>/);
 });

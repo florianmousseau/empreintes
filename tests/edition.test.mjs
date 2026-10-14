@@ -6,10 +6,10 @@ import { EDITIONS, HOTES_ALLEMANDS, cheminsDe, langueDe, planDe } from '../src/e
 import { TEXTES, vue } from '../src/textes.mjs';
 import { FONCTIONS, decider, horsIndex, pageAllemande } from '../src/hote.mjs';
 import { onRequest } from '../functions/_middleware.js';
-import { ACTES, donneesStructurees, pageAccueil, pageDeposer, pageDocumentation, pageIntrouvable, pageJournal, pageMentions, pagePreuve, pageRecuInconnu, pageVerifier, planDuSite, robots } from '../src/pages.mjs';
+import { ACTES, donneesStructurees, pageRoles, pageSections, pageAccueil, pageDeposer, pageDocumentation, pageIntrouvable, pageJournal, pageMentions, pagePreuve, pageRecuInconnu, pageVerifier, planDuSite, robots } from '../src/pages.mjs';
 
 const tour = { id: '20261012T101314Z', instant: '2026-10-12T10:13:14Z', objets: 2018, racine: 'f'.repeat(64), ots: 'bitcoin', bloc: 971045, fichiers: ['20261012T101314Z.json', '20261012T101314Z.racine.ots'] };
-const de = [pageAccueil([tour], 'de'), pageDeposer('de'), pageVerifier('de'), pageJournal([tour, { ...tour, ots: 'calendrier', bloc: null }], 'de'), pageJournal([], 'de'), pageDocumentation('de'), pageMentions('de'), pageIntrouvable('de'), pageRecuInconnu('de'), pageAccueil([], 'de'), pagePreuve([tour], undefined, 'de'), pagePreuve([{ ...tour, fichiers: ['20261012T101314Z.racine.tsr'] }], undefined, 'de')];
+const de = [pageAccueil([tour], 'de'), pageDeposer('de'), pageVerifier('de'), pageJournal([tour, { ...tour, ots: 'calendrier', bloc: null }], 'de'), pageJournal([], 'de'), pageDocumentation('de'), pageMentions('de'), pageIntrouvable('de'), pageRecuInconnu('de'), pageAccueil([], 'de'), pagePreuve([tour], undefined, 'de'), pagePreuve([{ ...tour, fichiers: ['20261012T101314Z.racine.tsr'] }], undefined, 'de'), pageSections('pratiques', 'de'), pageSections('conditions', 'de'), pageRoles('de')];
 const texteDe = (html) => html.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<[^>]+>/g, '');
 
 test('la table bilingue se lit dans une langue, feuille par feuille, les absents compris', () => {
@@ -47,7 +47,7 @@ test('chaque page allemande porte la marque, sa langue, son adresse canonique et
 
 test("l'edition allemande n'a pas d'acte de collectivite : ni bloc, ni page, ni lien, ni ligne de documentation", () => {
 	assert.equal(EDITIONS.de.actes.acte, undefined);
-	assert.deepEqual(planDe('de'), ['/', '/datieren', '/pruefen', '/register', '/beweiswert', '/dokumentation', '/impressum']);
+	assert.deepEqual(planDe('de'), ['/', '/datieren', '/pruefen', '/register', '/beweiswert', '/dokumentation', '/praktiken', '/bedingungen', '/rollen', '/impressum']);
 	for (const html of de) {
 		for (const interdit of ['id="acte"', 'id="collectivite"', 'href="/acte"', '/collectivite/', 'annuaire', 'INSEE']) assert.ok(!html.includes(interdit), interdit);
 	}
@@ -93,7 +93,7 @@ test('les pages equivalentes se lient par hreflang dans les deux sens, x-default
 
 test('le plan du site, les robots et llms.txt de chaque edition parlent de son seul domaine', () => {
 	const plan = planDuSite(planDe('de'), 'de');
-	assert.equal(plan.match(/<loc>/g).length, 7);
+	assert.equal(plan.match(/<loc>/g).length, 10);
 	assert.match(plan, /<loc>https:\/\/datumszeuge.de\/impressum<\/loc>/);
 	assert.ok(!plan.includes('temoinpublic'));
 	assert.match(robots('de'), /^User-agent: \*\nAllow: \/\nDisallow: \/index\/\n\nSitemap: https:\/\/datumszeuge.de\/sitemap.xml\n$/);
@@ -106,7 +106,7 @@ test('le plan du site, les robots et llms.txt de chaque edition parlent de son s
 });
 
 test('la valeur de preuve en allemand cite la ZPO et eIDAS, et dit l horodatage qualifie a la date allemande', () => {
-	const [sans, avec] = de.slice(-2);
+	const [sans, avec] = de.slice(-5, -3);
 	assert.match(sans, /<h1>Beweiswert<\/h1>\n<h2>Was ein Beleg beweist<\/h2>/);
 	assert.match(sans, /Jeden Tag wird das Datum in Bitcoin verankert\.<\/li>/);
 	assert.match(avec, /Vertrauensliste \(eIDAS\) mit einem Zeitstempel versehen, seit dem 12\.10\.2026|seit dem 12\.10\.2026 von einem Anbieter/);
@@ -190,4 +190,14 @@ test('les scripts du navigateur lisent leurs textes dans la langue de la page', 
 	const routes = JSON.parse(readFileSync(new URL('../public/_routes.json', import.meta.url), 'utf8'));
 	assert.deepEqual(routes.include, ['/*']);
 	for (const partage of ['/style.css', '/deposer.js', '/textes.js', '/chaine.mjs', '/empreintes/*', '/index/*', '/annuaire/*', '/tours.json', '/openapi.json']) assert.ok(routes.exclude.includes(partage), partage);
+});
+
+test('les textes du registre existent en allemand, a leurs adresses, lies a leur equivalent francais', () => {
+	const [pratiques, conditions, roles] = de.slice(-3);
+	assert.match(pratiques, /<h1>Praktiken des Registers<\/h1>\n<p class="sous-titre">Version 1, 14\.10\.2026<\/p>/);
+	assert.match(pratiques, /hreflang="fr" href="https:\/\/temoinpublic.fr\/pratiques"/);
+	assert.match(conditions, /Anbieter ist der im <a href="\/impressum">Impressum<\/a> genannte\./);
+	assert.match(roles, /<h2>Keine Schulung eingetragen<\/h2>/);
+	for (const c of ['/praktiken', '/bedingungen', '/rollen']) assert.equal(pageAllemande(c), `/de${c}`);
+	assert.match(pageDocumentation('de'), /<h2>Texte des Registers<\/h2>\n<ul>\n<li><a href="\/praktiken">Praktiken des Registers<\/a><\/li>/);
 });

@@ -9,7 +9,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { FICHIER_PUBLIE, ID_DE_TOUR, PREUVE_PUBLIEE, indexDesEmpreintes, resumeDe } from '../src/journal.mjs';
-import { pageAccueil, pageActe, pageDeposer, pageDocumentation, pageIntrouvable, pageJournal, pageMentions, pagePreuve, pageVerifier, planDuSite, robots } from '../src/pages.mjs';
+import { pageAccueil, pageActe, pageDeposer, pageDocumentation, pageIntrouvable, pageJournal, pageMentions, pagePreuve, pageRoles, pageSections, pageVerifier, planDuSite, robots } from '../src/pages.mjs';
 import { EDITIONS, dossierDe, planDe } from '../src/edition.mjs';
 
 const RACINE = path.resolve(import.meta.dirname, '..');
@@ -60,6 +60,9 @@ for (const [langue, e] of Object.entries(EDITIONS)) {
 	dans(`${e.actes.dater.chemin.slice(1)}.html`, pageDeposer(langue));
 	dans(`${e.actes.mentions.chemin.slice(1)}.html`, pageMentions(langue));
 	dans(`${e.actes.preuve.chemin.slice(1)}.html`, pagePreuve(tours, undefined, langue));
+	dans(`${e.actes.pratiques.chemin.slice(1)}.html`, pageSections('pratiques', langue));
+	dans(`${e.actes.conditions.chemin.slice(1)}.html`, pageSections('conditions', langue));
+	dans(`${e.actes.roles.chemin.slice(1)}.html`, pageRoles(langue));
 	dans('sitemap.xml', planDuSite(planDe(langue), langue));
 	dans('robots.txt', robots(langue));
 	dans('llms.txt', e.llms);

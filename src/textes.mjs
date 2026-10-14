@@ -30,7 +30,10 @@ export const TEXTES = {
 		acte: { fr: { chemin: '/acte', nom: 'Acte de collectivité', titre: 'Dater la mise en ligne d’un acte' }, de: undefined },
 		preuve: { chemin: { fr: '/preuve', de: '/beweiswert' }, nom: { fr: 'Valeur de preuve', de: 'Beweiswert' }, titre: { fr: 'Valeur de preuve', de: 'Beweiswert' } },
 		documentation: { chemin: { fr: '/documentation', de: '/dokumentation' }, nom: { fr: 'Documentation', de: 'Dokumentation' }, titre: { fr: 'Documentation', de: 'Dokumentation' } },
-		mentions: { chemin: { fr: '/mentions-legales', de: '/impressum' }, nom: { fr: 'Mentions légales', de: 'Impressum' }, titre: { fr: 'Mentions légales', de: 'Impressum' } }
+		mentions: { chemin: { fr: '/mentions-legales', de: '/impressum' }, nom: { fr: 'Mentions légales', de: 'Impressum' }, titre: { fr: 'Mentions légales', de: 'Impressum' } },
+		pratiques: { chemin: { fr: '/pratiques', de: '/praktiken' }, nom: { fr: 'Pratiques du registre', de: 'Praktiken des Registers' }, titre: { fr: 'Pratiques du registre', de: 'Praktiken des Registers' } },
+		conditions: { chemin: { fr: '/conditions', de: '/bedingungen' }, nom: { fr: 'Conditions générales', de: 'Nutzungsbedingungen' }, titre: { fr: 'Conditions générales', de: 'Nutzungsbedingungen' } },
+		roles: { chemin: { fr: '/roles', de: '/rollen' }, nom: { fr: 'Rôles de confiance', de: 'Vertrauensrollen' }, titre: { fr: 'Rôles de confiance', de: 'Vertrauensrollen' } }
 	},
 	jour: { fr: jourFr, de: jourDe },
 	nombre: { fr: nombreFr, de: nombreDe },
@@ -182,7 +185,7 @@ export const TEXTES = {
 			fr: 'Adresses, limites et formules du registre des dates : dater, lire et vérifier sans ce site.',
 			de: 'Adressen, Grenzen und Formeln des Datumsregisters: datieren, lesen und ohne diese Website prüfen.'
 		},
-		titres: { fr: ['Dater', 'Agents', 'Lire', 'Vérifier sans ce site'], de: ['Datieren', 'Agenten', 'Lesen', 'Ohne diese Website prüfen'] },
+		titres: { fr: ['Dater', 'Agents', 'Lire', 'Vérifier sans ce site', 'Textes du registre'], de: ['Datieren', 'Agenten', 'Lesen', 'Ohne diese Website prüfen', 'Texte des Registers'] },
 		dater: {
 			empreinte: { fr: 'une empreinte calculée par vous\u00A0; le libellé reste dans le reçu', de: 'eine von Ihnen berechnete Prüfsumme; der Name bleibt im Beleg' },
 			url: { fr: 'le service lit lui-même le document en ligne et date ses octets', de: 'der Dienst liest das Dokument selbst im Internet und datiert seine Bytes' },
@@ -332,6 +335,146 @@ export const TEXTES = {
 			]
 		},
 		code: { fr: 'Code', de: 'Quellcode' }
+	},
+	version: { fr: (n, jour) => `Version ${n}, ${jour}`, de: (n, jour) => `Version ${n}, ${jour}` },
+	pratiques: {
+		description: {
+			fr: 'Ce que le registre des dates enregistre, comment il ordonne, lie et signe chaque tour, et comment une modification se voit.',
+			de: 'Was das Datumsregister einträgt, wie es jede Runde ordnet, verknüpft und signiert, und wie eine Änderung sichtbar wird.'
+		},
+		sections: {
+			fr: [
+				['Ce qui est enregistré', 'Des empreintes SHA-256, jamais un document : celles des dépôts et celles des documents publics conservés par l’entrepôt. Quatre tours par jour ; chaque tour publie un relevé et sa racine.'],
+				[
+					'L’origine',
+					'Le relevé nomme la source et la clé de chaque empreinte. Chaque racine porte la signature du journal, un JWS compact ES256 dont la clé est épinglée dans la documentation. Un dépôt porte son reçu ; le déposant n’y est désigné que par ce qu’il a déclaré.'
+				],
+				[
+					'L’ordre',
+					'Un tour porte l’instant de son début. Sa racine est chaînée à celle du tour précédent, le premier suit 64 zéros : insérer un tour dans le passé change toutes les racines suivantes. Chaque racine est ancrée dans Bitcoin par OpenTimestamps ; une fois par jour, une racine reçoit aussi un horodatage RFC 3161 d’un prestataire de la liste de confiance européenne.'
+				],
+				['Les liens', 'Dans un tour, un arbre de Merkle SHA-256 : le chemin d’audit d’une empreinte la relie à la racine. Entre les tours, la racine chaînée. Hors du registre, Bitcoin et l’horodatage.'],
+				['La finalité', 'Prouver qu’une empreinte était inscrite à une place donnée, et que rien n’a changé depuis. Le registre ne dit rien du contenu ni de son auteur.'],
+				[
+					'L’intégrité',
+					(liens) =>
+						`Un relevé publié n’est jamais réécrit ; seul son <code>.ots</code> grandit. La copie publique s’arrête si un relevé déjà publié change. Le vérificateur de ce site est écrit sans le code du producteur et recalcule chaque racine et la chaîne entière (${liens.documentation}).`
+				],
+				['La surveillance', '<code>/health</code> publie l’âge du dernier tour et les preuves restées en attente plus de 48 h.'],
+				['La fin du service', 'Relevés, racines, signatures et preuves sont publics : le registre reste vérifiable sans ce site.']
+			],
+			de: [
+				['Was eingetragen wird', 'SHA-256-Prüfsummen, nie ein Dokument: die der Datierungen und die der öffentlichen Dokumente, die das Archiv aufbewahrt. Vier Runden pro Tag; jede Runde veröffentlicht ein Protokoll und seine Wurzel.'],
+				[
+					'Herkunft',
+					'Das Protokoll nennt Quelle und Schlüssel jeder Prüfsumme. Jede Wurzel trägt die Signatur des Journals, ein kompaktes JWS ES256, dessen Schlüssel in der Dokumentation festgelegt ist. Eine Datierung trägt ihren Beleg; der Einreicher wird darin nur durch seine eigenen Angaben bezeichnet.'
+				],
+				[
+					'Reihenfolge',
+					'Eine Runde trägt den Zeitpunkt ihres Beginns. Ihre Wurzel ist mit der der vorherigen Runde verkettet, die erste folgt auf 64 Nullen: Eine nachträglich eingefügte Runde ändert alle folgenden Wurzeln. Jede Wurzel wird über OpenTimestamps in Bitcoin verankert; einmal pro Tag erhält eine Wurzel zusätzlich einen RFC-3161-Zeitstempel eines Anbieters der europäischen Vertrauensliste.'
+				],
+				['Verknüpfungen', 'In einer Runde ein Merkle-Baum mit SHA-256: Der Prüfpfad einer Prüfsumme verbindet sie mit der Wurzel. Zwischen den Runden die verkettete Wurzel. Außerhalb des Registers Bitcoin und der Zeitstempel.'],
+				['Zweck', 'Beweisen, dass eine Prüfsumme an einer bestimmten Stelle eingetragen war und sich seitdem nichts geändert hat. Über den Inhalt und seinen Urheber sagt das Register nichts.'],
+				[
+					'Integrität',
+					(liens) =>
+						`Ein veröffentlichtes Protokoll wird nie neu geschrieben; nur seine <code>.ots</code>-Datei wächst. Die öffentliche Kopie hält an, wenn sich ein bereits veröffentlichtes Protokoll ändert. Der Prüfer dieser Website ist ohne den Code des Erzeugers geschrieben und berechnet jede Wurzel und die ganze Kette neu (${liens.documentation}).`
+				],
+				['Überwachung', '<code>/health</code> veröffentlicht das Alter der letzten Runde und die Beweise, die länger als 48 h ausstehen.'],
+				['Ende des Dienstes', 'Protokolle, Wurzeln, Signaturen und Beweise sind öffentlich: Das Register bleibt ohne diese Website prüfbar.']
+			]
+		}
+	},
+	conditions: {
+		description: {
+			fr: 'Conditions générales du registre des dates, pour qui le consulte et pour qui y dépose une empreinte.',
+			de: 'Nutzungsbedingungen des Datumsregisters, für alle, die es lesen oder eine Prüfsumme eintragen.'
+		},
+		sections: {
+			fr: [
+				[
+					'Le service',
+					(liens) =>
+						`Un registre public d’empreintes SHA-256, ordonné, chaîné, signé et ancré dans Bitcoin. Aucun document n’y est enregistré. Gratuit, sans compte. Le prestataire est l’éditeur nommé aux ${liens.mentions}.`
+				],
+				[
+					'Ce que le prestataire s’engage à faire',
+					'Inscrire chaque empreinte admise au tour qui suit son arrivée ; ne jamais réécrire un relevé ; publier relevés, racines et preuves, vérifiables sans lui ; dire sur ce site toute anomalie de la chaîne ; garder chaque version de ces conditions.'
+				],
+				[
+					'Ce que le déposant s’engage à faire',
+					(liens) =>
+						`Déposer une empreinte, jamais un fichier, et aucune donnée personnelle dans le libellé ; respecter les plafonds de la ${liens.documentation} ; garder son reçu, seul lien entre son empreinte et ce qu’il a déclaré.`
+				],
+				[
+					'Ce qui se publie',
+					'L’empreinte, le jour et la place dans le registre. Le libellé et l’adresse restent dans le reçu, sauf pour un acte lu sur le site officiel d’une commune : sa nature, son objet et son adresse paraissent sur la page de la commune.'
+				],
+				[
+					'Les limites',
+					'Le registre prouve qu’une empreinte était inscrite à une place. Il ne dit ni qui a produit le fichier, ni qu’il est exact, ni qu’il est licite. Un ancrage peut tarder : la preuve le dit. Le prestataire ne répond pas de l’usage fait d’un reçu.'
+				],
+				[
+					'Les données personnelles',
+					'Aucune n’est inscrite dans le registre. L’adresse IP d’un déposant n’est jamais écrite : seul son haché salé du jour sert au plafond, et le sel est effacé le lendemain.'
+				],
+				['La fin du service', 'Le registre publié reste vérifiable sans le prestataire.'],
+				['La loi et le juge', 'Droit français. En cas de litige, après une tentative de règlement amiable, les tribunaux de Paris.']
+			],
+			de: [
+				[
+					'Der Dienst',
+					(liens) =>
+						`Ein öffentliches Register von SHA-256-Prüfsummen, geordnet, verkettet, signiert und in Bitcoin verankert. Kein Dokument wird darin eingetragen. Kostenlos, ohne Konto. Anbieter ist der im ${liens.mentions} genannte.`
+				],
+				[
+					'Pflichten des Anbieters',
+					'Jede angenommene Prüfsumme in der Runde nach ihrem Eingang eintragen; nie ein Protokoll neu schreiben; Protokolle, Wurzeln und Beweise veröffentlichen, prüfbar ohne ihn; jede Unregelmäßigkeit der Kette auf dieser Website nennen; jede Fassung dieser Bedingungen aufbewahren.'
+				],
+				[
+					'Pflichten des Einreichers',
+					(liens) =>
+						`Eine Prüfsumme einreichen, nie eine Datei, und keine personenbezogenen Daten im Namen; die Grenzen der ${liens.documentation} einhalten; den Beleg aufbewahren, die einzige Verbindung zwischen der Prüfsumme und den eigenen Angaben.`
+				],
+				['Was veröffentlicht wird', 'Die Prüfsumme, der Tag und die Stelle im Register. Name und Adresse bleiben im Beleg.'],
+				[
+					'Grenzen',
+					'Das Register beweist, dass eine Prüfsumme an einer Stelle eingetragen war. Es sagt weder, wer die Datei erstellt hat, noch dass sie richtig oder rechtmäßig ist. Eine Verankerung kann sich verzögern: Der Beweis sagt es. Der Anbieter haftet nicht für die Verwendung eines Belegs.'
+				],
+				[
+					'Personenbezogene Daten',
+					'Im Register werden keine eingetragen. Die IP-Adresse eines Einreichers wird nie gespeichert: nur ihr gesalzener Tageshash dient der Tagesgrenze, und das Salz wird am nächsten Tag gelöscht.'
+				],
+				['Ende des Dienstes', 'Das veröffentlichte Register bleibt ohne den Anbieter prüfbar.'],
+				['Recht und Gerichtsstand', 'Es gilt französisches Recht. Bei Streitigkeiten, nach einem Versuch gütlicher Einigung, die Gerichte in Paris.']
+			]
+		}
+	},
+	roles: {
+		description: {
+			fr: 'Les rôles de confiance du registre des dates, ce que chacun fait, et les formations suivies.',
+			de: 'Die Vertrauensrollen des Datumsregisters, was jede tut, und die absolvierten Schulungen.'
+		},
+		colonnes: { fr: ['Rôle', 'Ce qu’il fait', 'Garde-fou'], de: ['Rolle', 'Aufgabe', 'Absicherung'] },
+		liste: {
+			fr: [
+				['Direction', 'approuve les pratiques et les conditions ; décide une fin de service', 'décision écrite et datée'],
+				['Sécurité', 'tient les accès, les clés et les incidents', 'aucune clé dans un dépôt de code'],
+				['Exploitation', 'fait tourner le registre et ce site', 'tout changement relu et contrôlé avant sa mise en ligne'],
+				['Audit interne', 'relit les journaux et les écarts', 'relecture distincte de l’écriture']
+			],
+			de: [
+				['Leitung', 'genehmigt Praktiken und Bedingungen; entscheidet über ein Ende des Dienstes', 'schriftliche, datierte Entscheidung'],
+				['Sicherheit', 'verwaltet Zugänge, Schlüssel und Vorfälle', 'kein Schlüssel in einem Code-Repository'],
+				['Betrieb', 'betreibt das Register und diese Website', 'jede Änderung vor der Inbetriebnahme geprüft'],
+				['Interne Prüfung', 'prüft Protokolle und Abweichungen', 'Prüfung getrennt vom Schreiben']
+			]
+		},
+		titulaire: {
+			fr: (mentions, jour) => `Les quatre rôles sont tenus par l’éditeur nommé aux ${mentions}, depuis le ${jour}.`,
+			de: (mentions, jour) => `Alle vier Rollen hat der im ${mentions} genannte Anbieter inne, seit dem ${jour}.`
+		},
+		formations: { fr: 'Aucune formation enregistrée', de: 'Keine Schulung eingetragen' }
 	},
 	llms: {
 		fr: `# Témoin public
