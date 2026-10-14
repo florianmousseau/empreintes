@@ -4,6 +4,7 @@
 
 import { NATURES } from './acte.mjs';
 import { nomDuDepartement } from './departements.mjs';
+import { BESOINS } from './besoins.mjs';
 import { EDITIONS, cheminsDe, planDe } from './edition.mjs';
 import { ADRESSES, FORMULES } from './documentation.mjs';
 
@@ -215,7 +216,7 @@ export function pageAccueil(tours, langue = 'fr') {
 ${formulaireDater(e, false)}
 <p class="suite">${e.accueil.deja} ${lien(e, 'verifier')}.</p>
 ${etapes(e)}
-${compte}`
+${lignePour(e)}${compte}`
 	});
 }
 
@@ -305,6 +306,38 @@ ${formulaireDater(e)}
 <p class="compte">${e.deposer.compte(lien(e, 'preuve'))}</p>`
 	});
 }
+
+/** La page d'un besoin cherche : son titre, une phrase, et le geste de dater sur la page. */
+export function pageBesoin(besoin) {
+	const e = EDITIONS.fr;
+	return gabarit(e, {
+		titre: besoin.titre,
+		description: besoin.description,
+		chemin: besoin.chemin,
+		script: '<script type="module" src="/deposer.js"></script>\n',
+		corps: `<section class="une une-page"><h1>${besoin.titre}</h1>
+<p class="chapeau">${besoin.chapeau}</p></section>
+${besoin.geste === 'lien' ? formulaireDuLien(e) : formulaireDater(e, false)}
+<p class="compte">${e.deposer.compte(lien(e, 'preuve'))}</p>`
+	});
+}
+
+/** Le formulaire d'un besoin qui se date par son adresse : le lien seul, le nom replie. */
+const formulaireDuLien = (e) => `<form id="formulaire" class="carte">
+<label for="url">Adresse de la page</label>
+<input type="text" id="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://" required>
+<details>
+<summary>${e.formulaire.nommer}</summary>
+<label for="libelle">${e.formulaire.nom}</label>
+<input type="text" id="libelle" maxlength="200" autocomplete="off">
+</details>
+<button type="submit" class="principal large-bouton">Dater cette page</button>
+<p class="recoit">Vous recevez un reçu à imprimer ou à télécharger. Il atteste que cette page était en ligne à cette adresse à cet instant.</p>
+</form>
+<div id="resultat" aria-live="polite"></div>`;
+
+/** Les besoins, pour l'accueil : chacun lie a sa page. Francais seulement. */
+const lignePour = (e) => (e.actes.acte ? `<p class="suite">Pour ${BESOINS.map((b) => `<a href="${b.chemin}">${b.nom}</a>`).join(', ')}.</p>\n` : '');
 
 /** Dater un acte de collectivite : l'adresse ou il est publie, la collectivite, la nature. */
 export function pageActe() {
