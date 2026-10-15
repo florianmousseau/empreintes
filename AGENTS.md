@@ -142,3 +142,11 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   `.timer` (toutes les communes, `--departements tous`, memoire bornee a
   512 Mo), clone public a jour avant chaque passage, jeton dans
   `/etc/glane-actes.env`. Releve du jour : `/var/lib/glane-actes/etat/glane-<jour>.tsv`.
+- La glane ne depose pas un acte qui POURRAIT nommer une personne (`pourraitNommer`,
+  `src/glane.mjs`) : acte individuel (delegation, nomination, occupation du domaine
+  public, permission de voirie...), mot en capitales dans un texte qui ne l'est pas,
+  arrete ou decision tout en capitales avec un mot hors des sigles connus ; le
+  libelle, l'objet ET le nom du fichier sont lus, car l'adresse est montree sur la
+  page de la commune. Mesure du 2026-10-15 : `nommeUnePersonne` laissait passer
+  « occupation du domaine public SIMON » et « DELEGATION-SIGNATURE-MAINGOT » ; 272
+  actes deja publies ont eu objet « Sans objet » et adresse retiree en base.
