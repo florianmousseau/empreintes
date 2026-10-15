@@ -132,7 +132,7 @@ export function natureDe({ href, texte }) {
 	return duLibelle.nature ?? duFichier.nature ?? null;
 }
 
-const GENERIQUE = /^(?:telecharger|telecharger le (?:document|fichier|pdf)|ici|cliquez|cliquez ici|lire|lire la suite|voir|consulter|consulter (?:le|la|les)(?: document| fichier| pdf)?|document|fichier|pdf|lien|en savoir plus|\d+)$/;
+const GENERIQUE = /^(?:telecharger|telecharger le (?:document|fichier|pdf)|ici|cliquez|cliquez ici|lire|lire la suite|voir|consulter|consulter (?:le|la|les)(?: document| fichier| pdf)?|(?:document|fichier|pdf|piece jointe)s?(?: a telecharger| joints?)?|annexes?|lien|en savoir plus|\d+)$/;
 
 const nettoyer = (texte) =>
 	texte
