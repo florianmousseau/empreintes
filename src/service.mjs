@@ -4,7 +4,7 @@
 import { surSiteOfficiel } from './acte.mjs';
 import { nommeUnePersonne } from './personne.mjs';
 import { sha256 } from './chaine.mjs';
-import { cleDAdresse, idDuRecu, jourDe, ligneDe, lireDemande, plafond, recuDe, secondesAvantDemain, selAleatoire } from './depot.mjs';
+import { CLE_DE_LA_FLOTTE, cleDAdresse, idDuRecu, jourDe, ligneDe, lireDemande, plafond, recuDe, secondesAvantDemain, selAleatoire } from './depot.mjs';
 import { verifierSignatureDuDeposant } from './origine.mjs';
 import { AGENT, DELAI_MS, cleDeLecture, estUneIp, ipsDoH, lireBorne, resolutionAdmise, sautSuivant, urlAdmise } from './temoin.mjs';
 
@@ -39,7 +39,7 @@ const faire = (db, sql, ...args) => db.prepare(sql).bind(...args).run();
 async function selDuJour(db, jour) {
 	await faire(db, 'DELETE FROM sel WHERE jour < ?', jour);
 	// Le compte des jours passes ne survit qu'en agregat : combien de depots, combien d'adresses distinctes ce jour-la.
-	await faire(db, 'INSERT INTO bilan (jour, depots, deposants) SELECT jour, SUM(n), COUNT(*) FROM compte WHERE jour < ? GROUP BY jour ON CONFLICT (jour) DO NOTHING', jour);
+	await faire(db, 'INSERT INTO bilan (jour, depots, deposants) SELECT jour, SUM(n), COUNT(*) FROM compte WHERE jour < ? AND adresse <> ? GROUP BY jour ON CONFLICT (jour) DO NOTHING', jour, CLE_DE_LA_FLOTTE);
 	await faire(db, 'DELETE FROM compte WHERE jour < ?', jour);
 	await faire(db, 'DELETE FROM lecture WHERE jour < ?', jour);
 	await faire(db, 'INSERT INTO sel (jour, valeur) VALUES (?, ?) ON CONFLICT (jour) DO NOTHING', jour, selAleatoire());
@@ -143,18 +143,26 @@ async function lireAutorites(autorites) {
  * `adresse` n'est jamais gardee : seul son hache sale du jour compte.
  * `annuaire(code)` rend les sites officiels d'une collectivite, `[hote, prefixe]` ;
  * `autorites()` le registre des autorites des listes de confiance, ou null.
+ * `flotte` : la glane des actes des communes (D-178), qui ne depose que des
+ * actes lus sur le site officiel, sous son propre plafond, hors du bilan des
+ * deposants, et ne redate pas un acte deja date pour sa collectivite.
  */
-export async function deposer({ db, corps, adresse, maintenant = new Date(), temoin = temoigner, annuaire = async () => null, autorites = async () => null }) {
+export async function deposer({ db, corps, adresse, maintenant = new Date(), temoin = temoigner, annuaire = async () => null, autorites = async () => null, flotte = false }) {
 	const { demande, erreurs } = lireDemande(corps);
 	if (erreurs) return refus(400, 'demande illisible', erreurs);
+	if (flotte && !demande.acte) return refus(400, 'demande illisible', ['la glane ne depose que des actes']);
 	const instant = maintenant.toISOString();
 	const jour = jourDe(instant);
-	const cle = await cleDAdresse(adresse ?? 'inconnue', await selDuJour(db, jour));
+	const sel = await selDuJour(db, jour);
+	const cle = flotte ? CLE_DE_LA_FLOTTE : await cleDAdresse(adresse ?? 'inconnue', sel);
 	// Les versions des flux suivis (D-170) ont leurs propres plafonds, hors de celui des depots exterieurs.
+	// Les actes de la glane (D-178) aussi.
 	const duJour =
-		(await un(db, 'SELECT COALESCE(MAX(place), 0) AS n FROM depot WHERE jour = ?', jour)).n - (await un(db, 'SELECT COUNT(*) AS n FROM version WHERE jour = ?', jour)).n;
+		(await un(db, 'SELECT COALESCE(MAX(place), 0) AS n FROM depot WHERE jour = ?', jour)).n -
+		(await un(db, 'SELECT COUNT(*) AS n FROM version WHERE jour = ?', jour)).n -
+		((await un(db, 'SELECT n FROM compte WHERE jour = ? AND adresse = ?', jour, CLE_DE_LA_FLOTTE))?.n ?? 0);
 	const deCetteAdresse = (await un(db, 'SELECT n FROM compte WHERE jour = ? AND adresse = ?', jour, cle))?.n ?? 0;
-	const limite = plafond({ deCetteAdresse, duJour, instant });
+	const limite = plafond({ deCetteAdresse, duJour, instant, flotte });
 	if (!limite.ok) return refus(429, limite.motif, [], { 'retry-after': String(limite.apres) });
 
 	let empreinte = demande.sha256;
@@ -182,6 +190,10 @@ export async function deposer({ db, corps, adresse, maintenant = new Date(), tem
 	}
 
 	const acte = demande.acte ? { ...demande.acte, rattachement: await rattachement({ acte: demande.acte, demandee: demande.url, lue: lu.url, annuaire }) } : null;
+	if (flotte) {
+		const refusDeLaGlane = await jugerLaGlane(db, { acte, empreinte });
+		if (refusDeLaGlane) return refusDeLaGlane;
+	}
 	const recu = recuDe({ sha256: empreinte, instant, libelle: demande.libelle, url: demande.url, temoin: lu, acte, affichage: demande.affichage ?? null, signature: signature && { valeur: demande.signature, certificat: signature.certificat.empreinte, sujet: signature.certificat.sujet, emetteur: signature.certificat.emetteur, autorite: signature.certificat.autorite } });
 	const id = await idDuRecu(recu);
 	const place = await inserer(db, { jour, empreinte, recu: id });
@@ -193,6 +205,17 @@ export async function deposer({ db, corps, adresse, maintenant = new Date(), tem
 }
 
 const FICHIER = /^(\d{4}-\d{2}-\d{2})\.jsonl$/;
+
+/**
+ * Ce que la glane ne depose pas : un acte lu hors du site officiel de la
+ * commune (il n'irait sur aucune page), ou deja date pour elle (meme empreinte) ;
+ * alors son recu existant. Null quand l'acte est a deposer.
+ */
+async function jugerLaGlane(db, { acte, empreinte }) {
+	if (acte.rattachement !== 'site-officiel') return refus(422, 'hors du site officiel', [acte.collectivite]);
+	const deja = await un(db, 'SELECT d.jour, d.place, d.recu FROM acte a JOIN depot d ON d.recu = a.recu WHERE d.sha256 = ? AND a.collectivite = ? ORDER BY d.jour LIMIT 1', empreinte, acte.collectivite);
+	return deja ? reponse(200, { deja: true, jour: deja.jour, place: Number(deja.place), id: deja.recu }) : null;
+}
 
 /** Le fichier public d'un jour : ses lignes dans l'ordre des places, rien d'autre. */
 export async function fichierDuJour({ db, nom, maintenant = new Date() }) {
@@ -236,7 +259,8 @@ export function lecturePublique(valeur) {
  */
 export async function bilanPublic({ db }) {
 	const { results } = await db
-		.prepare('SELECT jour, depots, deposants FROM bilan UNION ALL SELECT jour, SUM(n) AS depots, COUNT(*) AS deposants FROM compte GROUP BY jour ORDER BY jour')
+		.prepare('SELECT jour, depots, deposants FROM bilan UNION ALL SELECT jour, SUM(n) AS depots, COUNT(*) AS deposants FROM compte WHERE adresse <> ? GROUP BY jour ORDER BY jour')
+		.bind(CLE_DE_LA_FLOTTE)
 		.all();
 	const jours = results.map((r) => ({ jour: r.jour, depots: Number(r.depots), deposants: Number(r.deposants) }));
 	return { jours, deposantsAuMoins: Math.max(0, ...jours.map((j) => j.deposants)) };
