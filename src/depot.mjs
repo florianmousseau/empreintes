@@ -125,6 +125,12 @@ function versionDuRecu({ acte, affichage }) {
 	return affichage ? VERSION_DU_RECU_AFFICHAGE : VERSION_DU_RECU;
 }
 
+/** Les versions de recu que le service a emises ; un recu d'une autre version n'en est pas un. */
+export const VERSIONS_DU_RECU = [VERSION_DU_RECU, VERSION_DU_RECU_ACTE, VERSION_DU_RECU_AFFICHAGE];
+
+/** Vrai quand la valeur a la forme d'un recu emis par le service : version connue, empreinte, sel. */
+export const estUnRecu = (r) => VERSIONS_DU_RECU.includes(r?.version) && HEX64.test(r.sha256 ?? '') && /^[0-9a-f]{32}$/.test(r.sel ?? '');
+
 /** L'identifiant public d'un recu : le sha256 de sa forme canonique. */
 export const idDuRecu = (recu) => sha256(canonique(recu));
 

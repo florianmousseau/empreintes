@@ -1,10 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import fs from 'node:fs';
 import {
 	DEPOTS_PAR_ADRESSE,
 	DEPOTS_PAR_JOUR,
 	canonique,
+	estUnRecu,
 	cleDAdresse,
 	idDuRecu,
 	jourDe,
@@ -100,4 +102,26 @@ test('les plafonds : 20 par adresse, 2 000 par jour, retry-after jusqu a minuit 
 	assert.equal(plafond({ deCetteAdresse: 0, duJour: DEPOTS_PAR_JOUR, instant }).motif, 'plafond du jour atteint');
 	assert.equal(secondesAvantDemain('2026-10-12T00:00:00Z'), 86400);
 	assert.equal(jourDe('2026-10-12T23:59:59.999Z'), '2026-10-12');
+});
+
+/*
+ * 2026-10-15, /verifier : un recu d'affichage de permis (version 3) deposait
+ * bien, mais la page ne le reconnaissait pas comme un recu et le hachait comme
+ * un document quelconque. La forme d'un recu se lit desormais ici, une fois.
+ */
+test('un recu de chaque version emise se reconnait, et rien d autre', async () => {
+	const instant = '2026-10-15T08:00:00.000Z';
+	const recus = [
+		recuDe({ sha256: 'a'.repeat(64), instant }),
+		recuDe({ sha256: 'a'.repeat(64), instant, url: 'https://x.fr/a', temoin: { url: 'https://x.fr/a', taille: 1, lu: instant }, acte: { collectivite: '17133', nature: 'arrete', rattachement: 'declaree' } }),
+		recuDe({ sha256: 'a'.repeat(64), instant, affichage: { permis: 'PC 069 123 24 A0001' } })
+	];
+	assert.deepEqual(recus.map((r) => r.version), [1, 2, 3]);
+	for (const r of recus) assert.ok(estUnRecu(JSON.parse(JSON.stringify(r))), `version ${r.version}`);
+	assert.ok(!estUnRecu({ ...recus[0], version: 9 }));
+	assert.ok(!estUnRecu({ ...recus[0], sel: 'court' }));
+	assert.ok(!estUnRecu({ ...recus[0], sha256: undefined }));
+	assert.ok(!estUnRecu(null));
+	const verifier = fs.readFileSync(new URL('../public/verifier.js', import.meta.url), 'utf8');
+	assert.match(verifier, /estUnRecu\(r\)/, 'la page de verification lit la forme du recu au meme endroit');
 });
