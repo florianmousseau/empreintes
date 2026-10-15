@@ -60,13 +60,14 @@ export function liensDe(html, base) {
 	return liens;
 }
 
-const cheminDe = (href) => {
+const decoder = (texte) => {
 	try {
-		return decodeURIComponent(new URL(href).pathname);
+		return decodeURIComponent(texte);
 	} catch {
-		return new URL(href).pathname;
+		return texte;
 	}
 };
+const cheminDe = (href) => decoder(new URL(href).pathname);
 const estUnPdf = (href) => /\.pdf$/i.test(new URL(href).pathname);
 
 // Une page d'actes, par ordre de preference : celle qui les porte, puis celle du conseil (un saut de plus).
@@ -245,4 +246,135 @@ export function robotsPermet(regles, url) {
 		if (!meilleure || r.motif.length > meilleure.motif.length || (r.motif.length === meilleure.motif.length && r.permis)) meilleure = r;
 	}
 	return meilleure ? meilleure.permis : true;
+}
+
+// --- Les documents budgetaires (D-185) : la glane les RELEVE, elle ne les depose pas ---
+// Un compte administratif n'est pas un acte du registre : il entre a l'entrepot et
+// au corpus. Le releve dit de chacun son genre, son exercice, son budget et s'il
+// porte une couche texte ; il reste dans l'etat de la glane, hors du depot.
+
+const PAGE_BUDGET = /(\bbudgets?\b|\bfinances?\b|comptes? administratifs?|compte financier|orientations? budgetaires?|documents? budgetaires?|informations? financieres?|donnees financieres)/;
+const PAS_UNE_PAGE_BUDGET = /(participatif|prefe[ct]|marche public|appel d'offre)/;
+
+/** Vrai quand un lien mene a la page « budget » ou « finances » d'une commune. */
+export function estUnePageBudget({ href, texte }) {
+	const lu = normaliser(`${texte} ${cheminDe(href).replace(/[-_/]+/g, ' ')}`);
+	return PAGE_BUDGET.test(lu) && !PAS_UNE_PAGE_BUDGET.test(lu);
+}
+
+/** Les pages « budget / finances » d'une page : liens du site officiel, hors fichiers et hors de la page elle-meme, `max` au plus. */
+export function pagesBudget(liens, { sites, ici, max = 2 }) {
+	const vues = new Set([ici]);
+	return liens.filter((l) => surSiteOfficiel(l.href, sites) && !estUnTelechargement(l.href) && estUnePageBudget(l) && !vues.has(l.href) && vues.add(l.href)).slice(0, max);
+}
+
+// Un lien de telechargement sans `.pdf` : WordPress Download Manager, `?download=`, `/telecharger/`.
+const TELECHARGEMENT = /(?:[?&](?:download|telecharger|wpdmdl|dl|file|fichier)=|\/(?:download|telecharger|telechargement)s?(?:\/|$)|\/getfile|\/docs?\/download)/i;
+
+/** Vrai pour un PDF ou un lien de telechargement (meme sans `.pdf`). */
+export function estUnTelechargement(href) {
+	const u = new URL(href);
+	return /\.pdf$/i.test(u.pathname) || TELECHARGEMENT.test(u.pathname + u.search);
+}
+
+/** Les telechargements d'une page publies sur le site officiel, chacun une fois. */
+export function telechargementsDe(liens, sites) {
+	const vus = new Set();
+	return liens.filter((l) => estUnTelechargement(l.href) && surSiteOfficiel(l.href, sites) && !vus.has(l.href) && vus.add(l.href));
+}
+
+const ANNEE = /(?<![\d])(20[0-3]\d)(?![\d])/;
+// Par ordre : une note ou un rapport PARLE d'un budget avant d'en etre la maquette.
+const GENRES = [
+	['NOTE', /\bnotes?\b.*(budget|\bbp\b|\bca\b|\bcfu\b|compte|financ)|(budget|\bbp\b|\bca\b|\bcfu\b|compte).*\bnotes?\b|presentation (breve|synthetique)/],
+	['ROB', /orientations? budgetaires?|\brob\b|\bdob\b/],
+	['CFU', /compte financier unique|\bcfu\b/],
+	['CA', /comptes? administratifs?|\bca\b/],
+	['BP', /budgets? primitifs?|budgets? previsionnels?|\bbp\b|vote du budget|budget (?:principal |communal |de la commune )?20[0-3]\d/]
+];
+// Un sigle de deux lettres ne suffit pas seul : « ca » est aussi « ça ».
+const SIGLE_SEUL = /^(?:\bca\b|\bbp\b)$/;
+// Le budget se dit quand le texte le nomme ; sinon `inconnu`, il ne se devine pas.
+const BUDGET_ANNEXE = /(budgets? annexes?|assainissement|eau potable|\beau\b|lotissements?|camping|\bport\b|portuaires?|\bgolf\b|marche couvert|immeuble|\bzae\b|\bzac\b|\bzones?\b|transports?|\bccas\b|regie|cinema|piscine|photovoltai|chaufferie|maison de sante|pompes funebres|multiple rural|caisse des ecoles)/;
+const BUDGET_PRINCIPAL = /(budget principal|budget general|\bcommunes?\b|\bmairie\b|\bville\b|communal)/;
+// Une deliberation qui vote un budget est un acte : la glane des actes s'en charge. Sa piece jointe, elle, est le document.
+const DELIBERATION = /\bdelib/;
+const PIECE_JOINTE = /(\bpj\b|piece jointe|\bannexe\b(?! budget))/;
+
+function genreDuTexte(texte) {
+	const lu = normaliser(texte).replace(/[-_+.]+/g, ' ');
+	for (const [genre, motif] of GENRES) {
+		const m = motif.exec(lu);
+		if (!m) continue;
+		if (SIGLE_SEUL.test(m[0]) && !ANNEE.test(lu) && !/budget|compte/.test(lu)) continue;
+		return { genre, exercice: ANNEE.exec(lu)?.[1] ?? null, annexe: BUDGET_ANNEXE.test(lu), principal: BUDGET_PRINCIPAL.test(lu), deliberation: DELIBERATION.test(lu), pieceJointe: PIECE_JOINTE.test(lu) };
+	}
+	return null;
+}
+
+/**
+ * Ce que la glane releve d'un lien de telechargement : `{ url, genre, exercice,
+ * budget, libelle }` (genre CA, CFU, BP, NOTE ou ROB ; exercice lu dans le libelle
+ * puis le nom du fichier, jamais dans le chemin des envois ; budget principal ou
+ * annexe), ou null quand ni le libelle ni le fichier n'en disent le genre.
+ */
+export function documentBudgetaireDe(lien) {
+	if (!estUnTelechargement(lien.href)) return null;
+	const u = new URL(lien.href);
+	const fichier = `${cheminDe(lien.href).split('/').pop().replace(/\.pdf$/i, '')} ${decoder(u.search).replace(/[?&=/]/g, ' ')}`;
+	const duLibelle = genreDuTexte(lien.texte);
+	const duFichier = genreDuTexte(fichier);
+	const lu = duLibelle ?? duFichier;
+	if (!lu) return null;
+	const textes = [duLibelle, duFichier].filter(Boolean);
+	if (textes.some((t) => t.deliberation) && !textes.some((t) => t.pieceJointe)) return null;
+	return {
+		url: lien.href,
+		genre: lu.genre,
+		exercice: duLibelle?.exercice ?? duFichier?.exercice ?? null,
+		budget: budgetDe(textes),
+		libelle: lien.texte.slice(0, OBJET_MAX)
+	};
+}
+
+function budgetDe(textes) {
+	if (textes.some((t) => t.annexe)) return 'annexe';
+	return textes.some((t) => t.principal) ? 'principal' : 'inconnu';
+}
+
+const OBJET_FLATE = /\/FlateDecode/;
+const TEXTE_PDF = /\/Font\b|\/ToUnicode\b|\bBT\b[\s\S]{0,400}?\bT[jJ]\b/;
+
+/**
+ * Le format d'un fichier lu et, pour un PDF, s'il porte une couche texte : une
+ * police ou un operateur de texte, dans les octets ou dans un flux decompresse
+ * (les objets d'un PDF recent vivent dans des flux). `inconnue` quand le fichier a
+ * ete tronque sans rien montrer.
+ */
+export function coucheTexte(octets, { tronque = false, inflate } = {}) {
+	const brut = Buffer.from(octets).toString('latin1');
+	if (!brut.startsWith('%PDF')) return { format: formatDe(brut), couche: 'non' };
+	if (TEXTE_PDF.test(brut)) return { format: 'pdf', couche: 'oui' };
+	for (const m of brut.matchAll(/stream\r?\n/g)) {
+		const debut = m.index + m[0].length;
+		const fin = brut.indexOf('endstream', debut);
+		if (fin < 0) break;
+		if (!OBJET_FLATE.test(brut.slice(Math.max(0, m.index - 300), m.index))) continue;
+		let clair;
+		try {
+			clair = inflate(Buffer.from(brut.slice(debut, fin), 'latin1')).toString('latin1');
+		} catch {
+			continue;
+		}
+		if (TEXTE_PDF.test(clair)) return { format: 'pdf', couche: 'oui' };
+	}
+	return { format: 'pdf', couche: tronque ? 'inconnue' : 'non' };
+}
+
+function formatDe(debut) {
+	if (debut.startsWith('\x89PNG')) return 'png';
+	if (debut.startsWith('\xff\xd8')) return 'jpeg';
+	if (/^\s*<(?:!doctype|html)/i.test(debut)) return 'html';
+	if (debut.startsWith('PK')) return 'zip';
+	return 'autre';
 }
