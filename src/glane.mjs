@@ -161,10 +161,43 @@ export function objetDe({ href, texte }) {
 	return objet[0].toUpperCase() + objet.slice(1);
 }
 
-/** Ce que la glane deposerait d'un PDF : `{ url, nature, libelle }`, ou null sans nature. */
+// Les sigles et mots qu'une commune ecrit en capitales sans nommer personne.
+const CAPITALES_ADMISES = new Set(
+	'CCAS CIAS PLU PLUI SCOT ZAC SDIS EPCI RGPD DETR DSIL FPIC TEOM SIVU SIVOM SDEER SPANC CLECT CAF CNAS ONF CDG SNCF EDF GRDF ENEDIS SAUR ACCA AFR ASA ADS DIA DM BP CA CM PV CR AR RD RN VC CU PC DP CDC SEM SPL OPAH DECI TVA HT TTC ADMR EHPAD ALSH RPI ATSEM'.split(' ')
+);
+// Un acte individuel nomme presque toujours son beneficiaire : delegation, nomination, permission de voirie.
+const ACTE_INDIVIDUEL =
+	/(delegation|nomination|nommant|recrutement|stagiairisation|titularisation|disponibilite|reintegration|detachement|avancement d'echelon|mise a la retraite|occupation du domaine public|permission de voirie|permis de stationnement|autorisation de voirie|debit de boissons|buvette|concession|alignement individuel|\bp\.\s|\bm\.\s|\bmme\b|\bmlle\b|monsieur|madame)/;
+
+/**
+ * Vrai quand un texte d'acte pourrait nommer une personne au-dela de ce que
+ * `nommeUnePersonne` reconnait : un acte individuel, ou un mot en capitales dans un
+ * texte qui ne l'est pas (« PETIT Catherine »), ou, pour un arrete ou une decision
+ * ecrits tout en capitales, un mot en capitales qui n'est pas un sigle connu.
+ */
+export function pourraitNommer(texte, nature) {
+	const lu = normaliser(texte);
+	if (ACTE_INDIVIDUEL.test(lu)) return true;
+	const lettres = texte.replace(/[^A-Za-zÀ-ÿ]/g, '');
+	const toutEnCapitales = lettres.length > 0 && lettres === lettres.toUpperCase();
+	if (toutEnCapitales && nature === 'deliberation') return false;
+	const capitales = (texte.match(/\b[A-ZÀ-Ý]{3,}\b/g) ?? []).filter((m) => !CAPITALES_ADMISES.has(normaliser(m).toUpperCase()) && !NATURE_EN_CAPITALES.test(normaliser(m)));
+	return capitales.length > 0;
+}
+const NATURE_EN_CAPITALES = /^(?:arretes?|decisions?|deliberations?|proces|verbal|compte|rendu|seance|conseil|municipal|liste|des|du|de|la|le|les|et|en|au|aux|par|pour|sur|date|janv|janvier|fevr|fevrier|mars|avril|mai|juin|juillet|aout|sept|septembre|oct|octobre|nov|novembre|dec|decembre|annexe|budget|primitif|travaux|circulation|stationnement|voirie|rue|route|chemin|place|impasse|allee|avenue|temporaire|permanent|reglementant|portant|interdiction|interdisant|maire|commune|municipale|affichage|visee|teletransmis|reunion|extrait|registre)$/;
+
+/**
+ * Ce que la glane deposerait d'un PDF : `{ url, nature, libelle }`, ou null sans
+ * nature, et null quand le libelle, l'objet retenu ou le nom du fichier pourrait
+ * nommer une personne : l'adresse du fichier est montree sur la page de la commune.
+ */
 export function acteDuLien(lien) {
 	const nature = natureDe(lien);
-	return nature ? { url: lien.href, nature, libelle: objetDe(lien) } : null;
+	if (!nature) return null;
+	const libelle = objetDe(lien);
+	const fichier = cheminDe(lien.href).split('/').pop().replace(/[-_+.]+/g, ' ');
+	if (libelle === SANS_OBJET || nommeUnePersonne(fichier) || [lien.texte, libelle, fichier].some((t) => pourraitNommer(t, nature))) return null;
+	return { url: lien.href, nature, libelle };
 }
 
 // --- robots.txt (RFC 9309), ecrit comme celui de l'entrepot (src/communes.mjs) ---

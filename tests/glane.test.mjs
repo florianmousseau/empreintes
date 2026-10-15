@@ -128,3 +128,24 @@ sans deux-points
 	assert.equal(robotsPermet(egalite, `${ICI}a`), true);
 	assert.equal(robotsPermet([{ permis: false, motif: '/a' }, { permis: true, motif: '/' }], `${ICI}a`), false);
 });
+
+test('un acte qui pourrait nommer une personne n est pas depose, son adresse serait montree', () => {
+	const pas = (href, texte) => assert.equal(acteDuLien(lien(`${ICI}${href}`, texte)), null, texte);
+	pas('a1.pdf', 'Arrete portant nomination MOINARD');
+	pas('a2.pdf', '3 2026 037 Arrete portant occupation du domaine public SIMON');
+	pas('a3.pdf', 'ARRETE 07-2026 TRAVAUX STE GATTEAU p. PETIT Catherine 44 Grande rue');
+	pas('ARRETE-13-2026-DELEGATION-SIGNATURE-MAINGOT.pdf', 'Télécharger');
+	pas('a4.pdf', 'ARRETE 03-2026 TRAVAUX RUE DES LOGES PACORY');
+	pas('a5.pdf', 'Arrêté voirie BUFFARD route de l’Orgère');
+	pas('a6.pdf', 'Délibération garantie emprunt SEMIS');
+	pas('a7.pdf', 'Arrêté de M. Dupont, maire');
+	pas('Arrete-Jean-Martin.pdf', 'Arrêté de voirie');
+	const garde = (href, texte, nature) => assert.equal(acteDuLien(lien(`${ICI}${href}`, texte))?.nature, nature, texte);
+	garde('PV_CM_26.01.2026.pdf', 'Séance du 26 janvier 2026', 'deliberation');
+	garde('pv.pdf', 'PROCES VERBAL CONSEIL MUNICIPAL DU 20 NOVEMBRE 2025', 'deliberation');
+	garde('ccas.pdf', 'Procès-verbal du Conseil d’administration du CCAS du 05-09-2023', 'deliberation');
+	garde('Arrete-prescrivant-lentretien-des-trottoirs.pdf', 'Arrêté prescrivant l’entretien des trottoirs', 'arrete');
+	garde('arrete.pdf', 'ARRETE TEMPORAIRE DE CIRCULATION', 'arrete');
+	pas('a8.pdf', 'ARRETE TEMPORAIRE DE CIRCULATION RUE DES ACACIAS');
+	garde('CR-CM-16-02-2026.pdf', 'Cliquez', 'deliberation');
+});
