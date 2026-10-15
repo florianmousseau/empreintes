@@ -23,9 +23,10 @@
          "sha256": { "type": "string", "pattern": "^[0-9a-fA-F]{64}$" },
          "url": { "type": "string", "maxLength": 2048 },
          "libelle": { "type": "string", "maxLength": 200 },
-         "type": { "type": "string", "enum": ["acte"] },
+         "type": { "type": "string", "enum": ["acte", "affichage"] },
          "collectivite": { "type": "string", "description": "Code INSEE ou SIREN, avec type acte" },
-         "nature": { "type": "string", "enum": ["deliberation", "arrete", "decision"] }
+         "nature": { "type": "string", "enum": ["deliberation", "arrete", "decision"] },
+         "signature": { "type": "string", "maxLength": 32768, "description": "JWS compact JAdES du déposant : charge utile = l'empreinte du document en 64 hex (jointe ou détachée), certificat dans x5c ; reçu version 4" }
         }
        }
       }
@@ -33,7 +34,7 @@
     },
     "responses": {
      "201": { "description": "Reçu : jour, place, ligne publique, identifiant, reçu complet" },
-     "400": { "description": "Demande illisible ou adresse refusée" },
+     "400": { "description": "Demande illisible, adresse ou signature refusée" },
      "409": { "description": "Adresse déjà lue aujourd'hui" },
      "422": { "description": "Lecture impossible" },
      "429": { "description": "Plafond atteint, retry-after" }

@@ -12,6 +12,7 @@
 		"/textes.js",
 		"/chaine.mjs",
 		"/horodatage.mjs",
+		"/origine.mjs",
 		"/depot.mjs",
 		"/acte.mjs",
 		"/personne.mjs",

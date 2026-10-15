@@ -96,3 +96,12 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   les pages francaises. `de.empreintes.pages.dev` est la voie de controle avant
   le domaine, `noindex` sur tout hote pages.dev. Le francais ne change pas d'un
   octet visible, hors `hreflang`.
+- Un depot SIGNE par son deposant (D-164, REQ-7.5-03) : champ `signature`, un
+  JWS compact JAdES dont la charge utile est l'empreinte du document (64 hex,
+  jointe ou detachee) et le certificat dans `x5c`. `src/origine.mjs` (MIT, sans
+  dependance) verifie la signature sous la cle du certificat et sa validite a
+  l'instant du depot ; il ne juge PAS l'emetteur (aucune chaine vers une liste
+  de confiance encore) et la page n'ecrit jamais « qualifie ». Une signature
+  refusee rend 400 et libere la lecture du temoin. Recu version 4 (`signature`
+  : jws, certificat, sujet, emetteur), ligne publique a quatre champs ; rien
+  n'est garde en base. `/verifier` relit la signature d'un recu telecharge.

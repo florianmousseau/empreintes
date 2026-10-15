@@ -6,6 +6,8 @@ import { ACTES, SCEAU, TEXTES_DU_REGISTRE, pageRoles, pageSections, DONNEES_STRU
 const t = { id: '20261012T101314Z', instant: '2026-10-12T10:13:14Z', objets: 2018, racine: 'f'.repeat(64), ots: 'bitcoin', bloc: 971045, fichiers: ['20261012T101314Z.json', '20261012T101314Z.racine.ots'] };
 const pages = [pageJournal([t, { ...t, id: '20261012T121314Z', ots: 'calendrier', bloc: null }]), pageVerifier(), pageJournal([]), pageDeposer(), pageAccueil([t]), pageAccueil([]), pageIntrouvable(), pageMentions(), pagePreuve([t]), pageActe(), pageDocumentation(), pageEditeur({ flux: { id: '0123456789abcdef', inscrit: '2026-10-12T00:00:00Z', retire: null }, total: 1, versions: [{ article: 'e'.repeat(64), jour: '2026-10-12', place: 4, sha256: 'c'.repeat(64), recu: 'd'.repeat(64) }] }), pageCollectivite({ code: '17133', commune: { nom: 'Cravans', insee: '17133', siren: '211701339' }, serie: { total: 1, actes: [{ jour: '2026-10-12', place: 3, sha256: 'c'.repeat(64), recu: 'd'.repeat(64), nature: 'deliberation' }] }, departement: '17' }), pageCommunes({ departements: [{ code: '17', nom: 'Charente-Maritime', communes: 1, actes: 2 }] }), pageDepartement({ code: '17', nom: 'Charente-Maritime', communes: [{ insee: '17133', nom: 'Cravans', actes: 2 }] }), pageSections('pratiques'), pageSections('conditions'), pageRoles()];
 const texteDe = (html) => html.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<[^>]+>/g, '');
+// « certifie », « certification » se refusent ; « certificat », le mot d'une signature, non.
+const CERTIFIE = /certifi(?!cats?\b)/i;
 
 test('aucun signe double ne suit une espace ordinaire dans le texte affiche en francais', () => {
 	for (const html of pages) {
@@ -121,7 +123,7 @@ test("dater un acte demande l'adresse, la collectivite et la nature, et ne dit q
 	assert.match(html, /<label for="objet">Objet de l’acte<\/label>\n<input type="text" id="objet" maxlength="200" autocomplete="off" required>/, "un acte se date avec son objet");
 	for (const page of pages) assert.doesNotMatch(page, /<a href="\/acte">/, 'un seul chemin vers un acte hors de Dater : le bouton de la commune');
 	const tout = [...pages, readFileSync(new URL('../public/deposer.js', import.meta.url), 'utf8')].join('');
-	for (const interdit of [/vaut publication/i, /certifi/i, /qualifi/i]) assert.doesNotMatch(tout, interdit);
+	for (const interdit of [/vaut publication/i, CERTIFIE, /qualifi/i]) assert.doesNotMatch(tout, interdit);
 });
 
 test('chaque page porte la marque, son adresse canonique et ses balises de partage', () => {
@@ -180,7 +182,7 @@ test('les textes du registre : une page chacun, versionnee, liee depuis la docum
 		assert.match(textes[i], new RegExp(`<h1>${ACTES[acte].titre}</h1>\n<p class="sous-titre">Version 1, 14/10/2026</p>`));
 	}
 	const tout = texteDe(textes.join(''));
-	for (const interdit of [/qualifi/i, /cachet/i, /certifi/i, /palier/i, /cockpit/i, /payant/i, /D-1\d\d/]) assert.doesNotMatch(tout, interdit);
+	for (const interdit of [/qualifi/i, /cachet/i, CERTIFIE, /palier/i, /cockpit/i, /payant/i, /D-1\d\d/]) assert.doesNotMatch(tout, interdit);
 	assert.match(textes[0], /la signature du journal, un JWS compact ES256/);
 	assert.match(textes[1], /Gratuit, sans compte\. Le prestataire est l’éditeur nommé aux <a href="\/mentions-legales">Mentions légales<\/a>\./);
 	assert.match(textes[2], /<td><strong>Audit interne<\/strong><\/td>/);

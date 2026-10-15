@@ -2,6 +2,7 @@ import { sha256, placeDuFichier, verifierChaine, verifierSignatureDuJournal, ver
 import { tourHorodate, verifierHorodatage, verifierHorodatages } from '/horodatage.mjs';
 import { montrer, suivreLeChoix } from '/fichier.js';
 import { estUnRecu, idDuRecu } from '/depot.mjs';
+import { verifierSignatureDuDeposant } from '/origine.mjs';
 import { T } from '/textes.js';
 
 suivreLeChoix(document);
@@ -104,17 +105,27 @@ function recuDans(octets) {
 	}
 }
 
+/** La signature du deposant d'un recu version 4, relue ici contre l'empreinte et l'instant du depot ; vide sans signature. */
+async function signatureDuRecu(recu) {
+	if (!recu.signature) return '';
+	const v = await verifierSignatureDuDeposant(recu.signature.jws, recu.sha256, recu.depose);
+	const nom = (n) => echapper(n ?? t.sansNom);
+	const texte = v.ok ? t.signeeValide(nom(v.certificat.sujet), nom(v.certificat.emetteur)) : t.signeeNonConforme;
+	return `<dl><div><dt>${t.signeePar}</dt><dd>${texte}</dd></div></dl>`;
+}
+
 async function verifierLeRecu(recu) {
 	const id = await idDuRecu(recu);
 	const r = await fetch(`/api/recus/${id}`);
 	$('resultat').innerHTML = r.ok
-		? `<article class="ok"><h2>${t.authentique(T.jour(recu.jour))}</h2><p><a href="/recu/${id}">${T.voirLeRecu}</a></p></article>`
+		? `<article class="ok"><h2>${t.authentique(T.jour(recu.jour))}</h2>${await signatureDuRecu(recu)}<p><a href="/recu/${id}">${T.voirLeRecu}</a></p></article>`
 		: `<article class="ko"><h2>${t.inconnu}</h2></article>`;
 }
 
 async function verifierLeFichier(fichier) {
 	const octets = new Uint8Array(await fichier.arrayBuffer());
-	const recu = fichier.size < 20000 ? recuDans(octets) : null;
+	// Un recu signe porte le JWS de son deposant, 32 768 caracteres au plus.
+	const recu = fichier.size < 64000 ? recuDans(octets) : null;
 	return recu ? verifierLeRecu(recu) : verifier(await sha256(octets));
 }
 
