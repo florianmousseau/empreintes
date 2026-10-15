@@ -266,7 +266,7 @@ ${lignes}
 </tbody>
 </table>
 </div>
-<p><a href="${DEPOT}/blob/main/scripts/verifier.mjs">${e.journal.script}</a></p>`
+<p><a href="${DEPOT}/blob/main/scripts/verifier.mjs">${e.journal.script}</a></p>${langue === 'fr' ? `\n<p><a href="${CHEMIN_DISPARUS}">Documents disparus</a></p>` : ''}`
 	});
 }
 
@@ -818,4 +818,116 @@ ${e.mentions.sections.map(([titre, texte]) => `<h2>${titre}</h2>\n<p>${texte}</p
 <h2>${e.mentions.code}</h2>
 <p><a href="${DEPOT}">${DEPOT.replace('https://', '')}</a></p>`
 	});
+}
+
+/* ------------------------------------------------------------ ce qui a disparu (D-193) */
+
+/** Le nom d'un evenement : un document sorti de sa liste n'est jamais dit supprime. */
+export const EVENEMENTS = { disparu: 'Disparu', remplace: 'Remplacé à la même adresse', retire: 'Sorti de la liste' };
+
+export const CHEMIN_DISPARUS = '/disparus';
+export const FLUX_DISPARUS = '/disparus.xml';
+/** L'adresse de la page d'un site : son hote, les points en tirets (un `.com` final se lirait comme une extension). */
+export const cheminDuSite = (site) => `${CHEMIN_DISPARUS}/${site.replaceAll('.', '-')}`;
+
+/** Le dernier segment de l'adresse, decode, pour la lire dans une cellule. */
+export function nomDuDocument(url) {
+	const segment = new URL(url).pathname.split('/').filter(Boolean).at(-1) ?? url;
+	try {
+		return decodeURIComponent(segment);
+	} catch {
+		return segment;
+	}
+}
+
+const lienDePreuve = (sha256) => `/verifier?empreinte=${sha256}`;
+
+const ligneDisparu = (d, avecSite) =>
+	`<tr><td>${jourFr(d.date)}</td><td>${EVENEMENTS[d.classe]}</td>${avecSite ? `<td><a href="${cheminDuSite(d.site)}">${echapper(d.site)}</a></td>` : ''}<td><a href="${echapper(d.url)}">${echapper(nomDuDocument(d.url))}</a></td><td class="n">${d.http ?? ''}</td><td><a href="${lienDePreuve(d.avant.sha256)}">${d.avant.jour ? `Version du ${jourFr(d.avant.jour)}` : 'Version d’avant'}</a></td></tr>`;
+
+const tableDesDisparus = (entrees, avecSite) => `<div class="defile">
+<table>
+<thead><tr><th>Vu le</th><th>Événement</th>${avecSite ? '<th>Site</th>' : ''}<th>Document</th><th class="n">HTTP</th><th>Preuve</th></tr></thead>
+<tbody>
+${entrees.map((d) => ligneDisparu(d, avecSite)).join('\n')}
+</tbody>
+</table>
+</div>`;
+
+const titreDesDisparus = (n) => (n ? `${nombre(n)} document${marqueDuPluriel(n)}` : 'Aucun document');
+const lienDuFlux = `<link rel="alternate" type="application/rss+xml" title="Documents disparus" href="${FLUX_DISPARUS}">\n`;
+const PLAFOND_DISPARUS = 100;
+
+/** Les documents disparus, remplaces ou sortis de leur liste : les sites, puis les plus recents. */
+export function pageDisparus({ entrees, sites }) {
+	const lignesSites = sites.map((s) => `<tr><td><a href="${cheminDuSite(s.site)}">${echapper(s.site)}</a></td><td class="n">${nombre(s.n)}</td></tr>`).join('\n');
+	const recents = entrees.slice(0, PLAFOND_DISPARUS);
+	return gabarit(EDITIONS.fr, {
+		titre: 'Documents disparus',
+		description: `Documents disparus, remplacés ou sortis de leur liste sur ${nombre(sites.length)} site${marqueDuPluriel(sites.length)} surveillé${marqueDuPluriel(sites.length)}${NBSP}: date, adresse, code HTTP, preuve de la version d’avant.`,
+		chemin: CHEMIN_DISPARUS,
+		indexer: entrees.length > 0,
+		script: lienDuFlux,
+		corps: `<h1>Documents disparus</h1>
+<h2>${entrees.length ? `${titreDesDisparus(entrees.length)}, ${nombre(sites.length)} site${marqueDuPluriel(sites.length)}` : 'Aucun document disparu'}</h2>
+${
+	sites.length
+		? `<table>
+<thead><tr><th>Site</th><th class="n">Documents</th></tr></thead>
+<tbody>
+${lignesSites}
+</tbody>
+</table>
+<h2>Les plus récents</h2>
+${tableDesDisparus(recents, true)}
+${entrees.length > recents.length ? `<p class="compte">Les ${nombre(recents.length)} plus récents sur ${nombre(entrees.length)}.</p>` : ''}`
+		: ''
+}
+<p><a href="${FLUX_DISPARUS}">Flux RSS</a></p>`
+	});
+}
+
+/** Les documents d'un site. */
+export function pageDisparusDuSite({ site, entrees }) {
+	return gabarit(EDITIONS.fr, {
+		titre: `${site}, documents disparus`,
+		description: `Documents de ${site} disparus, remplacés ou sortis de leur liste${NBSP}: date, adresse, code HTTP, preuve de la version d’avant.`,
+		chemin: cheminDuSite(site),
+		script: lienDuFlux,
+		corps: `<h1>${echapper(site)}</h1>
+<h2>${titreDesDisparus(entrees.length)}</h2>
+${tableDesDisparus(entrees, false)}
+<p><a href="${CHEMIN_DISPARUS}">Tous les sites</a> <a href="${FLUX_DISPARUS}">Flux RSS</a></p>`
+	});
+}
+
+const xml = (t) => String(t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' })[c]);
+const dateRss = (jour) => new Date(`${jour}T00:00:00Z`).toUTCString();
+
+/** Le flux RSS 2.0 des entrees, les plus recentes d'abord. */
+export function fluxDisparus(entrees) {
+	const e = EDITIONS.fr;
+	const items = entrees
+		.slice(0, PLAFOND_DISPARUS)
+		.map(
+			(d) => `<item>
+<title>${xml(`${EVENEMENTS[d.classe]}, ${d.site}, ${nomDuDocument(d.url)}`)}</title>
+<link>${xml(`${e.adresse}${lienDePreuve(d.avant.sha256)}`)}</link>
+<guid isPermaLink="false">${xml(`${d.classe}:${d.avant.sha256}:${d.url}`)}</guid>
+<pubDate>${dateRss(d.date)}</pubDate>
+<description>${xml(`${d.url}${d.http ? `, HTTP ${d.http}` : ''}, version d’avant ${d.avant.sha256}`)}</description>
+</item>`
+		)
+		.join('\n');
+	return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+<channel>
+<title>${xml(`Documents disparus, ${e.marque}`)}</title>
+<link>${e.adresse}${CHEMIN_DISPARUS}</link>
+<description>Documents disparus, remplacés ou sortis de leur liste sur les sites surveillés.</description>
+<language>fr</language>
+${items}
+</channel>
+</rss>
+`;
 }

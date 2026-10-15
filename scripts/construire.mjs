@@ -10,7 +10,8 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { FICHIER_PUBLIE, ID_DE_TOUR, PREUVE_PUBLIEE, indexDesEmpreintes, resumeDe } from '../src/journal.mjs';
 import { BESOINS } from '../src/besoins.mjs';
-import { pageAccueil, pageActe, pageBesoin, pageDeposer, pageDocumentation, pageIntrouvable, pageJournal, pageMentions, pagePreuve, pageRoles, pageSections, pageVerifier, TEXTES_DE_L_ARCHIVAGE, planDuSite, robots } from '../src/pages.mjs';
+import { entreesDe, sitesDe } from '../src/disparus.mjs';
+import { CHEMIN_DISPARUS, cheminDuSite, fluxDisparus, pageDisparus, pageDisparusDuSite, pageAccueil, pageActe, pageBesoin, pageDeposer, pageDocumentation, pageIntrouvable, pageJournal, pageMentions, pagePreuve, pageRoles, pageSections, pageVerifier, TEXTES_DE_L_ARCHIVAGE, planDuSite, robots } from '../src/pages.mjs';
 import { EDITIONS, dossierDe, planDe } from '../src/edition.mjs';
 
 const RACINE = path.resolve(import.meta.dirname, '..');
@@ -41,7 +42,13 @@ const tours = releves.map((r) => resumeDe(r, ancrages.tours?.[r.id], fichiers));
 
 fs.rmSync(DIST, { recursive: true, force: true });
 for (const f of fichiers) ecrire(path.join('empreintes', f), fs.readFileSync(path.join(DONNEES, f)));
-for (const [prefixe, part] of Object.entries(indexDesEmpreintes(releves))) ecrire(`index/${prefixe}.json`, JSON.stringify(part));
+const index = indexDesEmpreintes(releves);
+for (const [prefixe, part] of Object.entries(index)) ecrire(`index/${prefixe}.json`, JSON.stringify(part));
+// Ce qui a disparu (D-193), pousse filtre par l'entrepot et refiltre ici ; une entree sans preuve servie ne parait pas.
+const DISPARUS = path.join(RACINE, 'donnees', 'disparus');
+const jours = fs.existsSync(DISPARUS) ? fs.readdirSync(DISPARUS).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).map((f) => lireJson(path.join(DISPARUS, f))) : [];
+const entrees = entreesDe(jours, (sha) => Boolean(index[sha.slice(0, 2)]?.[sha]));
+const sites = sitesDe(entrees);
 // Les attestations des listes publiques et les preuves de leurs objets (D-162), poussees par l'entrepot.
 const PAR_URL = path.join(RACINE, 'donnees', 'attestations', 'par-url.json');
 if (fs.existsSync(PAR_URL)) ecrire('attestations/par-url.json', fs.readFileSync(PAR_URL));
@@ -65,12 +72,15 @@ for (const [langue, e] of Object.entries(EDITIONS)) {
 	dans(`${e.actes.conditions.chemin.slice(1)}.html`, pageSections('conditions', langue));
 	dans(`${e.actes.roles.chemin.slice(1)}.html`, pageRoles(langue));
 	for (const acte of TEXTES_DE_L_ARCHIVAGE) dans(`${e.actes[acte].chemin.slice(1)}.html`, pageSections(acte, langue));
-	dans('sitemap.xml', planDuSite(planDe(langue), langue));
+	dans('sitemap.xml', planDuSite(langue === 'fr' ? [...planDe(langue), ...(entrees.length ? [CHEMIN_DISPARUS] : []), ...sites.map((x) => cheminDuSite(x.site))] : planDe(langue), langue));
 	dans('robots.txt', robots(langue));
 	dans('llms.txt', e.llms);
 }
 ecrire('acte.html', pageActe());
+ecrire('disparus.html', pageDisparus({ entrees, sites }));
+ecrire('disparus.xml', fluxDisparus(entrees));
+for (const { site } of sites) ecrire(`${cheminDuSite(site).slice(1)}.html`, pageDisparusDuSite({ site, entrees: entrees.filter((d) => d.site === site) }));
 for (const b of BESOINS) ecrire(`${b.chemin.slice(1)}.html`, pageBesoin(b));
 for (const m of ['chaine.mjs', 'horodatage.mjs', 'depot.mjs', 'acte.mjs', 'personne.mjs', 'annuaire.mjs', 'affichage.mjs', 'origine.mjs', 'serie.mjs']) ecrire(m, fs.readFileSync(path.join(RACINE, 'src', m)));
 for (const f of fs.readdirSync(path.join(RACINE, 'public'))) ecrire(f, fs.readFileSync(path.join(RACINE, 'public', f)));
-console.log(`${tours.length} tours, ${fichiers.length} fichiers du journal, ${preuves.length} preuves, dist/ ecrit`);
+console.log(`${tours.length} tours, ${fichiers.length} fichiers du journal, ${preuves.length} preuves, ${entrees.length} disparus, dist/ ecrit`);
