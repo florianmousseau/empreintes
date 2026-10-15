@@ -6,7 +6,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { baseDeTest } from './d1.mjs';
-import { estUnJws, nomLisible, verifierSignatureDuDeposant } from '../src/origine.mjs';
+import { autoriteDuCertificat, estUnJws, nomLisible, verifierSignatureDuDeposant } from '../src/origine.mjs';
 import { element } from '../src/horodatage.mjs';
 import { estUnRecu, idDuRecu, lireDemande } from '../src/depot.mjs';
 import { deposer } from '../src/service.mjs';
@@ -28,11 +28,33 @@ const nom = ({ cn, o }) => seq(...[o && attribut('55040a', Buffer.from(o)), cn &
 const temps = (d) => tlv(0x18, Buffer.from(`${d.toISOString().replace(/[-:T]/g, '').slice(0, 14)}Z`));
 const ECDSA_SHA256 = seq(oid('2a8648ce3d040302'));
 
-/** Un certificat X.509 minimal : version 3, sujet, emetteur, validite, cle, QcCompliance au besoin. */
-function certificatDe({ spki, sujet, emetteur, debut = new Date('2026-01-01'), fin = new Date('2027-01-01'), qc = true }) {
+const ALGORITHMES_X509 = { ES256: seq(oid('2a8648ce3d040302')), ES384: seq(oid('2a8648ce3d040303')), RS256: seq(oid('2a864886f70d01010b'), tlv(0x05)), PS256: seq(oid('2a864886f70d01010a')) };
+const entierDer = (octets) => {
+	let o = Buffer.from(octets);
+	while (o.length > 1 && o[0] === 0 && !(o[1] & 0x80)) o = o.subarray(1);
+	return tlv(0x02, o[0] & 0x80 ? Buffer.concat([Buffer.from([0]), o]) : o);
+};
+/** La signature ECDSA brute de WebCrypto (r||s) dans sa forme X.509, deux entiers DER. */
+const ecdsaDer = (brute) => {
+	const b = Buffer.from(brute);
+	return seq(entierDer(b.subarray(0, b.length / 2)), entierDer(b.subarray(b.length / 2)));
+};
+
+/**
+ * Un certificat X.509 minimal : version 3, sujet, emetteur, validite, cle,
+ * QcCompliance au besoin. Signe pour de vrai quand `par` (une cle et son
+ * algorithme) est donne ; sinon sa signature est trois octets quelconques.
+ */
+async function certificatDe({ spki, sujet, emetteur, debut = new Date('2026-01-01'), fin = new Date('2027-01-01'), qc = true, par = null }) {
 	const qcStatements = seq(seq(oid('2b06010505070103'), tlv(0x04, seq(seq(oid('04008e460101'))))));
-	const tbs = seq(tlv(0xa0, tlv(0x02, [2])), tlv(0x02, [7]), ECDSA_SHA256, nom(emetteur), seq(temps(debut), temps(fin)), nom(sujet), spki, ...(qc ? [tlv(0xa3, qcStatements)] : []));
-	return seq(tbs, ECDSA_SHA256, tlv(0x03, [0, 1, 2, 3]));
+	const algorithme = par ? ALGORITHMES_X509[par.alg] : ECDSA_SHA256;
+	const tbs = seq(tlv(0xa0, tlv(0x02, [2])), tlv(0x02, [7]), algorithme, nom(emetteur), seq(temps(debut), temps(fin)), nom(sujet), spki, ...(qc ? [tlv(0xa3, qcStatements)] : []));
+	let signature = Buffer.from([1, 2, 3]);
+	if (par) {
+		const brute = await subtle.sign(ALGOS[par.alg].signer, par.cle, tbs);
+		signature = par.alg.startsWith('ES') ? ecdsaDer(brute) : Buffer.from(brute);
+	}
+	return seq(tbs, algorithme, tlv(0x03, Buffer.concat([Buffer.from([0]), signature])));
 }
 
 const ALGOS = {
@@ -45,15 +67,15 @@ const cles = {};
 async function signataire(alg, certificat = {}) {
 	cles[alg] ??= await subtle.generateKey(ALGOS[alg].generer, true, ['sign', 'verify']);
 	const spki = Buffer.from(await subtle.exportKey('spki', cles[alg].publicKey));
-	const der = certificatDe({ spki, sujet: { cn: 'Cachet de la mairie', o: 'Commune de Cravans' }, emetteur: { cn: 'Autorite de test', o: 'Test' }, ...certificat });
+	const der = await certificatDe({ spki, sujet: { cn: 'Cachet de la mairie', o: 'Commune de Cravans' }, emetteur: { cn: 'Autorite de test', o: 'Test' }, ...certificat });
 	return { cle: cles[alg].privateKey, der };
 }
 
 const b64u = (b) => Buffer.from(b).toString('base64url');
 /** Un JWS compact du deposant ; `charge` est l'empreinte, jointe sauf `detachee`. */
-async function jwsDe({ alg = 'ES256', certificat, entete = {}, charge = H, detachee = false } = {}) {
+async function jwsDe({ alg = 'ES256', certificat, entete = {}, charge = H, detachee = false, chaine = [] } = {}) {
 	const { cle, der } = await signataire(alg, certificat);
-	const h = b64u(JSON.stringify({ alg, x5c: [der.toString('base64')], ...entete }));
+	const h = b64u(JSON.stringify({ alg, x5c: [der, ...chaine].map((c) => Buffer.from(c).toString('base64')), ...entete }));
 	const p = b64u(charge);
 	const s = await subtle.sign(ALGOS[alg].signer, cle, Buffer.from(`${h}.${p}`));
 	return { jws: `${h}.${detachee ? '' : p}.${b64u(s)}`, der };
@@ -163,4 +185,64 @@ test('avec le temoin, une signature refusee rend la lecture du jour : la bonne p
 	assert.equal(accepte.statut, 201);
 	assert.equal(corpsDe(accepte).recu.version, 4);
 	assert.equal(corpsDe(accepte).recu.temoin.url, 'https://cravans.fr/pv.pdf');
+});
+
+/*
+ * L'autorite : une chaine racine (P-384) -> intermediaire (RSA) -> deposant
+ * (P-256), chaque certificat signe pour de vrai par le suivant. Les autorites
+ * sont indexees comme dans `/confiance/autorites.json`.
+ */
+const empreinteDe = (der) => createHash('sha256').update(der).digest('hex');
+async function chaineDeTest() {
+	const racine = await subtle.generateKey(ALGOS.ES384.generer, true, ['sign', 'verify']);
+	const inter = await subtle.generateKey(ALGOS.RS256.generer, true, ['sign', 'verify']);
+	const spki = async (k) => Buffer.from(await subtle.exportKey('spki', k.publicKey));
+	const derRacine = await certificatDe({ spki: await spki(racine), sujet: { cn: 'Racine de test' }, emetteur: { cn: 'Racine de test' }, qc: false, par: { alg: 'ES384', cle: racine.privateKey } });
+	const derInter = await certificatDe({ spki: await spki(inter), sujet: { cn: 'Intermediaire de test' }, emetteur: { cn: 'Racine de test' }, qc: false, par: { alg: 'ES384', cle: racine.privateKey } });
+	return { racine, inter, derRacine, derInter };
+}
+
+test("l'autorite se trouve en remontant x5c, chaque certificat signe par le suivant", async () => {
+	const { inter, derRacine, derInter } = await chaineDeTest();
+	const { jws } = await jwsDe({ certificat: { emetteur: { cn: 'Intermediaire de test' }, par: { alg: 'RS256', cle: inter.privateKey } }, chaine: [derInter, derRacine] });
+	const x5c = JSON.parse(Buffer.from(jws.split('.')[0], 'base64url')).x5c;
+	const autorites = { [empreinteDe(derRacine)]: { pays: 'FR', nom: 'Racine de test', usages: ['cachets'] } };
+	assert.deepEqual(await autoriteDuCertificat(x5c, autorites), { pays: 'FR', nom: 'Racine de test' });
+	assert.deepEqual(await autoriteDuCertificat(x5c, { [empreinteDe(derInter)]: { pays: 'DE', nom: 'Intermediaire', usages: [] } }), { pays: 'DE', nom: 'Intermediaire' });
+	const v = await verifierSignatureDuDeposant(jws, H, midi.toISOString(), autorites);
+	assert.ok(v.ok);
+	assert.deepEqual(v.certificat.autorite, { pays: 'FR', nom: 'Racine de test' });
+	assert.equal(v.certificat.emetteur, 'Intermediaire de test');
+	assert.equal((await verifierSignatureDuDeposant(jws, H, midi.toISOString(), {})).certificat.autorite, null);
+	assert.ok(!('autorite' in (await verifierSignatureDuDeposant(jws, H, midi.toISOString())).certificat), 'sans registre, rien n est dit');
+});
+
+test("une autorite qui n'a pas signe, le certificat du deposant lui-meme ou un maillon illisible ne nomment personne", async () => {
+	const { inter, racine, derRacine, derInter } = await chaineDeTest();
+	const tout = { [empreinteDe(derRacine)]: { pays: 'FR', nom: 'R' }, [empreinteDe(derInter)]: { pays: 'FR', nom: 'I' } };
+	const x5cDe = async (opts) => JSON.parse(Buffer.from((await jwsDe(opts)).jws.split('.')[0], 'base64url')).x5c;
+	// le deposant signe par l'intermediaire, mais la chaine saute directement a la racine
+	assert.equal(await autoriteDuCertificat(await x5cDe({ certificat: { par: { alg: 'RS256', cle: inter.privateKey } }, chaine: [derRacine] }), tout), null);
+	// le certificat du deposant inscrit lui-meme
+	const seul = await x5cDe({ certificat: { par: { alg: 'RS256', cle: inter.privateKey } } });
+	assert.equal(await autoriteDuCertificat(seul, { [empreinteDe(Buffer.from(seul[0], 'base64'))]: { pays: 'FR', nom: 'X' } }), null);
+	// un maillon illisible, une signature RSA-PSS non lue, une signature ECDSA sous une cle RSA
+	assert.equal(await autoriteDuCertificat([seul[0], 'MIIB'], tout), null);
+	const pss = await subtle.generateKey(ALGOS.PS256.generer, true, ['sign', 'verify']);
+	assert.equal(await autoriteDuCertificat(await x5cDe({ certificat: { par: { alg: 'PS256', cle: pss.privateKey } }, chaine: [derInter] }), tout), null);
+	assert.equal(await autoriteDuCertificat(await x5cDe({ certificat: { par: { alg: 'ES384', cle: racine.privateKey } }, chaine: [derInter] }), tout), null);
+	assert.equal(await autoriteDuCertificat(await x5cDe({ chaine: [derRacine] }), tout), null, 'une signature ECDSA qui n est pas du DER');
+	assert.equal(await autoriteDuCertificat(null, tout), null);
+	assert.equal(await autoriteDuCertificat(seul, null), null);
+});
+
+test("un depot signe nomme l'autorite dans son recu ; un registre absent ou illisible n'empeche pas le depot", async () => {
+	const { inter, derRacine, derInter } = await chaineDeTest();
+	const { jws } = await jwsDe({ certificat: { par: { alg: 'RS256', cle: inter.privateKey } }, chaine: [derInter, derRacine] });
+	const autorites = async () => ({ autorites: { [empreinteDe(derRacine)]: { pays: 'FR', nom: 'Racine de test', usages: [] } } });
+	const ok = await deposer({ db: baseDeTest(), corps: { sha256: H, signature: jws }, adresse: 'a', maintenant: midi, autorites });
+	assert.deepEqual(corpsDe(ok).recu.signature.autorite, { pays: 'FR', nom: 'Racine de test' });
+	const sans = await deposer({ db: baseDeTest(), corps: { sha256: H, signature: jws }, adresse: 'a', maintenant: midi, autorites: async () => { throw new Error('absent'); } });
+	assert.equal(sans.statut, 201);
+	assert.ok(!('autorite' in corpsDe(sans).recu.signature));
 });

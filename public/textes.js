@@ -94,6 +94,8 @@ const TEXTES = {
 		signeeValide: { fr: (sujet, emetteur) => `${sujet}, certificat émis par ${emetteur}${NBSP}: signature valide`, de: (sujet, emetteur) => `${sujet}, Zertifikat ausgestellt von ${emetteur}: Signatur gültig` },
 		signeeNonConforme: { fr: 'signature non conforme', de: 'Signatur ungültig' },
 		sansNom: { fr: 'certificat sans nom', de: 'Zertifikat ohne Namen' },
+		autorite: { fr: 'Autorité', de: 'Aussteller' },
+		inscrite: { fr: (nom, pays) => `${nom}, inscrite sur la liste de confiance européenne (${pays})`, de: (nom, pays) => `${nom}, eingetragen in der europäischen Vertrauensliste (${pays})` },
 		signatures: { fr: (n) => `${n} signatures du journal valides`, de: (n) => `${n} gültige Signaturen des Journals` },
 		horodatage: { fr: 'Horodatage eIDAS', de: 'eIDAS-Zeitstempel' },
 		horodatageValide: { fr: (h) => `valide, ${h}`, de: (h) => `gültig, ${h}` },

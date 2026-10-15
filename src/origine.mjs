@@ -10,7 +10,7 @@
 // recu le recopie. Le meme fichier tourne dans le navigateur et sous Node.
 
 import { sha256 } from './chaine.mjs';
-import { certificat, enfants } from './horodatage.mjs';
+import { certificat, element, enfants } from './horodatage.mjs';
 
 /** Au plus autant de caracteres pour une signature : un certificat et sa chaine y tiennent. */
 export const SIGNATURE_MAX = 32768;
@@ -94,13 +94,68 @@ async function signatureJuste(algorithme, spki, signature, donnees) {
 	}
 }
 
+const CONDENSATS_RSA = { '2a864886f70d01010b': 'SHA-256', '2a864886f70d01010c': 'SHA-384', '2a864886f70d01010d': 'SHA-512' };
+const CONDENSATS_ECDSA = { '2a8648ce3d040302': 'SHA-256', '2a8648ce3d040303': 'SHA-384', '2a8648ce3d040304': 'SHA-512' };
+const COURBES = { '2a8648ce3d030107': ['P-256', 32], '2b81040022': ['P-384', 48], '2b81040023': ['P-521', 66] };
+
+/** Une signature ECDSA X.509 (DER, deux entiers) dans la forme brute r||s que lit WebCrypto. */
+function ecdsaBrute(der, taille) {
+	const brute = new Uint8Array(2 * taille);
+	enfants(element(der, 0)).forEach((entier, i) => {
+		const octets = entier.contenu.subarray(Math.max(0, entier.contenu.length - taille));
+		brute.set(octets, (i + 1) * taille - octets.length);
+	});
+	return brute;
+}
+
+/** Vrai quand `parent` a signe `enfant` : RSA PKCS#1 v1.5 ou ECDSA, SHA-256 a 512. */
+async function signePar(enfant, parent) {
+	try {
+		const rsa = CONDENSATS_RSA[enfant.algorithme];
+		if (rsa) return await signatureJuste({ cle: { name: 'RSASSA-PKCS1-v1_5', hash: rsa }, verification: { name: 'RSASSA-PKCS1-v1_5' } }, parent.spki, enfant.signature, enfant.tbs);
+		const hache = CONDENSATS_ECDSA[enfant.algorithme];
+		const [courbe, taille] = COURBES[hex(enfants(enfants(element(parent.spki, 0))[0])[1].contenu)] ?? [];
+		if (!hache || !courbe) return false;
+		return await signatureJuste({ cle: { name: 'ECDSA', namedCurve: courbe }, verification: { name: 'ECDSA', hash: hache } }, parent.spki, ecdsaBrute(enfant.signature, taille), enfant.tbs);
+	} catch {
+		return false;
+	}
+}
+
+/**
+ * L'autorite des listes de confiance qui a emis le certificat : on remonte
+ * `x5c`, chaque certificat signe par le suivant, jusqu'au premier dont
+ * l'empreinte est dans `autorites` (le registre de `src/confiance.mjs`). Le
+ * certificat du deposant lui-meme n'en est jamais une. Null sinon.
+ */
+export async function autoriteDuCertificat(x5c, autorites) {
+	if (!autorites || !Array.isArray(x5c)) return null;
+	let enfant = null;
+	for (const b64 of x5c) {
+		let der;
+		let cert;
+		try {
+			der = depuisBase64(b64);
+			cert = certificat(der);
+		} catch {
+			return null;
+		}
+		if (enfant && !(await signePar(enfant, cert))) return null;
+		const autorite = enfant ? autorites[await sha256(der)] : null;
+		if (autorite) return { pays: autorite.pays, nom: autorite.nom };
+		enfant = cert;
+	}
+	return null;
+}
+
 /**
  * Relit la signature d'un deposant contre l'empreinte de son document, a
  * l'instant du depot. Rend `{ ok, raisons, certificat }` ; `certificat` porte
- * l'empreinte du DER, le nom du sujet et de l'emetteur, la fin de validite et
- * `qcCompliance`, ou null quand il ne se lit pas.
+ * l'empreinte du DER, le nom du sujet et de l'emetteur, la fin de validite,
+ * `qcCompliance` et, quand `autorites` est donne, l'autorite des listes de
+ * confiance qui l'a emis (null si aucune) ; null quand il ne se lit pas.
  */
-export async function verifierSignatureDuDeposant(jws, empreinte, instant) {
+export async function verifierSignatureDuDeposant(jws, empreinte, instant, autorites = null) {
 	if (!estUnJws(jws)) return { ok: false, raisons: ['pas un JWS compact'], certificat: null };
 	if (!HEX64.test(empreinte ?? '')) return { ok: false, raisons: ['empreinte illisible'], certificat: null };
 	const [h, charge, s] = jws.split('.');
@@ -122,7 +177,8 @@ export async function verifierSignatureDuDeposant(jws, empreinte, instant) {
 			sujet: nomLisible(cert.nomSujet),
 			emetteur: nomLisible(cert.nomEmetteur),
 			jusquau: new Date(cert.fin).toISOString(),
-			qcCompliance: cert.extensions.includes(QC_COMPLIANCE)
+			qcCompliance: cert.extensions.includes(QC_COMPLIANCE),
+			...(autorites ? { autorite: await autoriteDuCertificat(entete.x5c, autorites) } : {})
 		}
 	};
 }

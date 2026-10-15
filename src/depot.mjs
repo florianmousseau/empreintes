@@ -106,7 +106,8 @@ export function selAleatoire() {
  * ligne publique qui lie les deux. `acte` porte la collectivite, la nature et
  * le rattachement (`site-officiel` ou `declaree`) d'un acte de collectivite ;
  * `affichage` porte le numero du permis dont le panneau est photographie ;
- * `signature` le JWS du deposant et le certificat qu'il nomme, deja verifies.
+ * `signature` le JWS du deposant et le certificat qu'il nomme, deja verifies,
+ * avec `autorite` (pays et nom) quand une liste de confiance porte son emetteur.
  */
 export function recuDe({ sha256: empreinte, instant, libelle = null, url = null, temoin = null, acte = null, affichage = null, signature = null, sel = selAleatoire() }) {
 	if (!HEX64.test(empreinte)) throw new Error('recu : sha256 illisible');
@@ -123,7 +124,7 @@ export function recuDe({ sha256: empreinte, instant, libelle = null, url = null,
 		temoin: temoin ? { url: temoin.url, taille: temoin.taille, type: temoin.type ?? null, lu: temoin.lu } : undefined,
 		acte: acte ? { collectivite: acte.collectivite, nature: acte.nature, rattachement: acte.rattachement } : undefined,
 		affichage: affichage ? { permis: affichage.permis } : undefined,
-		signature: signature ? { jws: signature.jws, certificat: signature.certificat, sujet: signature.sujet, emetteur: signature.emetteur } : undefined,
+		signature: signature ? { jws: signature.jws, certificat: signature.certificat, sujet: signature.sujet, emetteur: signature.emetteur, autorite: signature.autorite ?? undefined } : undefined,
 		sel
 	};
 }

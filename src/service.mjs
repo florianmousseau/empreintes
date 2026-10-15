@@ -129,12 +129,22 @@ export function adressePublique(url) {
 	return nommeUnePersonne(chemin.replace(/[/_.-]+/g, ' ')) ? null : url;
 }
 
+/** Le registre des autorites, ou null quand il manque : la signature se verifie alors sans juger l'emetteur. */
+async function lireAutorites(autorites) {
+	try {
+		return (await autorites())?.autorites ?? null;
+	} catch {
+		return null;
+	}
+}
+
 /**
  * Un depot, de la demande a la reponse : `{ statut, corps, entetes }`.
  * `adresse` n'est jamais gardee : seul son hache sale du jour compte.
- * `annuaire(code)` rend les sites officiels d'une collectivite, `[hote, prefixe]`.
+ * `annuaire(code)` rend les sites officiels d'une collectivite, `[hote, prefixe]` ;
+ * `autorites()` le registre des autorites des listes de confiance, ou null.
  */
-export async function deposer({ db, corps, adresse, maintenant = new Date(), temoin = temoigner, annuaire = async () => null }) {
+export async function deposer({ db, corps, adresse, maintenant = new Date(), temoin = temoigner, annuaire = async () => null, autorites = async () => null }) {
 	const { demande, erreurs } = lireDemande(corps);
 	if (erreurs) return refus(400, 'demande illisible', erreurs);
 	const instant = maintenant.toISOString();
@@ -164,7 +174,7 @@ export async function deposer({ db, corps, adresse, maintenant = new Date(), tem
 		empreinte = lu.sha256;
 	}
 
-	const signature = demande.signature ? await verifierSignatureDuDeposant(demande.signature, empreinte, instant) : null;
+	const signature = demande.signature ? await verifierSignatureDuDeposant(demande.signature, empreinte, instant, await lireAutorites(autorites)) : null;
 	if (signature && !signature.ok) {
 		// Une signature refusee ne consomme pas la lecture du jour : le deposant peut revenir avec la bonne.
 		if (cleLue) await faire(db, 'DELETE FROM lecture WHERE cle = ?', cleLue);
@@ -172,7 +182,7 @@ export async function deposer({ db, corps, adresse, maintenant = new Date(), tem
 	}
 
 	const acte = demande.acte ? { ...demande.acte, rattachement: await rattachement({ acte: demande.acte, demandee: demande.url, lue: lu.url, annuaire }) } : null;
-	const recu = recuDe({ sha256: empreinte, instant, libelle: demande.libelle, url: demande.url, temoin: lu, acte, affichage: demande.affichage ?? null, signature: signature && { jws: demande.signature, certificat: signature.certificat.empreinte, sujet: signature.certificat.sujet, emetteur: signature.certificat.emetteur } });
+	const recu = recuDe({ sha256: empreinte, instant, libelle: demande.libelle, url: demande.url, temoin: lu, acte, affichage: demande.affichage ?? null, signature: signature && { jws: demande.signature, certificat: signature.certificat.empreinte, sujet: signature.certificat.sujet, emetteur: signature.certificat.emetteur, autorite: signature.certificat.autorite } });
 	const id = await idDuRecu(recu);
 	const place = await inserer(db, { jour, empreinte, recu: id });
 	// La serie d'une collectivite ne tient que les actes lus sur son site officiel ; un acte declare reste dans son recu.

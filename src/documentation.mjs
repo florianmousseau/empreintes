@@ -39,6 +39,7 @@ export const ADRESSES = {
 		['signature', 'GET /empreintes/&lt;tour&gt;.racine.jws'],
 		['depots', 'GET /empreintes/depots.jsonl'],
 		['attestations', 'GET /attestations/par-url.json'],
+		['autorites', 'GET /confiance/autorites.json'],
 		['preuveDUnObjet', 'GET /preuves/&lt;sha256&gt;.json'],
 		['sante', 'GET /health']
 	]

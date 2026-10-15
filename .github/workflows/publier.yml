@@ -24,6 +24,10 @@ jobs:
       - name: Annuaire des collectivites
         continue-on-error: true
         run: node scripts/annuaire.mjs
+      # Les autorites des listes de confiance europeennes (D-164) : une lecture muette publie sans elles, et l'emetteur d'une signature n'est pas juge.
+      - name: Autorites des listes de confiance
+        continue-on-error: true
+        run: node scripts/confiance.mjs
       # wrangler s'installe une fois, sans scripts d'installation, a sa version epinglee.
       - name: Installer wrangler
         run: npm install --no-save --ignore-scripts wrangler@4.121.0
