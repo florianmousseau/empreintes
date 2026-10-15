@@ -1,5 +1,5 @@
 {
- "dernier": "20261015T053116Z",
+ "dernier": "20261015T101656Z",
  "tours": {
   "20261011T041935Z": {
    "ots": "bitcoin",
@@ -284,11 +284,11 @@
    "bloc": 971474
   },
   "20261015T053116Z": {
-   "ots": "calendrier",
+   "ots": "bitcoin",
    "detail": "https://a.pool.opentimestamps.org https://b.pool.opentimestamps.org https://a.pool.eternitywall.com https://ots.btc.catallaxy.com",
    "racine": "6f66b95aa015fe503ca276fe54d05e646bd6bcdbe2ffc0330ac91a7ae2eb3011",
    "feuilles": 4008,
-   "maj": "2026-10-15T06:01:32.991Z",
+   "maj": "2026-10-15T10:33:56.646Z",
    "signature": {
     "etat": "signe",
     "certificat": "5263feba5fc71c4725c93328c0c75a94fc4e1b632bb9ff01574239551ab34b80",
@@ -302,6 +302,23 @@
     "signataire": "DirName:/C=ES/O=Sectigo (Europe) SL/CN=Sectigo Qualified Time Stamping Signer #3",
     "prestataire": "timestamp.sectigo.com",
     "verifie": true
+   },
+   "bloc": 971527
+  },
+  "20261015T101656Z": {
+   "ots": "calendrier",
+   "detail": "https://a.pool.opentimestamps.org https://b.pool.opentimestamps.org https://a.pool.eternitywall.com https://ots.btc.catallaxy.com",
+   "racine": "81db0b75e20b4897e7e548e99849a523b48bfd774c64c7a55b543e080fa524a5",
+   "feuilles": 4166,
+   "maj": "2026-10-15T10:33:56.646Z",
+   "signature": {
+    "etat": "signe",
+    "certificat": "5263feba5fc71c4725c93328c0c75a94fc4e1b632bb9ff01574239551ab34b80",
+    "sigT": "2026-10-15T10:33:56Z"
+   },
+   "horodatage": {
+    "etat": "deja",
+    "tour": "20261015T053116Z"
    }
   }
  }
