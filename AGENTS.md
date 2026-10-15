@@ -98,7 +98,9 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   octet visible, hors `hreflang`.
 - Un depot SIGNE par son deposant (D-164, REQ-7.5-03) : champ `signature`, un
   JWS compact JAdES dont la charge utile est l'empreinte du document (64 hex,
-  jointe ou detachee) et le certificat dans `x5c`. `src/origine.mjs` (MIT, sans
+  jointe ou detachee) et le certificat dans `x5c`, ou une signature CAdES
+  DETACHEE en base64 (un signataire, SHA-256, `messageDigest` = l'empreinte ;
+  recu `signature.cades` au lieu de `signature.jws`). `src/origine.mjs` (MIT, sans
   dependance) verifie la signature sous la cle du certificat et sa validite a
   l'instant du depot ; il ne juge PAS l'emetteur (aucune chaine vers une liste
   de confiance encore) et la page n'ecrit jamais « qualifie ». Une signature

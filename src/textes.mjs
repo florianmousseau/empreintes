@@ -197,8 +197,8 @@ export const TEXTES = {
 				de: undefined
 			},
 			signe: {
-				fr: 'une empreinte signée par vous : JWS compact JAdES, certificat dans <code>x5c</code>, aussi avec <code>url</code> ou un <code>type</code> ; reçu version 4 avec la signature et le nom du certificat, ligne publique inchangée',
-				de: 'eine von Ihnen signierte Prüfsumme: kompaktes JWS JAdES, Zertifikat in <code>x5c</code>, auch mit <code>url</code> oder einem <code>type</code>; Beleg Version 4 mit der Signatur und dem Namen des Zertifikats, öffentliche Zeile unverändert'
+				fr: 'une empreinte signée par vous\u00A0: JWS compact JAdES, certificat dans <code>x5c</code>, ou signature CAdES détachée du document (le <code>.p7s</code> en base64, condensat SHA-256), aussi avec <code>url</code> ou un <code>type</code>\u00A0; reçu version 4 avec la signature et le nom du certificat, ligne publique inchangée',
+				de: 'eine von Ihnen signierte Prüfsumme: kompaktes JWS JAdES, Zertifikat in <code>x5c</code>, oder abgetrennte CAdES-Signatur des Dokuments (die <code>.p7s</code> in Base64, Hashwert SHA-256), auch mit <code>url</code> oder einem <code>type</code>; Beleg Version 4 mit der Signatur und dem Namen des Zertifikats, öffentliche Zeile unverändert'
 			},
 			cree: { fr: 'le reçu, son identifiant, la ligne publique', de: 'der Beleg, seine Kennung, die öffentliche Zeile' },
 			flux: {
@@ -254,7 +254,7 @@ export const TEXTES = {
 				de: 'die vom Archiv gesehenen Dokumente der öffentlichen Listen: Adresse, Prüfsumme, erster und letzter Tag, Beweis'
 			},
 			autorites: {
-				fr: 'les autorités en vigueur (services <code>CA/QC</code>) des listes de confiance européennes, <code>sha256</code> du certificat vers pays, nom et usages, relues à chaque publication ; une signature de déposant dont <code>x5c</code> remonte à l’une d’elles la nomme',
+				fr: 'les autorités en vigueur (services <code>CA/QC</code>) des listes de confiance européennes, <code>sha256</code> du certificat vers pays, nom et usages, relues à chaque publication\u00A0; une signature de déposant dont <code>x5c</code> remonte à l’une d’elles la nomme',
 				de: 'die gültigen Zertifizierungsstellen der europäischen Vertrauenslisten, <code>sha256</code> des Zertifikats zu Land, Name und Verwendung, bei jeder Veröffentlichung neu gelesen; eine Signatur, deren <code>x5c</code> zu einer von ihnen führt, nennt sie'
 			},
 			preuveDUnObjet: {
@@ -282,8 +282,8 @@ export const TEXTES = {
 			bitcoin: { fr: ['Bitcoin'], de: ['Bitcoin'] },
 			signature: { fr: ['signature du journal', '\u00A0; ES256 sur <code>en-tête.charge</code>'], de: ['Signatur des Journals', '; ES256 über <code>Header.Nutzlast</code>'] },
 			signatureDuDeposant: {
-				fr: ['signature du déposant', ' ; ES256, ES384, RS256 ou PS256 sous la clé de <code>x5c[0]</code>, charge jointe ou détachée, certificat valide à l’instant du dépôt'],
-				de: ['Signatur des Einreichers', '; ES256, ES384, RS256 oder PS256 unter dem Schlüssel von <code>x5c[0]</code>, Nutzlast angehängt oder abgetrennt, Zertifikat zum Zeitpunkt der Datierung gültig']
+				fr: ['signature du déposant', '\u00A0; JAdES\u00A0: ES256, ES384, RS256 ou PS256 sous la clé de <code>x5c[0]</code>, charge jointe ou détachée\u00A0; CAdES\u00A0: un signataire, attributs signés, RSA ou ECDSA\u00A0; certificat valide à l’instant du dépôt'],
+				de: ['Signatur des Einreichers', '; JAdES: ES256, ES384, RS256 oder PS256 unter dem Schlüssel von <code>x5c[0]</code>, Nutzlast angehängt oder abgetrennt; CAdES: ein Unterzeichner, signierte Attribute, RSA oder ECDSA; Zertifikat zum Zeitpunkt der Datierung gültig']
 			},
 			horodatage: {
 				fr: ['horodatage eIDAS', '\u00A0; RFC 3161 sur les octets de <code>&lt;tour&gt;.racine</code>, autorité épinglée <code>sha256 = cd0a3e00a1bdae3a159fa9e3d70f8e664f560fdce16357cbe440ed0b0d88244f</code>'],
@@ -365,24 +365,24 @@ export const TEXTES = {
 		},
 		sections: {
 			fr: [
-				['Ce qui est enregistré', 'Des empreintes SHA-256, jamais un document : celles des dépôts et celles des documents publics conservés par l’entrepôt. Quatre tours par jour ; chaque tour publie un relevé et sa racine.'],
+				['Ce qui est enregistré', 'Des empreintes SHA-256, jamais un document\u00A0: celles des dépôts et celles des documents publics conservés par l’entrepôt. Quatre tours par jour\u00A0; chaque tour publie un relevé et sa racine.'],
 				[
 					'L’origine',
-					'Le relevé nomme la source et la clé de chaque empreinte. Chaque racine porte la signature du journal, un JWS compact ES256 dont la clé est épinglée dans la documentation. Un dépôt porte son reçu ; le déposant n’y est désigné que par ce qu’il a déclaré.'
+					'Le relevé nomme la source et la clé de chaque empreinte. Chaque racine porte la signature du journal, un JWS compact ES256 dont la clé est épinglée dans la documentation. Un dépôt porte son reçu\u00A0; le déposant n’y est désigné que par ce qu’il a déclaré.'
 				],
 				[
 					'L’ordre',
-					'Un tour porte l’instant de son début. Sa racine est chaînée à celle du tour précédent, le premier suit 64 zéros : insérer un tour dans le passé change toutes les racines suivantes. Chaque racine est ancrée dans Bitcoin par OpenTimestamps ; une fois par jour, une racine reçoit aussi un horodatage RFC 3161 d’un prestataire de la liste de confiance européenne.'
+					'Un tour porte l’instant de son début. Sa racine est chaînée à celle du tour précédent, le premier suit 64 zéros\u00A0: insérer un tour dans le passé change toutes les racines suivantes. Chaque racine est ancrée dans Bitcoin par OpenTimestamps\u00A0; une fois par jour, une racine reçoit aussi un horodatage RFC 3161 d’un prestataire de la liste de confiance européenne.'
 				],
-				['Les liens', 'Dans un tour, un arbre de Merkle SHA-256 : le chemin d’audit d’une empreinte la relie à la racine. Entre les tours, la racine chaînée. Hors du registre, Bitcoin et l’horodatage.'],
+				['Les liens', 'Dans un tour, un arbre de Merkle SHA-256\u00A0: le chemin d’audit d’une empreinte la relie à la racine. Entre les tours, la racine chaînée. Hors du registre, Bitcoin et l’horodatage.'],
 				['La finalité', 'Prouver qu’une empreinte était inscrite à une place donnée, et que rien n’a changé depuis. Le registre ne dit rien du contenu ni de son auteur.'],
 				[
 					'L’intégrité',
 					(liens) =>
-						`Un relevé publié n’est jamais réécrit ; seul son <code>.ots</code> grandit. La copie publique s’arrête si un relevé déjà publié change. Le vérificateur de ce site est écrit sans le code du producteur et recalcule chaque racine et la chaîne entière (${liens.documentation}).`
+						`Un relevé publié n’est jamais réécrit\u00A0; seul son <code>.ots</code> grandit. La copie publique s’arrête si un relevé déjà publié change. Le vérificateur de ce site est écrit sans le code du producteur et recalcule chaque racine et la chaîne entière (${liens.documentation}).`
 				],
-				['La surveillance', '<code>/health</code> publie l’âge du dernier tour et les preuves restées en attente plus de 48 h.'],
-				['La fin du service', 'Relevés, racines, signatures et preuves sont publics : le registre reste vérifiable sans ce site.']
+				['La surveillance', '<code>/health</code> publie l’âge du dernier tour et les preuves restées en attente plus de 48\u00A0h.'],
+				['La fin du service', 'Relevés, racines, signatures et preuves sont publics\u00A0: le registre reste vérifiable sans ce site.']
 			],
 			de: [
 				['Was eingetragen wird', 'SHA-256-Prüfsummen, nie ein Dokument: die der Datierungen und die der öffentlichen Dokumente, die das Archiv aufbewahrt. Vier Runden pro Tag; jede Runde veröffentlicht ein Protokoll und seine Wurzel.'],
@@ -420,24 +420,24 @@ export const TEXTES = {
 				],
 				[
 					'Ce que le prestataire s’engage à faire',
-					'Inscrire chaque empreinte admise au tour qui suit son arrivée ; ne jamais réécrire un relevé ; publier relevés, racines et preuves, vérifiables sans lui ; dire sur ce site toute anomalie de la chaîne ; garder chaque version de ces conditions.'
+					'Inscrire chaque empreinte admise au tour qui suit son arrivée\u00A0; ne jamais réécrire un relevé\u00A0; publier relevés, racines et preuves, vérifiables sans lui\u00A0; dire sur ce site toute anomalie de la chaîne\u00A0; garder chaque version de ces conditions.'
 				],
 				[
 					'Ce que le déposant s’engage à faire',
 					(liens) =>
-						`Déposer une empreinte, jamais un fichier, et aucune donnée personnelle dans le libellé ; respecter les plafonds de la ${liens.documentation} ; garder son reçu, seul lien entre son empreinte et ce qu’il a déclaré.`
+						`Déposer une empreinte, jamais un fichier, et aucune donnée personnelle dans le libellé\u00A0; respecter les plafonds de la ${liens.documentation}\u00A0; garder son reçu, seul lien entre son empreinte et ce qu’il a déclaré.`
 				],
 				[
 					'Ce qui se publie',
-					'L’empreinte, le jour et la place dans le registre. Le libellé et l’adresse restent dans le reçu, sauf pour un acte lu sur le site officiel d’une commune : sa nature, son objet et son adresse paraissent sur la page de la commune.'
+					'L’empreinte, le jour et la place dans le registre. Le libellé et l’adresse restent dans le reçu, sauf pour un acte lu sur le site officiel d’une commune\u00A0: sa nature, son objet et son adresse paraissent sur la page de la commune.'
 				],
 				[
 					'Les limites',
-					'Le registre prouve qu’une empreinte était inscrite à une place. Il ne dit ni qui a produit le fichier, ni qu’il est exact, ni qu’il est licite. Un ancrage peut tarder : la preuve le dit. Le prestataire ne répond pas de l’usage fait d’un reçu.'
+					'Le registre prouve qu’une empreinte était inscrite à une place. Il ne dit ni qui a produit le fichier, ni qu’il est exact, ni qu’il est licite. Un ancrage peut tarder\u00A0: la preuve le dit. Le prestataire ne répond pas de l’usage fait d’un reçu.'
 				],
 				[
 					'Les données personnelles',
-					'Aucune n’est inscrite dans le registre. L’adresse IP d’un déposant n’est jamais écrite : seul son haché salé du jour sert au plafond, et le sel est effacé le lendemain.'
+					'Aucune n’est inscrite dans le registre. L’adresse IP d’un déposant n’est jamais écrite\u00A0: seul son haché salé du jour sert au plafond, et le sel est effacé le lendemain.'
 				],
 				['La fin du service', 'Le registre publié reste vérifiable sans le prestataire.'],
 				['La loi et le juge', 'Droit français. En cas de litige, après une tentative de règlement amiable, les tribunaux de Paris.']
@@ -479,7 +479,7 @@ export const TEXTES = {
 		colonnes: { fr: ['Rôle', 'Ce qu’il fait', 'Garde-fou'], de: ['Rolle', 'Aufgabe', 'Absicherung'] },
 		liste: {
 			fr: [
-				['Direction', 'approuve les pratiques et les conditions ; décide une fin de service', 'décision écrite et datée'],
+				['Direction', 'approuve les pratiques et les conditions\u00A0; décide une fin de service', 'décision écrite et datée'],
 				['Sécurité', 'tient les accès, les clés et les incidents', 'aucune clé dans un dépôt de code'],
 				['Exploitation', 'fait tourner le registre et ce site', 'tout changement relu et contrôlé avant sa mise en ligne'],
 				['Audit interne', 'relit les journaux et les écarts', 'relecture distincte de l’écriture']
