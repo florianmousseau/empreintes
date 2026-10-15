@@ -99,7 +99,48 @@ const TEXTES = {
 		signatures: { fr: (n) => `${n} signatures du journal valides`, de: (n) => `${n} gültige Signaturen des Journals` },
 		horodatage: { fr: 'Horodatage eIDAS', de: 'eIDAS-Zeitstempel' },
 		horodatageValide: { fr: (h) => `valide, ${h}`, de: (h) => `gültig, ${h}` },
-		horodatages: { fr: (n) => `${n} horodatages eIDAS valides`, de: (n) => `${n} gültige eIDAS-Zeitstempel` }
+		horodatages: { fr: (n) => `${n} horodatages eIDAS valides`, de: (n) => `${n} gültige eIDAS-Zeitstempel` },
+		serie: {
+			complete: { fr: (n) => `Série complète${NBSP}: ${n} jours, chacun au registre`, de: (n) => `Vollständige Serie: ${n} Tage, jeder im Register` },
+			enCours: { fr: (a, n) => `Série en cours${NBSP}: ${a} jours sur ${n} au registre, aucun manqué`, de: (a, n) => `Laufende Serie: ${a} von ${n} Tagen im Register, keiner ausgelassen` },
+			interrompue: { fr: (n, j) => (n > 1 ? `Série interrompue${NBSP}: ${n} jours sans photo, le premier le ${j}` : `Série interrompue${NBSP}: le ${j} n’a pas de photo`), de: (n, j) => (n > 1 ? `Serie unterbrochen: ${n} Tage ohne Foto, der erste am ${j}` : `Serie unterbrochen: der ${j} hat kein Foto`) },
+			nonConforme: { fr: (n) => (n > 1 ? `Certificat non conforme${NBSP}: ${n} jours ne correspondent pas au registre` : `Certificat non conforme${NBSP}: un jour ne correspond pas au registre`), de: (n) => (n > 1 ? `Bescheinigung ungültig: ${n} Tage stimmen nicht mit dem Register überein` : 'Bescheinigung ungültig: ein Tag stimmt nicht mit dem Register überein') },
+			illisible: { fr: 'Certificat de série illisible', de: 'Serienbescheinigung nicht lesbar' },
+			erreurs: {
+				version: { fr: 'Version du certificat inconnue.', de: 'Unbekannte Version der Bescheinigung.' },
+				permis: { fr: 'Le numéro du permis n’a pas la forme PC 069 123 24 A0001.', de: 'Die Nummer der Genehmigung hat nicht die Form PC 069 123 24 A0001.' },
+				pose: { fr: 'La date de pose est illisible.', de: 'Das Datum des Aushangs ist nicht lesbar.' },
+				fin: { fr: 'La période ne couvre pas deux mois depuis la pose.', de: 'Der Zeitraum umfasst nicht zwei Monate ab dem Aushang.' },
+				jours: { fr: 'La liste des jours est illisible.', de: 'Die Liste der Tage ist nicht lesbar.' },
+				'hors-periode': { fr: 'Un jour tombe hors de la période d’affichage.', de: 'Ein Tag liegt außerhalb des Aushangzeitraums.' },
+				ordre: { fr: 'Les jours ne se suivent pas, ou un jour revient deux fois.', de: 'Die Tage folgen nicht aufeinander, oder ein Tag kommt doppelt vor.' }
+			},
+			permis: { fr: 'Permis', de: 'Genehmigung' },
+			permisRelu: { fr: 'numéro relu dans chaque reçu', de: 'Nummer in jedem Beleg nachgelesen' },
+			permisNonRelu: {
+				fr: (r, n) => (r === 0 ? 'numéro non relu, le certificat ne joint pas les reçus' : `numéro relu dans ${r} reçus sur ${n}`),
+				de: (r, n) => (r === 0 ? 'Nummer nicht nachgelesen, die Bescheinigung enthält keine Belege' : `Nummer in ${r} von ${n} Belegen nachgelesen`)
+			},
+			periode: { fr: 'Affichage', de: 'Aushang' },
+			duAu: { fr: (a, b) => `du ${a} au ${b}`, de: (a, b) => `vom ${a} bis ${b}` },
+			auRegistre: { fr: 'Au registre', de: 'Im Register' },
+			compte: { fr: (a, n) => `${a} jours sur ${n}`, de: (a, n) => `${a} von ${n} Tagen` },
+			photos: { fr: 'Déposez une photo de la série sur cette page pour retrouver son jour.', de: 'Laden Sie ein Foto der Serie auf dieser Seite hoch, um seinen Tag zu finden.' },
+			details: { fr: 'Chaque jour', de: 'Jeder Tag' },
+			jour: { fr: 'Jour', de: 'Tag' },
+			registre: { fr: 'Registre', de: 'Register' },
+			empreinte: { fr: 'Empreinte de la photo', de: 'Prüfsumme des Fotos' },
+			recu: { fr: 'Reçu', de: 'Beleg' },
+			place: { fr: (p) => `n°${NBSP}${p}`, de: (p) => `Nr.${NBSP}${p}` },
+			verdicts: {
+				'au-registre': { fr: 'au registre', de: 'im Register' },
+				inconnu: { fr: 'reçu inconnu', de: 'Beleg unbekannt' },
+				different: { fr: 'autre empreinte ou autre jour', de: 'andere Prüfsumme oder anderer Tag' },
+				'autre-permis': { fr: 'reçu d’un autre permis', de: 'Beleg einer anderen Genehmigung' },
+				'sans-photo': { fr: 'sans photo', de: 'ohne Foto' },
+				'a-venir': { fr: 'à venir', de: 'ausstehend' }
+			}
+		}
 	},
 	recu: {
 		inscrit: { fr: (h) => `inscrit le ${h}`, de: (h) => `eingetragen am ${h}` },

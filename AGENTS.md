@@ -115,3 +115,10 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   remonte `x5c`, chaque certificat verifie sous le suivant (RSA PKCS#1, ECDSA),
   jusqu'au premier inscrit ; le recu version 4 porte alors `signature.autorite`
   (pays, nom). Le deposant doit joindre la chaine jusqu'a l'autorite dans `x5c`.
+- Le certificat d'une serie d'affichage (D-166) se depose sur `/verifier` : un
+  JSON `type: certificat-affichage`, format en tete de `src/serie.mjs` (pur),
+  ecrit par la page du certificat d'edifiable. Chaque recu se relit contre sa
+  ligne publique (`/api/recus/<id>`, six lectures en vol au plus) ; la periode
+  se RECALCULE depuis la pose (deux mois), un jour passe sans photo interrompt
+  la serie ; le numero du permis n'est dit relu que dans un recu complet joint
+  dont l'identifiant se recalcule, la ligne publique ne le portant pas.
