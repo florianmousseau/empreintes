@@ -1,0 +1,20 @@
+# La glane quotidienne des actes des communes (D-178), sur le VPS.
+# Pose : clone public dans /var/lib/glane-actes/empreintes, jeton dans
+# /etc/glane-actes.env (JETON_FLOTTE=..., droits 600, valeur du coffre
+# TEMOINPUBLIC_JETON_FLOTTE), etat dans /var/lib/glane-actes/etat.
+[Unit]
+Description=Glane des actes des communes (temoinpublic.fr, D-178)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=debian
+EnvironmentFile=/etc/glane-actes.env
+WorkingDirectory=/var/lib/glane-actes/empreintes
+ExecStartPre=/usr/bin/git -C /var/lib/glane-actes/empreintes pull --ff-only --quiet
+ExecStart=/usr/bin/node --max-old-space-size=384 scripts/glaner-actes.mjs --departements tous --etat /var/lib/glane-actes/etat --paralleles 30 --par-commune 15
+MemoryMax=512M
+CPUQuota=50%
+Nice=10
+RuntimeMaxSec=20h

@@ -1,0 +1,10 @@
+[Unit]
+Description=Glane des actes des communes, chaque nuit
+
+[Timer]
+OnCalendar=*-*-* 02:30 Europe/Paris
+Persistent=true
+RandomizedDelaySec=10min
+
+[Install]
+WantedBy=timers.target

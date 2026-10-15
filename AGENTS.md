@@ -135,3 +135,7 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   officiel (sinon 422), sous son plafond (`ACTES_DE_LA_FLOTTE_PAR_JOUR`), hors
   du bilan public des deposants (cle de compte `flotte`), et un acte deja date
   pour sa commune rend son recu (200, `deja`). Etat et releves hors du depot.
+- La glane tourne chaque nuit sur le VPS : `vps/glane-actes.service` et
+  `.timer` (toutes les communes, `--departements tous`, memoire bornee a
+  512 Mo), clone public a jour avant chaque passage, jeton dans
+  `/etc/glane-actes.env`. Releve du jour : `/var/lib/glane-actes/etat/glane-<jour>.tsv`.
