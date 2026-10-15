@@ -1,0 +1,17 @@
+{
+ "jour": "2026-10-14",
+ "evenements": [
+  {
+   "classe": "retire",
+   "source": "scpi-paref",
+   "url": "https://paref-gestion.com/wp-content/uploads/2026/01/4963377c-6742-4ea1-8d05-17514a2400db-01.01.2026NI-PAREFEvo.pdf",
+   "date": "2026-10-14",
+   "http": null,
+   "avant": {
+    "jour": "2026-10-11",
+    "sha256": "87e5eb90041fb6720eea263622f753237a31c0125771964aa5d7a71c8b3e28eb"
+   },
+   "apres": null
+  }
+ ]
+}

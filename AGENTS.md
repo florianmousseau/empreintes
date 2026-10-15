@@ -168,3 +168,12 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   `POST /api/passages` (jeton de la flotte) les recus encore lies (`vue`) et non
   retrouves (`absente`), table `passage` ; une version plus recente a la meme
   source l'emporte sur la page.
+- Ce qui a disparu (D-193) : `/disparus` (les sites, les plus recents), `/disparus/<hote, points en tirets>`
+  et le flux `/disparus.xml`, construits depuis `donnees/disparus/<jour>.json`. L'entrepot les ecrit en jouant
+  `scripts/disparus.mjs` de CE depot sur ses `deltas/<jour>.json` prives, avant chaque copie : le filtre
+  (`src/disparus.mjs`, pur) decide ce qui entre dans l'historique public, et la construction le rejoue. Ne
+  passent que les sources de `SOURCES_PUBLIEES` (une source dont le retrait repond a un droit par nature en
+  reste dehors), une adresse que ni `nommeUnePersonne` ni `pourraitNommer` ne refusent, hors `RETENUES` (sha256
+  de l'adresse, retrait sur un droit instruit par `docs/legal/demandes.md` du cockpit), avec une empreinte
+  d'avant presente dans l'index du journal publie ; la preuve est `/verifier?empreinte=<sha256>`. `retire` se
+  dit « Sorti de la liste », jamais supprime (un test le refuse).
