@@ -1,7 +1,7 @@
 import { sha256, placeDuFichier, verifierChaine, verifierSignatureDuJournal, verifierSignatures, certificatDuTour } from '/chaine.mjs';
 import { tourHorodate, verifierHorodatage, verifierHorodatages } from '/horodatage.mjs';
 import { montrer, suivreLeChoix } from '/fichier.js';
-import { idDuRecu } from '/depot.mjs';
+import { estUnRecu, idDuRecu } from '/depot.mjs';
 import { T } from '/textes.js';
 
 suivreLeChoix(document);
@@ -98,7 +98,7 @@ async function verifier(empreinte) {
 function recuDans(octets) {
 	try {
 		const r = JSON.parse(new TextDecoder().decode(octets));
-		return [1, 2].includes(r?.version) && /^[0-9a-f]{64}$/.test(r.sha256) && /^[0-9a-f]{32}$/.test(r.sel) ? r : null;
+		return estUnRecu(r) ? r : null;
 	} catch {
 		return null;
 	}
