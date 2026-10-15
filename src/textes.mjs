@@ -196,6 +196,10 @@ export const TEXTES = {
 				fr: 'la photo du jour d’un panneau de permis de construire, son empreinte calculée par vous, le numéro du permis en libellé\u00A0; reçu version 3, ligne publique inchangée',
 				de: undefined
 			},
+			signe: {
+				fr: 'une empreinte signée par vous : JWS compact JAdES, certificat dans <code>x5c</code>, aussi avec <code>url</code> ou un <code>type</code> ; reçu version 4 avec la signature et le nom du certificat, ligne publique inchangée',
+				de: 'eine von Ihnen signierte Prüfsumme: kompaktes JWS JAdES, Zertifikat in <code>x5c</code>, auch mit <code>url</code> oder einem <code>type</code>; Beleg Version 4 mit der Signatur und dem Namen des Zertifikats, öffentliche Zeile unverändert'
+			},
 			cree: { fr: 'le reçu, son identifiant, la ligne publique', de: 'der Beleg, seine Kennung, die öffentliche Zeile' },
 			flux: {
 				fr: 'suivre un flux\u00A0: chaque heure, chaque article nouveau ou modifié est lu et daté\u00A0; rend l’identifiant du flux et son jeton',
@@ -273,6 +277,10 @@ export const TEXTES = {
 			},
 			bitcoin: { fr: ['Bitcoin'], de: ['Bitcoin'] },
 			signature: { fr: ['signature du journal', '\u00A0; ES256 sur <code>en-tête.charge</code>'], de: ['Signatur des Journals', '; ES256 über <code>Header.Nutzlast</code>'] },
+			signatureDuDeposant: {
+				fr: ['signature du déposant', ' ; ES256, ES384, RS256 ou PS256 sous la clé de <code>x5c[0]</code>, charge jointe ou détachée, certificat valide à l’instant du dépôt'],
+				de: ['Signatur des Einreichers', '; ES256, ES384, RS256 oder PS256 unter dem Schlüssel von <code>x5c[0]</code>, Nutzlast angehängt oder abgetrennt, Zertifikat zum Zeitpunkt der Datierung gültig']
+			},
 			horodatage: {
 				fr: ['horodatage eIDAS', '\u00A0; RFC 3161 sur les octets de <code>&lt;tour&gt;.racine</code>, autorité épinglée <code>sha256 = cd0a3e00a1bdae3a159fa9e3d70f8e664f560fdce16357cbe440ed0b0d88244f</code>'],
 				de: ['eIDAS-Zeitstempel', '; RFC 3161 über die Bytes von <code>&lt;tour&gt;.racine</code>, festgelegte Behörde <code>sha256 = cd0a3e00a1bdae3a159fa9e3d70f8e664f560fdce16357cbe440ed0b0d88244f</code>']

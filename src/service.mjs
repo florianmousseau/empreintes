@@ -5,6 +5,7 @@ import { surSiteOfficiel } from './acte.mjs';
 import { nommeUnePersonne } from './personne.mjs';
 import { sha256 } from './chaine.mjs';
 import { cleDAdresse, idDuRecu, jourDe, ligneDe, lireDemande, plafond, recuDe, secondesAvantDemain, selAleatoire } from './depot.mjs';
+import { verifierSignatureDuDeposant } from './origine.mjs';
 import { AGENT, DELAI_MS, cleDeLecture, estUneIp, ipsDoH, lireBorne, resolutionAdmise, sautSuivant, urlAdmise } from './temoin.mjs';
 
 /** Le schema de la base `empreintes-depots` ; rejouable. */
@@ -148,10 +149,12 @@ export async function deposer({ db, corps, adresse, maintenant = new Date(), tem
 
 	let empreinte = demande.sha256;
 	let lu = null;
+	let cleLue = null;
 	if (demande.url) {
 		const admise = urlAdmise(demande.url);
 		if (admise.refus) return refus(400, 'url refusee', [admise.refus]);
-		const nouvelle = await faire(db, 'INSERT INTO lecture (cle, jour) VALUES (?, ?) ON CONFLICT (cle) DO NOTHING', await cleDeLecture(admise.url, jour), jour);
+		cleLue = await cleDeLecture(admise.url, jour);
+		const nouvelle = await faire(db, 'INSERT INTO lecture (cle, jour) VALUES (?, ?) ON CONFLICT (cle) DO NOTHING', cleLue, jour);
 		if (nouvelle.meta.changes === 0) return refus(409, 'url deja lue aujourd hui', [], { 'retry-after': String(secondesAvantDemain(instant)) });
 		try {
 			lu = await temoin(admise);
@@ -161,8 +164,15 @@ export async function deposer({ db, corps, adresse, maintenant = new Date(), tem
 		empreinte = lu.sha256;
 	}
 
+	const signature = demande.signature ? await verifierSignatureDuDeposant(demande.signature, empreinte, instant) : null;
+	if (signature && !signature.ok) {
+		// Une signature refusee ne consomme pas la lecture du jour : le deposant peut revenir avec la bonne.
+		if (cleLue) await faire(db, 'DELETE FROM lecture WHERE cle = ?', cleLue);
+		return refus(400, 'signature refusee', signature.raisons);
+	}
+
 	const acte = demande.acte ? { ...demande.acte, rattachement: await rattachement({ acte: demande.acte, demandee: demande.url, lue: lu.url, annuaire }) } : null;
-	const recu = recuDe({ sha256: empreinte, instant, libelle: demande.libelle, url: demande.url, temoin: lu, acte, affichage: demande.affichage ?? null });
+	const recu = recuDe({ sha256: empreinte, instant, libelle: demande.libelle, url: demande.url, temoin: lu, acte, affichage: demande.affichage ?? null, signature: signature && { jws: demande.signature, certificat: signature.certificat.empreinte, sujet: signature.certificat.sujet, emetteur: signature.certificat.emetteur } });
 	const id = await idDuRecu(recu);
 	const place = await inserer(db, { jour, empreinte, recu: id });
 	// La serie d'une collectivite ne tient que les actes lus sur son site officiel ; un acte declare reste dans son recu.

@@ -37,7 +37,7 @@ const egaux = (a, b) => a.length === b.length && a.every((o, i) => o === b[i]);
 const condensat = async (algorithme, octets) => new Uint8Array(await globalThis.crypto.subtle.digest(algorithme, octets));
 
 /** L'element DER a `pos` : son etiquette, ses octets entiers, son contenu. */
-function element(octets, pos) {
+export function element(octets, pos) {
 	if (pos + 2 > octets.length) throw new Error('DER tronque');
 	let longueur = octets[pos + 1];
 	let debut = pos + 2;
@@ -53,7 +53,7 @@ function element(octets, pos) {
 }
 
 /** Les elements contenus dans un element construit. */
-function enfants(el) {
+export function enfants(el) {
 	const liste = [];
 	for (let pos = 0; pos < el.contenu.length; pos += liste.at(-1).entier.length) liste.push(element(el.contenu, pos));
 	return liste;
@@ -68,8 +68,8 @@ function instantDer(el) {
 	return Date.UTC(annee, Number(m[2]) - 1, Number(m[3]), Number(m[4]), Number(m[5]), Number(m[6]));
 }
 
-/** Ce qu'on lit d'un certificat X.509 : tbs, numero, emetteur, validite, cle, signature. */
-function certificat(entier) {
+/** Ce qu'on lit d'un certificat X.509 : tbs, numero, emetteur, sujet, validite, cle, signature. */
+export function certificat(entier) {
 	const [tbs, algorithme, signature] = enfants(element(entier, 0));
 	const champs = enfants(tbs);
 	const i = champs[0].etiquette === 0xa0 ? 1 : 0;
@@ -79,6 +79,8 @@ function certificat(entier) {
 		tbs: tbs.entier,
 		numero: hex(champs[i].contenu),
 		emetteur: hex(champs[i + 2].entier),
+		nomEmetteur: champs[i + 2],
+		nomSujet: champs[i + 4],
 		debut,
 		fin,
 		spki: champs[i + 5].entier,

@@ -8,6 +8,7 @@ export const ADRESSES = {
 		['url', 'POST /api/depots {"url": "https://&lt;adresse&gt;"}'],
 		['acte', 'POST /api/depots {"type": "acte", "url": "https://&lt;adresse&gt;", "collectivite": "&lt;INSEE | SIREN&gt;", "nature": "deliberation | arrete | decision", "libelle": "&lt;objet&gt;"}'],
 		['affichage', 'POST /api/depots {"type": "affichage", "sha256": "&lt;64 hex&gt;", "libelle": "&lt;numéro du permis&gt;"}'],
+		['signe', 'POST /api/depots {"sha256": "&lt;64 hex&gt;", "signature": "&lt;JWS JAdES&gt;"}'],
 		['cree', '201'],
 		['flux', 'POST /api/flux {"url": "https://&lt;flux RSS ou Atom&gt;"}'],
 		['editeur', 'GET /editeur/&lt;id&gt;'],
@@ -52,6 +53,7 @@ export const FORMULES = {
 	recu: '',
 	bitcoin: '<code>ots verify &lt;tour&gt;.racine.ots</code>',
 	signature: '<code>sha256(x5c[0]) = 5263feba5fc71c4725c93328c0c75a94fc4e1b632bb9ff01574239551ab34b80</code>',
+	signatureDuDeposant: '<code>charge utile = empreinte du document, 64 hex</code>',
 	horodatage: '<code>openssl ts -verify -data &lt;tour&gt;.racine -in &lt;tour&gt;.racine.tsr</code>',
 	script: '<a href="https://github.com/temoinpublic/empreintes/blob/main/scripts/verifier.mjs">node scripts/verifier.mjs &lt;document | --chaine&gt;</a>'
 };
