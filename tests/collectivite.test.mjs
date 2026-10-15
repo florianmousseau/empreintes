@@ -79,8 +79,9 @@ test("la page d'une commune liste ses actes rattaches, sous ses deux codes, du p
 	assert.match(r.corps, /<td>Arrêté<\/td><td><a href="https:\/\/www.cravans.fr\/arrete-2.pdf">Sans objet<\/a><\/td>/);
 	assert.match(r.corps, /<td>Délibération<\/td><td><a href="https:\/\/www.cravans.fr\/pv-1.pdf">Budget primitif<\/a><\/td>/);
 	assert.ok(!r.corps.includes('Décision'), 'un acte declare reste hors de la serie');
-	assert.match(r.corps, /<a href="\/recu\/[0-9a-f]{64}">Reçu<\/a>/);
-	for (const absent of ['Service-Public', 'noindex', '1111111111111111']) assert.ok(!r.corps.includes(absent), absent);
+	assert.match(r.corps, /<a href="\/actes\/17133\/2026-10-11\/deliberation-111111111111">Preuve<\/a>/);
+	assert.match(r.corps, /<a href="\/actes\/211701339\/2026-10-12\/arrete-222222222222">Preuve<\/a>/);
+	for (const absent of ['Service-Public', 'noindex', '1111111111111']) assert.ok(!r.corps.includes(absent), absent);
 	assert.match(r.corps, /<p class="compte">Actes datés ici depuis le 11\/10\/2026, lus sur le site officiel de la commune. <a href="\/preuve">Valeur de preuve<\/a><\/p>/);
 	assert.match(r.corps, /<a class="bouton principal" href="\/acte">Dater la mise en ligne d’un acte<\/a>/);
 });
@@ -93,6 +94,7 @@ test("le recu d'un acte rattache dit l'acte, sa commune et son jour en ligne ; u
 	assert.match(html, /<h2>En ligne le 11\/10\/2026<\/h2>/);
 	assert.match(html, /<dd>Délibération, <a href="https:\/\/www.cravans.fr\/pv-1.pdf">Budget primitif<\/a><\/dd>/);
 	assert.match(html, /<a href="\/collectivite\/17133">17133<\/a>/);
+	assert.match(html, /<dt>Adresse de l’acte<\/dt><dd><a href="https:\/\/temoinpublic.fr\/actes\/17133\/2026-10-11\/deliberation-111111111111">/);
 	assert.match(html, /<button type="button" id="imprimer" class="principal">Imprimer le reçu<\/button>/);
 	assert.equal(await acteDuRecu({ db, id: 'x' }), null);
 	assert.match(pageRecu({ sha256: 'a'.repeat(64), jour: '2026-10-12', place: 1, recu: 'b'.repeat(64) }), /<h2>Document daté du 12\/10\/2026<\/h2>/);

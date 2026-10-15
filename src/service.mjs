@@ -2,6 +2,7 @@
 // plafonds, le temoin et la reponse. Les Functions ne font que le brancher.
 
 import { surSiteOfficiel } from './acte.mjs';
+import { cheminDeLActe } from './adresse.mjs';
 import { nommeUnePersonne } from './personne.mjs';
 import { sha256 } from './chaine.mjs';
 import { CLE_DE_LA_FLOTTE, cleDAdresse, idDuRecu, jourDe, ligneDe, lireDemande, plafond, recuDe, secondesAvantDemain, selAleatoire } from './depot.mjs';
@@ -279,7 +280,7 @@ export async function serieDeLaCollectivite({ db, codes, limite = SERIE_MAX }) {
 	const marques = codes.map(() => '?').join(', ');
 	const compte = await un(db, `SELECT COUNT(*) AS n, MIN(d.jour) AS depuis FROM acte a JOIN depot d ON d.recu = a.recu WHERE a.collectivite IN (${marques})`, ...codes);
 	const { results } = await db
-		.prepare(`SELECT d.jour, d.place, d.sha256, d.recu, a.nature, a.objet, a.url FROM acte a JOIN depot d ON d.recu = a.recu WHERE a.collectivite IN (${marques}) ORDER BY d.jour DESC, d.place DESC LIMIT ?`)
+		.prepare(`SELECT d.jour, d.place, d.sha256, d.recu, a.collectivite, a.nature, a.objet, a.url FROM acte a JOIN depot d ON d.recu = a.recu WHERE a.collectivite IN (${marques}) ORDER BY d.jour DESC, d.place DESC LIMIT ?`)
 		.bind(...codes, limite)
 		.all();
 	return { total: Number(compte.n), depuis: compte.depuis ?? null, actes: results };
@@ -295,4 +296,36 @@ export async function actesParCollectivite({ db }) {
 export async function acteDuRecu({ db, id }) {
 	if (!HEX64.test(id ?? '')) return null;
 	return un(db, 'SELECT collectivite, nature, objet, url FROM acte WHERE recu = ?', id);
+}
+
+const COLONNES_D_ACTE = 'SELECT d.jour, d.place, d.sha256, d.recu, a.collectivite, a.nature, a.objet, a.url FROM acte a JOIN depot d ON d.recu = a.recu';
+
+/** Au plus tant d'actes rendus pour un prefixe ambigu. */
+export const AMBIGUS_MAX = 20;
+
+/** Les actes rattaches d'une collectivite, dates tel jour, dont l'empreinte commence par `prefixe`. */
+export async function actesAuPrefixe({ db, code, jour, prefixe }) {
+	const { results } = await db
+		.prepare(`${COLONNES_D_ACTE} WHERE d.jour = ? AND a.collectivite = ? AND substr(d.sha256, 1, ?) = ? ORDER BY d.place LIMIT ?`)
+		.bind(jour, code, prefixe.length, prefixe, AMBIGUS_MAX)
+		.all();
+	return results;
+}
+
+/** Les versions datees d'une meme source dans une collectivite, de la plus ancienne a la plus recente. */
+export async function versionsDeLaSource({ db, collectivite, url }) {
+	if (!url) return [];
+	const { results } = await db.prepare(`${COLONNES_D_ACTE} WHERE a.collectivite = ? AND a.url = ? ORDER BY d.jour, d.place`).bind(collectivite, url).all();
+	return results;
+}
+
+/**
+ * La ligne publique d'un recu, plus `acte`, l'adresse perenne de l'acte qu'il
+ * date (D-205), quand c'en est un ; null s'il est inconnu.
+ */
+export async function ligneEtAdresseDuRecu({ db, id }) {
+	const ligne = await ligneDuRecu({ db, id });
+	if (!ligne) return null;
+	const acte = await acteDuRecu({ db, id });
+	return acte ? { ...ligne, acte: `https://temoinpublic.fr${cheminDeLActe({ ...acte, jour: ligne.jour, sha256: ligne.sha256 })}` } : ligne;
 }

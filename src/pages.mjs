@@ -3,6 +3,7 @@
 // defaut ; les actes de collectivite ne se rendent qu'en francais.
 
 import { NATURES } from './acte.mjs';
+import { cheminDeLActe } from './adresse.mjs';
 import { nomDuDepartement } from './departements.mjs';
 import { BESOINS } from './besoins.mjs';
 import { EDITIONS, cheminsDe, planDe } from './edition.mjs';
@@ -394,7 +395,7 @@ export function pageCollectivite({ code, commune, serie, departement = null }) {
 	const lignes = serie.actes
 		.map(
 			(a) =>
-				`<tr><td>${jourFr(a.jour)}</td><td>${majuscule(NATURES[a.nature] ?? a.nature)}</td><td>${objetDe(a)}</td><td><a href="/recu/${a.recu}">Reçu</a></td></tr>`
+				`<tr><td>${jourFr(a.jour)}</td><td>${majuscule(NATURES[a.nature] ?? a.nature)}</td><td>${objetDe(a)}</td><td><a href="${cheminDeLActe({ collectivite: code, ...a })}">Preuve</a></td></tr>`
 		)
 		.join('\n');
 	const tableau = serie.actes.length
@@ -483,12 +484,14 @@ ${communeAbsente}`
 }
 
 /** Les lignes propres a un acte rattache, dans son reçu. */
-const lignesDActe = (e, acte) =>
-	acte
-		? `<div><dt>${e.recu.acte}</dt><dd>${e.recu.natures[acte.nature] ?? acte.nature}, ${objetDe(acte, e.recu.sansObjet)}</dd></div>
+const lignesDActe = (e, acte, ligne) => {
+	if (!acte) return '';
+	const adresse = `${EDITIONS.fr.adresse}${cheminDeLActe({ ...acte, jour: ligne.jour, sha256: ligne.sha256 })}`;
+	return `<div><dt>${e.recu.acte}</dt><dd>${e.recu.natures[acte.nature] ?? acte.nature}, ${objetDe(acte, e.recu.sansObjet)}</dd></div>
 <div><dt>${e.recu.collectivite}</dt><dd><a href="${e.recu.adresseCollectivite(echapper(acte.collectivite))}">${echapper(acte.collectivite)}</a></dd></div>
-`
-		: '';
+<div><dt>${e.recu.adresseActe}</dt><dd><a href="${adresse}">${adresse}</a></dd></div>
+`;
+};
 
 /** Le recu d'un depot, a son adresse : ce que la ligne publique engage, et son inscription au registre. */
 export function pageRecu(ligne, acte = null, langue = 'fr') {
@@ -505,13 +508,97 @@ export function pageRecu(ligne, acte = null, langue = 'fr') {
 <article class="ok recu" id="recu" data-recu="${ligne.recu}">
 <h2>${acte ? e.recu.enLigne(jour) : e.recu.date(jour)}</h2>
 <dl>
-${lignesDActe(e, acte)}<div><dt>${e.recu.empreinte}</dt><dd><code class="racine">${ligne.sha256}</code></dd></div>
+${lignesDActe(e, acte, ligne)}<div><dt>${e.recu.empreinte}</dt><dd><code class="racine">${ligne.sha256}</code></dd></div>
 <div><dt>${e.recu.ligne}</dt><dd><a href="/depots/${ligne.jour}.jsonl">${e.recu.place(ligne.place, jour)}</a></dd></div>
 <div><dt>${e.recu.registre}</dt><dd id="inscription">${e.recu.lecture}</dd></div>
 </dl>
 <p class="imprime">${e.hote}${chemin}</p>
 </article>
 <p class="gestes"><button type="button" id="imprimer" class="principal">${e.recu.imprimer}</button> ${lien(e, 'verifier', 'bouton')}</p>`
+	});
+}
+
+/** Le nom d'une collectivite sur une page d'acte : celui de sa fiche, son code sinon. */
+const nomDeCollectivite = (code, commune) => (commune ? echapper(commune.nom) : `Collectivité ${code}`);
+
+/** Les donnees structurees d'un acte a son adresse : `Legislation`, identifie par l'adresse elle-meme. */
+const structureDeLActe = (acte, adresse, commune) => ({
+	'@context': 'https://schema.org',
+	'@type': 'Legislation',
+	legislationIdentifier: adresse,
+	url: adresse,
+	legislationType: majuscule(NATURES[acte.nature]),
+	...(acte.objet ? { name: acte.objet } : {}),
+	legislationJurisdiction: { '@type': 'AdministrativeArea', name: commune?.nom ?? acte.collectivite, identifier: commune?.insee ?? acte.collectivite }
+});
+
+/** Les versions vues a la meme source, la page courante marquee. */
+function tableDesVersions(acte, versions) {
+	if (versions.length === 0) return '';
+	const lignes = versions
+		.map((v) => {
+			const chemin = cheminDeLActe(v);
+			const courante = v.recu === acte.recu;
+			return `<tr><td>${jourFr(v.jour)}</td><td><code>${v.sha256.slice(0, 12)}</code></td><td>${courante ? 'Cette page' : `<a href="${chemin}">${chemin}</a>`}</td></tr>`;
+		})
+		.join('\n');
+	return `<h2>${nombre(versions.length)} version${marqueDuPluriel(versions.length)} à cette source</h2>
+<table>
+<thead><tr><th>Datée le</th><th>Empreinte</th><th>Adresse</th></tr></thead>
+<tbody>
+${lignes}
+</tbody>
+</table>`;
+}
+
+/**
+ * La page d'un acte a son adresse perenne (D-205) : la preuve, la source lue et
+ * les versions vues a la meme source. `acte.objet` et `acte.url` arrivent deja
+ * gardes (null quand ils pourraient nommer une personne).
+ */
+export function pageAdresse({ acte, commune = null, versions = [] }) {
+	const e = EDITIONS.fr;
+	const chemin = cheminDeLActe(acte);
+	const adresse = `${e.adresse}${chemin}`;
+	const nature = majuscule(NATURES[acte.nature]);
+	const nom = nomDeCollectivite(acte.collectivite, commune);
+	const jour = jourFr(acte.jour);
+	const source = acte.url ? `<div><dt>Source</dt><dd><a href="${echapper(acte.url)}">${echapper(acte.url)}</a></dd></div>\n` : '';
+	return gabarit(e, {
+		titre: `${nature} en ligne le ${jour}, ${nom}`,
+		description: `${nature} de ${nom}, en ligne le ${jour}${NBSP}: empreinte SHA-256, entrée du registre public, adresse de la source.`,
+		chemin,
+		structure: structureDeLActe(acte, adresse, commune),
+		script: '<script type="module" src="/recu.js"></script>\n',
+		corps: `<h1>${nature}, ${nom}</h1>
+<p class="sous-titre">${acte.objet ? echapper(acte.objet) : e.recu.sansObjet}</p>
+<article class="ok recu" id="recu" data-recu="${acte.recu}">
+<h2>${e.recu.enLigne(jour)}</h2>
+<dl>
+<div><dt>${e.recu.empreinte}</dt><dd><code class="racine">${acte.sha256}</code></dd></div>
+<div><dt>${e.recu.ligne}</dt><dd><a href="/depots/${acte.jour}.jsonl">${e.recu.place(acte.place, jour)}</a></dd></div>
+<div><dt>${e.recu.registre}</dt><dd id="inscription">${e.recu.lecture}</dd></div>
+<div><dt>Reçu</dt><dd><a href="/recu/${acte.recu}">${acte.recu.slice(0, 12)}</a></dd></div>
+<div><dt>${e.recu.collectivite}</dt><dd><a href="/collectivite/${commune?.insee ?? acte.collectivite}">${nom}</a></dd></div>
+${source}</dl>
+<p class="imprime">${e.hote}${chemin}</p>
+</article>
+${tableDesVersions(acte, versions)}`
+	});
+}
+
+/** Un prefixe d'empreinte qui designe plusieurs actes : la liste de leurs adresses. */
+export function pageAdresses(actes) {
+	const lignes = actes.map((a) => `<li><a href="${cheminDeLActe(a)}">${cheminDeLActe(a)}</a></li>`).join('\n');
+	return gabarit(EDITIONS.fr, {
+		titre: `${nombre(actes.length)} actes à cette adresse`,
+		description: `${nombre(actes.length)} actes datés le même jour dont l’empreinte commence de même.`,
+		chemin: '/actes/',
+		indexer: false,
+		corps: `<h1>${nombre(actes.length)} actes à cette adresse</h1>
+<ul>
+${lignes}
+</ul>`
 	});
 }
 
