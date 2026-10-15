@@ -109,7 +109,7 @@ function recuDans(octets) {
 async function signatureDuRecu(recu) {
 	if (!recu.signature) return '';
 	const r = await fetch('/confiance/autorites.json');
-	const v = await verifierSignatureDuDeposant(recu.signature.jws, recu.sha256, recu.depose, r.ok ? (await r.json()).autorites : null);
+	const v = await verifierSignatureDuDeposant(recu.signature.jws ?? recu.signature.cades, recu.sha256, recu.depose, r.ok ? (await r.json()).autorites : null);
 	const nom = (n) => echapper(n ?? t.sansNom);
 	const autorite = v.certificat?.autorite;
 	const texte = v.ok ? t.signeeValide(nom(v.certificat.sujet), nom(v.certificat.emetteur)) : t.signeeNonConforme;

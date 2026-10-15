@@ -11,13 +11,13 @@
 // dans le recu, version 2, et l'entrepot refuse toute ligne elargie. De meme
 // l'affichage d'un permis (D-166, `src/affichage.mjs`) : le numero du permis
 // est dans le recu, version 3. Un depot SIGNE par son deposant (D-164,
-// `src/origine.mjs`) porte sa signature et le certificat qu'elle nomme dans le
+// `src/origine.mjs`) porte sa signature (`jws` ou `cades`) et le certificat qu'elle nomme dans le
 // recu, version 4, quel que soit son type ; la ligne publique reste la meme.
 
 import { lireActe } from './acte.mjs';
 import { lireAffichage } from './affichage.mjs';
 import { sha256 } from './chaine.mjs';
-import { estUnJws } from './origine.mjs';
+import { estUnJws, estUneSignature } from './origine.mjs';
 
 /** Au plus autant de depots par adresse et par jour. */
 export const DEPOTS_PAR_ADRESSE = 20;
@@ -64,7 +64,7 @@ export function lireDemande(corps) {
 	const libelle = lireLibelle(corps.libelle, erreurs);
 	const acte = lireActe(corps, erreurs);
 	const affichage = lireAffichage(corps, erreurs);
-	if (corps.signature !== undefined && !estUnJws(corps.signature)) erreurs.push('signature : un JWS compact (JAdES), 32 768 caracteres au plus');
+	if (corps.signature !== undefined && !estUneSignature(corps.signature)) erreurs.push('signature : un JWS compact (JAdES) ou une signature CAdES detachee en base64, 32 768 caracteres au plus');
 	if (erreurs.length) return { erreurs: [...new Set(erreurs)] };
 	return { demande: { ...(empreinte !== undefined ? { sha256: empreinte } : { url }), ...(libelle ? { libelle } : {}), ...(acte ? { acte } : {}), ...(affichage ? { affichage } : {}), ...(corps.signature ? { signature: corps.signature } : {}) } };
 }
@@ -106,7 +106,8 @@ export function selAleatoire() {
  * ligne publique qui lie les deux. `acte` porte la collectivite, la nature et
  * le rattachement (`site-officiel` ou `declaree`) d'un acte de collectivite ;
  * `affichage` porte le numero du permis dont le panneau est photographie ;
- * `signature` le JWS du deposant et le certificat qu'il nomme, deja verifies,
+ * `signature` la signature du deposant (`valeur`, rendue en `jws` ou `cades`)
+ * et le certificat qu'elle nomme, deja verifies,
  * avec `autorite` (pays et nom) quand une liste de confiance porte son emetteur.
  */
 export function recuDe({ sha256: empreinte, instant, libelle = null, url = null, temoin = null, acte = null, affichage = null, signature = null, sel = selAleatoire() }) {
@@ -124,7 +125,7 @@ export function recuDe({ sha256: empreinte, instant, libelle = null, url = null,
 		temoin: temoin ? { url: temoin.url, taille: temoin.taille, type: temoin.type ?? null, lu: temoin.lu } : undefined,
 		acte: acte ? { collectivite: acte.collectivite, nature: acte.nature, rattachement: acte.rattachement } : undefined,
 		affichage: affichage ? { permis: affichage.permis } : undefined,
-		signature: signature ? { jws: signature.jws, certificat: signature.certificat, sujet: signature.sujet, emetteur: signature.emetteur, autorite: signature.autorite ?? undefined } : undefined,
+		signature: signature ? { ...(estUnJws(signature.valeur) ? { jws: signature.valeur } : { cades: signature.valeur }), certificat: signature.certificat, sujet: signature.sujet, emetteur: signature.emetteur, autorite: signature.autorite ?? undefined } : undefined,
 		sel
 	};
 }

@@ -133,8 +133,8 @@ test('ce qui ne se lit pas est refuse sans lever', async () => {
 	const raisons = async (jws, empreinte = H) => (await verifierSignatureDuDeposant(jws, empreinte, midi.toISOString())).raisons;
 	const { jws } = await jwsDe();
 	const [, p, s] = jws.split('.');
-	assert.deepEqual(await raisons('pas.un'), ['pas un JWS compact']);
-	assert.deepEqual(await raisons(42), ['pas un JWS compact']);
+	assert.deepEqual(await raisons('pas.un'), ['ni JWS compact ni CAdES en base64']);
+	assert.deepEqual(await raisons(42), ['ni JWS compact ni CAdES en base64']);
 	assert.deepEqual(await raisons(jws, 'court'), ['empreinte illisible']);
 	assert.deepEqual(await raisons(`${b64u('{')}.${p}.${s}`), ['en-tete illisible']);
 	assert.deepEqual(await raisons(`${b64u(JSON.stringify({ alg: 'ES256' }))}.${p}.${s}`), ['certificat absent (x5c)']);
@@ -155,7 +155,7 @@ test('le nom lisible prend le nom commun et l organisation, en UTF-8 ou en BMPSt
 test('un depot signe rend un recu version 4 ; une signature fausse est refusee sans rien inscrire', async () => {
 	const db = baseDeTest();
 	const { jws } = await jwsDe();
-	assert.deepEqual(lireDemande({ sha256: H, signature: 'x' }).erreurs, ['signature : un JWS compact (JAdES), 32 768 caracteres au plus']);
+	assert.deepEqual(lireDemande({ sha256: H, signature: 'x' }).erreurs, ['signature : un JWS compact (JAdES) ou une signature CAdES detachee en base64, 32 768 caracteres au plus']);
 	const ok = await deposer({ db, corps: { sha256: H, signature: jws }, adresse: '203.0.113.1', maintenant: midi });
 	assert.equal(ok.statut, 201);
 	const { recu, id, ligne } = corpsDe(ok);
@@ -233,6 +233,13 @@ test("une autorite qui n'a pas signe, le certificat du deposant lui-meme ou un m
 	assert.equal(await autoriteDuCertificat(await x5cDe({ certificat: { par: { alg: 'ES384', cle: racine.privateKey } }, chaine: [derInter] }), tout), null);
 	assert.equal(await autoriteDuCertificat(await x5cDe({ chaine: [derRacine] }), tout), null, 'une signature ECDSA qui n est pas du DER');
 	assert.equal(await autoriteDuCertificat(null, tout), null);
+	assert.equal(await autoriteDuCertificat([seul[0], '%%%%'], tout), null, 'un maillon qui n est pas du base64');
+	const { jws: casse } = await jwsDe({ chaine: [Buffer.from('x')] });
+	const [h, p, s] = casse.split('.');
+	const entete = JSON.parse(Buffer.from(h, 'base64url'));
+	const avecMaillon = `${Buffer.from(JSON.stringify({ ...entete, x5c: [entete.x5c[0], '%%%%'] })).toString('base64url')}.${p}.${s}`;
+	const v = await verifierSignatureDuDeposant(avecMaillon, H, midi.toISOString(), tout);
+	assert.deepEqual([v.raisons, v.certificat.autorite], [['la signature ne correspond pas'], null], 'l en-tete change casse la signature, la chaine illisible ne nomme personne');
 	assert.equal(await autoriteDuCertificat(seul, null), null);
 });
 
