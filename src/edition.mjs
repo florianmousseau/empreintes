@@ -4,6 +4,7 @@
 // de controle de l'edition allemande avant son domaine.
 
 import { TEXTES, vue } from './textes.mjs';
+import { BESOINS } from './besoins.mjs';
 
 /** L'heure d'un instant ISO, « 10:13 UTC », derriere le jour ecrit comme l'edition l'ecrit. */
 const avecDateHeure = (t) => ({
@@ -27,7 +28,7 @@ export const langueDeLaRequete = (request) => langueDe(new URL(request.url).host
 /** Les pages statiques d'une edition que les moteurs lisent, dans l'ordre du plan du site. */
 export const planDe = (langue) => {
 	const a = EDITIONS[langue].actes;
-	return ['/', a.dater.chemin, a.verifier.chemin, ...(a.acte ? [a.acte.chemin] : []), a.journal.chemin, a.preuve.chemin, a.documentation.chemin, a.pratiques.chemin, a.conditions.chemin, a.roles.chemin, a.archivage.chemin, a.conditionsArchivage.chemin, a.mentions.chemin];
+	return ['/', a.dater.chemin, a.verifier.chemin, ...(a.acte ? [a.acte.chemin, ...BESOINS.map((b) => b.chemin)] : []), a.journal.chemin, a.preuve.chemin, a.documentation.chemin, a.pratiques.chemin, a.conditions.chemin, a.roles.chemin, a.archivage.chemin, a.conditionsArchivage.chemin, a.mentions.chemin];
 };
 
 /** Le chemin d'une meme page dans chaque edition, par la cle de l'acte ; `/` pour l'accueil. */

@@ -70,6 +70,9 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   un SIREN compte a la commune que l'annuaire lui donne. `lecteurDeCommunes`
   (`src/annuaire.mjs`) n'analyse chaque fragment qu'une fois par requete. Date de
   jugement de la famille dans `docs/referencement.md`.
+- Les besoins (D-177) : `src/besoins.mjs`, une page statique par besoin cherche sous
+  `/besoin/`, francais seulement, le geste de dater sur la page (`lien` : l'adresse
+  seule ; `fichier` : le formulaire de Dater) ; au plan du site, lies de l'accueil.
 - Un lien colle dans Dater sur le site officiel d'une commune propose d'en
   faire un acte, la commune deja reconnue : `communeDeLAdresse`
   (`src/annuaire.mjs`) lit l'index inverse `dist/annuaire/hotes/hote-<3
