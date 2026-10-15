@@ -132,11 +132,12 @@ export function natureDe({ href, texte }) {
 	return duLibelle.nature ?? duFichier.nature ?? null;
 }
 
-const GENERIQUE = /^(?:telecharger|telecharger le (?:document|fichier|pdf)|ici|cliquez|cliquez ici|lire|lire la suite|voir|consulter|document|fichier|pdf|lien|en savoir plus|\d+)$/;
+const GENERIQUE = /^(?:telecharger|telecharger le (?:document|fichier|pdf)|ici|cliquez|cliquez ici|lire|lire la suite|voir|consulter|consulter (?:le|la|les)(?: document| fichier| pdf)?|document|fichier|pdf|lien|en savoir plus|\d+)$/;
 
 const nettoyer = (texte) =>
 	texte
 		.replace(/\(?\s*(?:pdf|PDF)?\s*[-,]?\s*\d+(?:[.,]\d+)?\s*(?:[kKmM]i?[oObB]|octets)\s*\)?/g, ' ')
+		.replace(/\(\s*\d+(?:[.,]\d+)?\s*[kKmM][a-zA-Z]*\s*\)?/g, ' ')
 		.replace(/\s*\(\s*pdf\s*\)|\bpdf\b\s*$/gi, ' ')
 		.replace(/^\s*t[ée]l[ée]charger\s*(?:le|la)?\s*/i, '')
 		.replace(/\s+/g, ' ')
