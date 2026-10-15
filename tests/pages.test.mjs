@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { ACTES, SCEAU, TEXTES_DU_REGISTRE, pageRoles, pageSections, DONNEES_STRUCTUREES, PLAN, planDuSite, pageMentions, pageActe, pageCollectivite, pageCommunes, pageDepartement, pageEditeur, pageDocumentation, pageIntrouvable, ancrageDe, dateHeure, echapper, pageAccueil, pageDeposer, pageJournal, pageVerifier, pagePreuve, premierHorodatageQualifie, COPIES } from '../src/pages.mjs';
+import { ACTES, SCEAU, TEXTES_DU_REGISTRE, TEXTES_DE_L_ARCHIVAGE, pageRoles, pageSections, DONNEES_STRUCTUREES, PLAN, planDuSite, pageMentions, pageActe, pageCollectivite, pageCommunes, pageDepartement, pageEditeur, pageDocumentation, pageIntrouvable, ancrageDe, dateHeure, echapper, pageAccueil, pageDeposer, pageJournal, pageVerifier, pagePreuve, premierHorodatageQualifie, COPIES } from '../src/pages.mjs';
 
 const t = { id: '20261012T101314Z', instant: '2026-10-12T10:13:14Z', objets: 2018, racine: 'f'.repeat(64), ots: 'bitcoin', bloc: 971045, fichiers: ['20261012T101314Z.json', '20261012T101314Z.racine.ots'] };
-const pages = [pageJournal([t, { ...t, id: '20261012T121314Z', ots: 'calendrier', bloc: null }]), pageVerifier(), pageJournal([]), pageDeposer(), pageAccueil([t]), pageAccueil([]), pageIntrouvable(), pageMentions(), pagePreuve([t]), pageActe(), pageDocumentation(), pageEditeur({ flux: { id: '0123456789abcdef', inscrit: '2026-10-12T00:00:00Z', retire: null }, total: 1, versions: [{ article: 'e'.repeat(64), jour: '2026-10-12', place: 4, sha256: 'c'.repeat(64), recu: 'd'.repeat(64) }] }), pageCollectivite({ code: '17133', commune: { nom: 'Cravans', insee: '17133', siren: '211701339' }, serie: { total: 1, actes: [{ jour: '2026-10-12', place: 3, sha256: 'c'.repeat(64), recu: 'd'.repeat(64), nature: 'deliberation' }] }, departement: '17' }), pageCommunes({ departements: [{ code: '17', nom: 'Charente-Maritime', communes: 1, actes: 2 }] }), pageDepartement({ code: '17', nom: 'Charente-Maritime', communes: [{ insee: '17133', nom: 'Cravans', actes: 2 }] }), pageSections('pratiques'), pageSections('conditions'), pageRoles()];
+const pages = [pageJournal([t, { ...t, id: '20261012T121314Z', ots: 'calendrier', bloc: null }]), pageVerifier(), pageJournal([]), pageDeposer(), pageAccueil([t]), pageAccueil([]), pageIntrouvable(), pageMentions(), pagePreuve([t]), pageActe(), pageDocumentation(), pageEditeur({ flux: { id: '0123456789abcdef', inscrit: '2026-10-12T00:00:00Z', retire: null }, total: 1, versions: [{ article: 'e'.repeat(64), jour: '2026-10-12', place: 4, sha256: 'c'.repeat(64), recu: 'd'.repeat(64) }] }), pageCollectivite({ code: '17133', commune: { nom: 'Cravans', insee: '17133', siren: '211701339' }, serie: { total: 1, actes: [{ jour: '2026-10-12', place: 3, sha256: 'c'.repeat(64), recu: 'd'.repeat(64), nature: 'deliberation' }] }, departement: '17' }), pageCommunes({ departements: [{ code: '17', nom: 'Charente-Maritime', communes: 1, actes: 2 }] }), pageDepartement({ code: '17', nom: 'Charente-Maritime', communes: [{ insee: '17133', nom: 'Cravans', actes: 2 }] }), pageSections('pratiques'), pageSections('conditions'), pageRoles(), pageSections('archivage'), pageSections('conditionsArchivage')];
 const texteDe = (html) => html.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<[^>]+>/g, '');
 // « certifie », « certification » se refusent ; « certificat », le mot d'une signature, non.
 const CERTIFIE = /certifi(?!cats?\b)/i;
@@ -197,4 +197,21 @@ test('chaque formulaire de depot montre les conditions avant de rendre un recu',
 		assert.ok(formulaire.length > 0);
 		assert.match(formulaire, /<p class="recoit">(En datant, vous acceptez les <a href="\/conditions">Conditions générales<\/a>|Mit dem Datieren akzeptieren Sie die <a href="\/bedingungen">Nutzungsbedingungen<\/a>)\.<\/p>\n$/);
 	}
+});
+
+test('les textes de l archivage : une page chacun, versionnee, liee depuis la documentation, et vraie aujourd hui', () => {
+	const textes = TEXTES_DE_L_ARCHIVAGE.map((acte) => pageSections(acte));
+	const doc = pageDocumentation();
+	assert.match(doc, /<h2>Textes de l’archivage<\/h2>\n<ul>\n<li><a href="\/archivage">Pratiques de l’archivage<\/a><\/li>\n<li><a href="\/conditions-archivage">Conditions de l’archivage<\/a><\/li>/);
+	for (const [i, acte] of TEXTES_DE_L_ARCHIVAGE.entries()) {
+		assert.ok(PLAN.includes(ACTES[acte].chemin), acte);
+		assert.match(textes[i], new RegExp(`<h1>${ACTES[acte].titre}</h1>\n<p class="sous-titre">Version 1, 15/10/2026</p>`));
+	}
+	assert.match(pageSections('pratiques'), /Version 1, 14\/10\/2026/, 'les textes du registre gardent leur version');
+	const tout = texteDe(textes.join(''));
+	for (const interdit of [/qualifi/i, /cachet/i, /certifi/i, /palier/i, /cockpit/i, /payant/i, /D-1\d\d/, /Hetzner/i, /\/var\//, /Box/]) assert.doesNotMatch(tout, interdit);
+	assert.match(textes[0], /Les rôles de confiance sont ceux du registre\u00A0: <a href="\/roles">Rôles de confiance<\/a>\./);
+	assert.match(textes[0], /Elle se relit sans le service \(<a href="\/documentation">Documentation<\/a>\)\./);
+	assert.match(textes[1], /Le prestataire est l’éditeur nommé aux <a href="\/mentions-legales">Mentions légales<\/a>\./);
+	assert.match(textes[1], /ne jamais republier l’archive/);
 });
