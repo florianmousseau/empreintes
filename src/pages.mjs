@@ -561,7 +561,7 @@ const lignesDeFormules = (textes) => Object.entries(FORMULES).map(([cle, formule
 /** La documentation : les adresses, les limites et les formules, pour verifier sans ce site. */
 export function pageDocumentation(langue = 'fr') {
 	const e = EDITIONS[langue];
-	const [dater, agents, lire, verifier, textes] = e.documentation.titres;
+	const [dater, agents, lire, verifier, textes, textesArchivage] = e.documentation.titres;
 	return gabarit(e, {
 		titre: e.actes.documentation.titre,
 		description: e.documentation.description,
@@ -573,19 +573,30 @@ ${tableDoc(agents, lignesDAdresses(ADRESSES.agents, e.documentation.agents))}
 ${tableDoc(lire, lignesDAdresses(ADRESSES.lire, e.documentation.lire))}
 ${tableDoc(verifier, lignesDeFormules(e.documentation.verifier))}
 <h2>${textes}</h2>
-${elements(TEXTES_DU_REGISTRE.map((acte) => lien(e, acte)))}`
+${elements(TEXTES_DU_REGISTRE.map((acte) => lien(e, acte)))}
+<h2>${textesArchivage}</h2>
+${elements(TEXTES_DE_L_ARCHIVAGE.map((acte) => lien(e, acte)))}`
 	});
 }
 
 /** Les textes de reference du registre, chacun sur sa page. */
 export const TEXTES_DU_REGISTRE = ['pratiques', 'conditions', 'roles'];
 
+/** Les textes de reference du service d'archivage (l'entrepot), chacun sur sa page. */
+export const TEXTES_DE_L_ARCHIVAGE = ['archivage', 'conditionsArchivage'];
+
 /** La version en vigueur des textes du registre ; une version nouvelle ne remplace jamais un texte en place. */
 export const VERSION_DES_TEXTES = { numero: 1, jour: '2026-10-14' };
 
-/** Le debut d'une page de texte du registre : son titre et sa version. */
-const enTeteDeTexte = (e, acte) => `<h1>${e.actes[acte].titre}</h1>
-<p class="sous-titre">${e.version(VERSION_DES_TEXTES.numero, e.jour(VERSION_DES_TEXTES.jour))}</p>`;
+/** La version en vigueur des textes de l'archivage, publies apres ceux du registre. */
+export const VERSION_DES_TEXTES_D_ARCHIVAGE = { numero: 1, jour: '2026-10-15' };
+
+/** Le debut d'une page de texte : son titre et sa version. */
+const enTeteDeTexte = (e, acte) => {
+	const v = TEXTES_DE_L_ARCHIVAGE.includes(acte) ? VERSION_DES_TEXTES_D_ARCHIVAGE : VERSION_DES_TEXTES;
+	return `<h1>${e.actes[acte].titre}</h1>
+<p class="sous-titre">${e.version(v.numero, e.jour(v.jour))}</p>`;
+};
 
 const pageDeTexte = (e, acte, corps) =>
 	gabarit(e, { titre: e.actes[acte].titre, description: e[acte].description, chemin: e.actes[acte].chemin, chemins: cheminsDe(acte), corps: `${enTeteDeTexte(e, acte)}\n${corps}` });
@@ -593,7 +604,7 @@ const pageDeTexte = (e, acte, corps) =>
 /** Une page de texte faite de sections : un titre, un paragraphe ; un paragraphe peut citer une autre page. */
 export function pageSections(acte, langue = 'fr') {
 	const e = EDITIONS[langue];
-	const liens = { documentation: lien(e, 'documentation'), mentions: lien(e, 'mentions') };
+	const liens = { documentation: lien(e, 'documentation'), mentions: lien(e, 'mentions'), roles: lien(e, 'roles') };
 	return pageDeTexte(e, acte, e[acte].sections.map(([titre, texte]) => `<h2>${titre}</h2>\n<p>${typeof texte === 'function' ? texte(liens) : texte}</p>`).join('\n'));
 }
 

@@ -34,7 +34,9 @@ export const TEXTES = {
 		mentions: { chemin: { fr: '/mentions-legales', de: '/impressum' }, nom: { fr: 'Mentions légales', de: 'Impressum' }, titre: { fr: 'Mentions légales', de: 'Impressum' } },
 		pratiques: { chemin: { fr: '/pratiques', de: '/praktiken' }, nom: { fr: 'Pratiques du registre', de: 'Praktiken des Registers' }, titre: { fr: 'Pratiques du registre', de: 'Praktiken des Registers' } },
 		conditions: { chemin: { fr: '/conditions', de: '/bedingungen' }, nom: { fr: 'Conditions générales', de: 'Nutzungsbedingungen' }, titre: { fr: 'Conditions générales', de: 'Nutzungsbedingungen' } },
-		roles: { chemin: { fr: '/roles', de: '/rollen' }, nom: { fr: 'Rôles de confiance', de: 'Vertrauensrollen' }, titre: { fr: 'Rôles de confiance', de: 'Vertrauensrollen' } }
+		roles: { chemin: { fr: '/roles', de: '/rollen' }, nom: { fr: 'Rôles de confiance', de: 'Vertrauensrollen' }, titre: { fr: 'Rôles de confiance', de: 'Vertrauensrollen' } },
+		archivage: { chemin: { fr: '/archivage', de: '/archiv' }, nom: { fr: 'Pratiques de l’archivage', de: 'Praktiken des Archivs' }, titre: { fr: 'Pratiques de l’archivage', de: 'Praktiken des Archivs' } },
+		conditionsArchivage: { chemin: { fr: '/conditions-archivage', de: '/archivbedingungen' }, nom: { fr: 'Conditions de l’archivage', de: 'Archivbedingungen' }, titre: { fr: 'Conditions de l’archivage', de: 'Archivbedingungen' } }
 	},
 	jour: { fr: jourFr, de: jourDe },
 	nombre: { fr: nombreFr, de: nombreDe },
@@ -187,7 +189,7 @@ export const TEXTES = {
 			fr: 'Adresses, limites et formules du registre des dates : dater, lire et vérifier sans ce site.',
 			de: 'Adressen, Grenzen und Formeln des Datumsregisters: datieren, lesen und ohne diese Website prüfen.'
 		},
-		titres: { fr: ['Dater', 'Agents', 'Lire', 'Vérifier sans ce site', 'Textes du registre'], de: ['Datieren', 'Agenten', 'Lesen', 'Ohne diese Website prüfen', 'Texte des Registers'] },
+		titres: { fr: ['Dater', 'Agents', 'Lire', 'Vérifier sans ce site', 'Textes du registre', 'Textes de l’archivage'], de: ['Datieren', 'Agenten', 'Lesen', 'Ohne diese Website prüfen', 'Texte des Registers', 'Texte des Archivs'] },
 		dater: {
 			empreinte: { fr: 'une empreinte calculée par vous\u00A0; le libellé reste dans le reçu', de: 'eine von Ihnen berechnete Prüfsumme; der Name bleibt im Beleg' },
 			url: { fr: 'le service lit lui-même le document en ligne et date ses octets', de: 'der Dienst liest das Dokument selbst im Internet und datiert seine Bytes' },
@@ -467,6 +469,84 @@ export const TEXTES = {
 					'Im Register werden keine eingetragen. Die IP-Adresse eines Einreichers wird nie gespeichert: nur ihr gesalzener Tageshash dient der Tagesgrenze, und das Salz wird am nächsten Tag gelöscht.'
 				],
 				['Ende des Dienstes', 'Das veröffentlichte Register bleibt ohne den Anbieter prüfbar.'],
+				['Recht und Gerichtsstand', 'Es gilt französisches Recht. Bei Streitigkeiten, nach einem Versuch gütlicher Einigung, die Gerichte in Paris.']
+			]
+		}
+	},
+	archivage: {
+		description: {
+			fr: 'Ce que l’entrepôt archive, comment il le range, le contrôle et le prouve, et ce qui reste à la fin du service.',
+			de: 'Was das Archiv aufbewahrt, wie es ablegt, prüft und beweist, und was am Ende des Dienstes bleibt.'
+		},
+		sections: {
+			fr: [
+				['Ce qui est archivé', 'L’entrepôt archive des données et des documents publics que leur source publie puis écrase ou retire\u00A0: chaque fichier tel que reçu, avec son adresse, l’instant de sa lecture et son empreinte SHA-256. L’archive est privée\u00A0; ce site n’en publie que les empreintes.'],
+				['La collecte', 'Le service lit ses sources en quatre tours par jour, chacune à son rythme, avec un intervalle par hôte\u00A0; un hôte qui refuse est laissé. Le format de chaque fichier est identifié à la réception\u00A0; un écart se note, le fichier est gardé.'],
+				['Le stockage', 'L’archive vit en deux copies, sur deux sites distincts, et chaque copie a son instantané quotidien. Le service n’efface rien.'],
+				[
+					'Les contrôles',
+					'À chaque tour, chaque objet attendu doit être présent à sa taille\u00A0; cent empreintes sont recalculées sur la copie, les plus anciennement contrôlées d’abord\u00A0; la preuve d’un objet tiré au hasard est produite et relue. Chaque semaine, un objet tiré au hasard est restauré depuis la seconde copie et comparé à son empreinte. Une anomalie est un événement critique.'
+				],
+				['La piste d’audit', 'Chaque tour tient un journal d’événements, haché dans l’arbre du tour\u00A0: versements, anomalies, formats, horloge, algorithmes. Chaque consultation, preuve ou recherche, y est consignée.'],
+				[
+					'La preuve',
+					(liens) =>
+						`La preuve d’un objet donne son identité, le premier et le dernier tour qui l’ont vu, les chemins d’audit jusqu’aux racines publiées dans le registre, leur ancrage dans Bitcoin. Elle se relit sans le service (${liens.documentation}).`
+				],
+				['Les algorithmes', 'Le service emploie SHA-256, ES256 et l’horodatage RFC 3161, et les revoit chaque année\u00A0; un algorithme jugé faible ouvre un nouveau profil d’archivage et le recalcul des empreintes.'],
+				['Les rôles', (liens) => `Les rôles de confiance sont ceux du registre\u00A0: ${liens.roles}.`],
+				['La fin du service', 'L’archive, ses métadonnées, ses journaux et ses preuves sont rendus à l’abonné, ou transférés au prestataire qu’il désigne, dans les trente jours. Les racines publiées restent vérifiables sans ce site.']
+			],
+			de: [
+				['Was aufbewahrt wird', 'Das Archiv bewahrt öffentliche Daten und Dokumente auf, die ihre Quelle veröffentlicht und dann überschreibt oder zurückzieht: jede Datei so, wie sie empfangen wurde, mit ihrer Adresse, dem Zeitpunkt des Lesens und ihrer SHA-256-Prüfsumme. Das Archiv ist privat; diese Website veröffentlicht nur seine Prüfsummen.'],
+				['Erfassung', 'Der Dienst liest seine Quellen in vier Runden pro Tag, jede in ihrem Rhythmus, mit einem Abstand pro Host; ein Host, der ablehnt, wird ausgelassen. Das Format jeder Datei wird beim Empfang bestimmt; eine Abweichung wird vermerkt, die Datei bleibt erhalten.'],
+				['Speicherung', 'Das Archiv liegt in zwei Kopien an zwei getrennten Standorten, und jede Kopie hat einen täglichen Snapshot. Der Dienst löscht nichts.'],
+				[
+					'Kontrollen',
+					'In jeder Runde muss jedes erwartete Objekt in seiner Größe vorhanden sein; hundert Prüfsummen werden auf der Kopie neu berechnet, die am längsten nicht geprüften zuerst; der Beweis eines zufällig gezogenen Objekts wird erstellt und nachgelesen. Jede Woche wird ein zufällig gezogenes Objekt aus der zweiten Kopie wiederhergestellt und mit seiner Prüfsumme verglichen. Eine Unregelmäßigkeit ist ein kritisches Ereignis.'
+				],
+				['Prüfpfad', 'Jede Runde führt ein Ereignisjournal, im Baum der Runde gehasht: Einlieferungen, Unregelmäßigkeiten, Formate, Uhr, Algorithmen. Jede Abfrage, ob Beweis oder Suche, wird darin vermerkt.'],
+				[
+					'Beweis',
+					(liens) =>
+						`Der Beweis eines Objekts nennt seine Identität, die erste und die letzte Runde, die es gesehen haben, die Prüfpfade bis zu den im Register veröffentlichten Wurzeln, deren Verankerung in Bitcoin. Er ist ohne den Dienst prüfbar (${liens.documentation}).`
+				],
+				['Algorithmen', 'Der Dienst verwendet SHA-256, ES256 und den RFC-3161-Zeitstempel und überprüft sie jedes Jahr; ein als schwach beurteilter Algorithmus eröffnet ein neues Archivprofil und die Neuberechnung der Prüfsummen.'],
+				['Rollen', (liens) => `Die Vertrauensrollen sind die des Registers: ${liens.roles}.`],
+				['Ende des Dienstes', 'Archiv, Metadaten, Journale und Beweise werden innerhalb von dreißig Tagen dem Abonnenten zurückgegeben oder an den von ihm benannten Anbieter übertragen. Die veröffentlichten Wurzeln bleiben ohne diese Website prüfbar.']
+			]
+		}
+	},
+	conditionsArchivage: {
+		description: {
+			fr: 'Conditions générales du service d’archivage de l’entrepôt, pour l’abonné qui lui confie ses sources.',
+			de: 'Bedingungen des Archivdienstes, für den Abonnenten, der ihm seine Quellen anvertraut.'
+		},
+		sections: {
+			fr: [
+				[
+					'Le service',
+					(liens) =>
+						`Archiver pour l’abonné les données et documents publics de sources déclarées, en garder les octets d’origine avec leur provenance et leur empreinte, en prouver l’existence et l’intégrité, et les lui rendre avec leur preuve. Le prestataire est l’éditeur nommé aux ${liens.mentions}.`
+				],
+				['Ce que le prestataire s’engage à faire', 'Lire chaque source au rythme déclaré\u00A0; garder chaque objet tel que reçu\u00A0; ne jamais republier l’archive\u00A0; contrôler l’intégrité à chaque tour et dire toute anomalie à l’abonné\u00A0; tenir la piste d’audit et les preuves\u00A0; conserver sans terme\u00A0; garder chaque version de ces conditions.'],
+				['Ce que l’abonné s’engage à faire', 'Déclarer ses sources avec leur raison d’entrée et vérifier que leurs conditions permettent la conservation\u00A0; ne pas republier ce qui ne peut l’être\u00A0; demander toute suppression par écrit, avec son motif.'],
+				['Les limites', 'Une source peut cesser d’être lisible\u00A0: le manifeste du tour le dit. Le prestataire ne répond pas de l’usage fait de ce que l’abonné relit.'],
+				['La confidentialité', 'L’archive est privée et ses accès sont ceux du prestataire. Un document qui nomme des personnes n’est jamais diffusé\u00A0; le RGPD s’applique à sa conservation. Les preuves publiques ne portent que des empreintes.'],
+				['La restitution et le transfert', 'Sur demande, ou à la fin du service, le prestataire rend tous les objets, leurs métadonnées, manifestes, relevés, preuves et journaux, dans les trente jours, par un canal chiffré, sans format propriétaire et sans frais\u00A0; il remet une attestation de transfert sur demande.'],
+				['La loi et le juge', 'Le droit français s’applique. En cas de litige, après une tentative de règlement amiable, les tribunaux de Paris.']
+			],
+			de: [
+				[
+					'Der Dienst',
+					(liens) =>
+						`Für den Abonnenten öffentliche Daten und Dokumente angemeldeter Quellen archivieren, ihre ursprünglichen Bytes mit Herkunft und Prüfsumme aufbewahren, ihre Existenz und Integrität beweisen und sie ihm mit ihrem Beweis zurückgeben. Anbieter ist der im ${liens.mentions} genannte.`
+				],
+				['Pflichten des Anbieters', 'Jede Quelle im angemeldeten Rhythmus lesen; jedes Objekt so aufbewahren, wie es empfangen wurde; das Archiv nie wieder veröffentlichen; die Integrität in jeder Runde prüfen und jede Unregelmäßigkeit dem Abonnenten mitteilen; Prüfpfad und Beweise führen; ohne Frist aufbewahren; jede Fassung dieser Bedingungen aufbewahren.'],
+				['Pflichten des Abonnenten', 'Seine Quellen mit ihrem Aufnahmegrund anmelden und prüfen, dass ihre Bedingungen die Aufbewahrung erlauben; nichts wieder veröffentlichen, was nicht veröffentlicht werden darf; jede Löschung schriftlich und mit Begründung verlangen.'],
+				['Grenzen', 'Eine Quelle kann unlesbar werden: Das Manifest der Runde sagt es. Der Anbieter haftet nicht für die Verwendung dessen, was der Abonnent nachliest.'],
+				['Vertraulichkeit', 'Das Archiv ist privat, Zugriff hat nur der Anbieter. Ein Dokument, das Personen nennt, wird nie verbreitet; für seine Aufbewahrung gilt die DSGVO. Die öffentlichen Beweise tragen nur Prüfsummen.'],
+				['Rückgabe und Übertragung', 'Auf Verlangen oder am Ende des Dienstes gibt der Anbieter alle Objekte zurück, ihre Metadaten, Manifeste, Protokolle, Beweise und Journale, innerhalb von dreißig Tagen, über einen verschlüsselten Kanal, ohne proprietäres Format und kostenlos; eine Übertragungsbescheinigung gibt es auf Verlangen.'],
 				['Recht und Gerichtsstand', 'Es gilt französisches Recht. Bei Streitigkeiten, nach einem Versuch gütlicher Einigung, die Gerichte in Paris.']
 			]
 		}
