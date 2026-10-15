@@ -9,6 +9,8 @@
 //
 // L'etat (`glane.json` : robots.txt lus, PDF deja deposes) et le releve du jour
 // (`glane-<jour>.tsv`, une ligne par commune) vivent dans `--etat`, hors du depot.
+// Apres une commune dont chaque page s'est lue, la glane dit au service quels
+// actes deja dates y sont encore lies et lesquels ont disparu (D-205).
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -97,9 +99,13 @@ async function permis(url) {
 	return robotsPermet(etat.robots[hote].regles, url);
 }
 
-async function page(url) {
-	if (!(await permis(url))) return { statut: 'robots', liens: [] };
+async function page(url, lus = []) {
+	if (!(await permis(url))) {
+		lus.push('robots');
+		return { statut: 'robots', liens: [] };
+	}
 	const r = await lireTexte(url);
+	lus.push(r.statut);
 	return { statut: r.statut, liens: r.texte ? liensDe(r.texte, r.url) : [] };
 }
 
@@ -118,24 +124,59 @@ async function deposer(code, acte) {
 	const corps = await r.json().catch(() => ({}));
 	if (r.status === 401) throw new Error('jeton refuse');
 	if (r.status === 429) plafondAtteint = true;
-	if (r.status === 201 || r.status === 200) etat.pdfs[acte.url] = { jour, id: corps.id };
+	if (r.status === 201 || r.status === 200) etat.pdfs[acte.url] = { jour, id: corps.id, code };
 	else if (r.status !== 409 && r.status !== 429) etat.pdfs[acte.url] = { jour, statut: r.status, essais: (deja?.essais ?? 0) + 1, erreur: corps.erreur };
 	return r.status === 201 ? 'depose' : String(r.status);
+}
+
+/**
+ * Les recus des actes de la commune encore lies (`vus`) et disparus (`absents`)
+ * a ce passage ; un PDF depose avant que l'etat ne garde la commune lui revient
+ * par l'adresse de son site.
+ */
+function passageDe(code, site, pdfs) {
+	const vus = [];
+	const absents = [];
+	for (const [url, e] of Object.entries(etat.pdfs)) {
+		if (!e.id || !(e.code === code || (!e.code && url.startsWith(`https://${site}/`)))) continue;
+		(pdfs.has(url) ? vus : absents).push(e.id);
+	}
+	return { vus, absents };
+}
+
+/** Le passage d'une commune, envoye au service ; rien en lecture seche ni sans page d'actes lue en entier. */
+async function noterLePassage(code, site, pdfs, lus) {
+	if (options.sec || pdfs.size === 0 || lus.some((s) => s !== 200)) return 'passage-non';
+	const { vus, absents } = passageDe(code, site, pdfs);
+	if (vus.length + absents.length === 0) return 'passage-vide';
+	try {
+		const r = await fetch(`${options.base}/api/passages`, {
+			method: 'POST',
+			headers: { 'content-type': 'application/json', authorization: `Bearer ${JETON}`, 'user-agent': AGENT_GLANE },
+			body: JSON.stringify({ vus: vus.slice(0, 400), absents: absents.slice(0, 100) })
+		});
+		await r.body?.cancel();
+		return `passage-${r.status}`;
+	} catch {
+		// Le passage d'une commune perdu ne coute que son etat d'un jour : la glane continue.
+		return 'passage-erreur';
+	}
 }
 
 async function glanerCommune(code, [hote, prefixe]) {
 	const sites = [[hote, prefixe]];
 	const ligne = { code, site: `${hote}${prefixe}`, accueil: '', page: '', pdfs: 0, actes: 0, deposes: 0, autres: '' };
-	const accueil = await page(`https://${hote}${prefixe}/`);
+	const lus = [];
+	const accueil = await page(`https://${hote}${prefixe}/`, lus);
 	ligne.accueil = String(accueil.statut);
 	const pdfs = new Map();
 	const ajouter = (liens) => pdfsDe(liens, sites).forEach((l) => pdfs.has(l.href) || pdfs.set(l.href, l));
 	for (const candidate of pagesCandidates(accueil.liens, { sites, ici: `https://${hote}${prefixe}/` })) {
-		const p = await page(candidate.href);
+		const p = await page(candidate.href, lus);
 		const avant = pdfs.size;
 		ajouter(p.liens);
 		if (pdfs.size === avant)
-			for (const suite of pagesCandidates(p.liens, { sites, ici: candidate.href, max: 2, plancher: 3 })) ajouter((await page(suite.href)).liens);
+			for (const suite of pagesCandidates(p.liens, { sites, ici: candidate.href, max: 2, plancher: 3 })) ajouter((await page(suite.href, lus)).liens);
 		if (pdfs.size > avant && !ligne.page) ligne.page = candidate.href;
 	}
 	ligne.pdfs = pdfs.size;
@@ -151,6 +192,7 @@ async function glanerCommune(code, [hote, prefixe]) {
 		issues[issue] = (issues[issue] ?? 0) + 1;
 	}
 	ligne.deposes = issues.depose ?? 0;
+	issues[await noterLePassage(code, `${hote}${prefixe}`, pdfs, lus)] = 1;
 	ligne.autres = Object.entries(issues)
 		.filter(([k]) => k !== 'depose')
 		.map(([k, n]) => `${k}:${n}`)

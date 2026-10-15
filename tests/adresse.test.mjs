@@ -148,3 +148,76 @@ test("la Function sert l'adresse, et l'edition allemande renvoie au francais", a
 	assert.equal((await pageDeLAdresse({ params: {}, env, request: new Request('https://temoinpublic.fr/actes') })).status, 404);
 	assert.deepEqual(decider('https://datumszeuge.de/actes/17133/2026-10-11/abcdef01'), { action: 'redirection', vers: 'https://temoinpublic.fr/actes/17133/2026-10-11/abcdef01' });
 });
+
+import { planDesActes, reponsePlanDesActes } from '../src/collectivite.mjs';
+import { noterPassage, passageDeLActe, PASSAGE_MAX } from '../src/service.mjs';
+import { onRequestGet as planDesActesGet } from '../functions/sitemap-actes.xml.js';
+import { onRequestPost as passagePost } from '../functions/api/passages.js';
+
+test("le plan des actes porte l'adresse de chaque acte date, du plus ancien au plus recent, et aucun nom", async () => {
+	const db = baseDeTest();
+	await dater(db, { n: 1, url: 'https://www.cravans.fr/arrete-SIMON.pdf', sha256: A, jour: '2026-10-11', nature: 'arrete', libelle: 'occupation du domaine public SIMON' });
+	await dater(db, { n: 2, url: 'https://www.cravans.fr/pv-2.pdf', sha256: B, jour: '2026-10-12' });
+	const r = await reponsePlanDesActes({ db });
+	assert.equal(r.statut, 200);
+	assert.equal(r.entetes['content-type'], 'application/xml; charset=utf-8');
+	assert.deepEqual([...r.corps.matchAll(/<url><loc>([^<]+)<\/loc><lastmod>([^<]+)<\/lastmod><\/url>/g)].map((m) => [m[1], m[2]]), [
+		['https://temoinpublic.fr/actes/17133/2026-10-11/arrete-abcdef012344', '2026-10-11'],
+		['https://temoinpublic.fr/actes/17133/2026-10-12/deliberation-abcdef01ff55', '2026-10-12']
+	]);
+	assert.doesNotMatch(r.corps, /SIMON|cravans/);
+	assert.match(planDesActes([]), /<urlset xmlns="http:\/\/www.sitemaps.org\/schemas\/sitemap\/0.9">\n\n<\/urlset>/);
+	const servi = await planDesActesGet({ env: { DEPOTS: db } });
+	assert.equal(servi.status, 200);
+	assert.equal(servi.headers.get('cache-control'), 'public, max-age=3600');
+});
+
+test('la page porte la date lue, comme lue, et ne la lit pas dans un objet garde', async () => {
+	const db = baseDeTest();
+	await dater(db, { n: 1, url: 'https://www.cravans.fr/pv.pdf', sha256: A, jour: '2026-10-11', libelle: 'Procès-verbal du 12 février 2026' });
+	await dater(db, { n: 2, url: 'https://www.cravans.fr/PV-CM-MARS-2026.pdf', sha256: B, jour: '2026-10-11', libelle: 'Procès-verbal' });
+	const jour = await repondre(db, '/actes/17133/2026-10-11/deliberation-abcdef012344');
+	assert.match(jour.corps, /<div><dt>Date lue<\/dt><dd><time datetime="2026-02-12">12\/02\/2026<\/time>, dans le libellé<\/dd><\/div>/);
+	const mois = await repondre(db, '/actes/17133/2026-10-11/deliberation-abcdef01ff55');
+	assert.match(mois.corps, /<dd><time datetime="2026-03">mars 2026<\/time>, dans le nom du fichier<\/dd>/);
+	const garde = pageAdresse({ acte: { collectivite: '17133', jour: '2026-10-11', place: 1, nature: 'decision', sha256: A, recu: 'b'.repeat(64), objet: null, url: null } });
+	assert.doesNotMatch(garde, /Date lue|À la source/);
+});
+
+test("la glane note la source de chaque acte a son passage, et la page le dit ; une version plus recente l'emporte", async () => {
+	const { db, ids } = await base();
+	const maintenant = new Date('2026-10-14T03:00:00Z');
+	const r = await noterPassage({ db, corps: { vus: [ids.c, 'e'.repeat(64)], absents: [ids.b] }, maintenant });
+	assert.equal(r.statut, 200);
+	assert.deepEqual(JSON.parse(r.corps), { jour: '2026-10-14', vus: 1, absents: 1 });
+	assert.deepEqual({ ...(await passageDeLActe({ db, recu: ids.b })) }, { jour: '2026-10-14', etat: 'absente' });
+	assert.equal(await passageDeLActe({ db, recu: 'e'.repeat(64) }), null);
+	const vue = await repondre(db, '/actes/17133/2026-10-12/deliberation-abcdef012366');
+	assert.match(vue.corps, /<div><dt>À la source<\/dt><dd>Lien publié au passage du 14\/10\/2026<\/dd><\/div>/);
+	const absente = await repondre(db, '/actes/17133/2026-10-11/arrete-abcdef01ff55');
+	assert.match(absente.corps, /<dd>Lien non retrouvé au passage du 14\/10\/2026<\/dd>/);
+	await noterPassage({ db, corps: { vus: [ids.a] }, maintenant });
+	const ancienne = await repondre(db, '/actes/17133/2026-10-11/deliberation-abcdef012344');
+	assert.match(ancienne.corps, /<dd>Nouvelle version datée le <a href="\/actes\/17133\/2026-10-12\/deliberation-abcdef012366">12\/10\/2026<\/a><\/dd>/);
+	assert.doesNotMatch(ancienne.corps, /Lien publié/);
+	const deux = await noterPassage({ db, corps: { absents: [ids.c] }, maintenant: new Date('2026-10-15T03:00:00Z') });
+	assert.deepEqual(JSON.parse(deux.corps), { jour: '2026-10-15', vus: 0, absents: 1 });
+	assert.deepEqual({ ...(await passageDeLActe({ db, recu: ids.c })) }, { jour: '2026-10-15', etat: 'absente' });
+});
+
+test('un passage illisible est refuse, et seule la flotte en ecrit', async () => {
+	const db = baseDeTest();
+	const id = 'a'.repeat(64);
+	for (const corps of [null, { vus: 'x' }, { vus: ['abc'] }, { vus: [id], absents: [id] }, { vus: Array.from({ length: PASSAGE_MAX + 1 }, () => id) }]) {
+		const r = await noterPassage({ db, corps });
+		assert.equal(r.statut, 400, JSON.stringify(corps)?.slice(0, 40));
+	}
+	const ids = Array.from({ length: 200 }, (_, i) => i.toString(16).padStart(64, '0'));
+	assert.deepEqual(JSON.parse((await noterPassage({ db, corps: { vus: ids } })).corps).vus, 0);
+	const env = { DEPOTS: db, JETON_FLOTTE: 'secret' };
+	const appel = (entete, corps) => passagePost({ env, request: new Request('https://temoinpublic.fr/api/passages', { method: 'POST', headers: entete ? { authorization: entete } : {}, body: corps }) });
+	assert.equal((await appel(null, '{}')).status, 401);
+	assert.equal((await appel('Bearer autre', '{}')).status, 401);
+	assert.equal((await appel('Bearer secret', '{"vus":[]}')).status, 200);
+	assert.equal((await appel('Bearer secret', 'pas du json')).status, 400);
+});

@@ -5,16 +5,18 @@
 // commune sans acte date ne figure dans aucune liste.
 
 import { estUnInsee, estUnSiren } from './acte.mjs';
-import { lireAdresse, resoudre } from './adresse.mjs';
+import { cheminDeLActe, lireAdresse, resoudre } from './adresse.mjs';
+import { dateLue } from './datelue.mjs';
 import { DEPARTEMENTS, departementDe, nomDuDepartement } from './departements.mjs';
 import { pourraitNommer } from './glane.mjs';
 import { nommeUnePersonne } from './personne.mjs';
 import { EDITIONS } from './edition.mjs';
 import { pageAdresse, pageAdresses, pageCollectivite, pageCommunes, pageDepartement, pageIntrouvable } from './pages.mjs';
-import { actesAuPrefixe, actesParCollectivite, adressePublique, serieDeLaCollectivite, versionsDeLaSource } from './service.mjs';
+import { actesAuPrefixe, actesParCollectivite, adressesDesActes, adressePublique, passageDeLActe, serieDeLaCollectivite, versionsDeLaSource } from './service.mjs';
 
 const HTML = { 'content-type': 'text/html; charset=utf-8' };
 const LISTE = { ...HTML, 'cache-control': 'public, max-age=300' };
+const XML = { 'content-type': 'application/xml; charset=utf-8', 'cache-control': 'public, max-age=3600' };
 const introuvable = () => ({ statut: 404, corps: pageIntrouvable(), entetes: { ...HTML, 'cache-control': 'public, max-age=300' } });
 const renvoi = (location) => ({ statut: 301, corps: '', entetes: { location, 'cache-control': 'public, max-age=3600' } });
 
@@ -101,7 +103,26 @@ ${chemins.map((c) => `<url><loc>${adresse}${c}</loc></url>`).join('\n')}
 
 /** La reponse a `/sitemap-communes.xml`. */
 export async function reponsePlanDesCommunes({ db, commune }) {
-	return { statut: 200, corps: planDesCommunes(await communesAvecActes({ db, commune })), entetes: { 'content-type': 'application/xml; charset=utf-8', 'cache-control': 'public, max-age=3600' } };
+	return { statut: 200, corps: planDesCommunes(await communesAvecActes({ db, commune })), entetes: XML };
+}
+
+/**
+ * Le plan des adresses perennes des actes (D-205), chacune datee du jour de sa
+ * datation. Une adresse ne porte que le code, le jour, la nature et l'empreinte :
+ * aucun nom, quel que soit l'objet de l'acte.
+ */
+export function planDesActes(actes) {
+	const adresse = EDITIONS.fr.adresse;
+	return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${actes.map((a) => `<url><loc>${adresse}${cheminDeLActe(a)}</loc><lastmod>${a.jour}</lastmod></url>`).join('\n')}
+</urlset>
+`;
+}
+
+/** La reponse a `/sitemap-actes.xml`. */
+export async function reponsePlanDesActes({ db }) {
+	return { statut: 200, corps: planDesActes(await adressesDesActes({ db })), entetes: XML };
 }
 
 /** L'objet d'un acte s'il ne peut nommer personne, null sinon. */
@@ -131,5 +152,7 @@ export async function reponseAdresse({ db, segments, commune }) {
 	if (r.statut === 300) return { statut: 300, corps: pageAdresses(r.actes), entetes: { ...HTML, 'cache-control': 'public, max-age=60' } };
 	const fiche = await commune(r.acte.collectivite);
 	const versions = await versionsDeLaSource({ db, collectivite: r.acte.collectivite, url: r.acte.url });
-	return { statut: 200, corps: pageAdresse({ acte: garde(r.acte), commune: fiche, versions }), entetes: { ...HTML, 'cache-control': 'public, max-age=300' } };
+	const passage = await passageDeLActe({ db, recu: r.acte.recu });
+	const acte = garde(r.acte);
+	return { statut: 200, corps: pageAdresse({ acte, commune: fiche, versions, passage, date: dateLue(acte) }), entetes: { ...HTML, 'cache-control': 'public, max-age=300' } };
 }

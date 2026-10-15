@@ -585,7 +585,7 @@ export const TEXTES = {
 
 - Dater un document : https://temoinpublic.fr/deposer (empreinte calculée dans le navigateur, ou adresse publique lue par le service ; un lien sur le site officiel d’une commune propose d’en faire un acte)
 - Dater la mise en ligne d’un acte de collectivité (délibération, arrêté, décision), lu à son adresse : https://temoinpublic.fr/acte
-- Adresse pérenne de chaque acte daté, à citer : https://temoinpublic.fr/actes/<code INSEE>/<jour de la datation>/<nature>-<12 premiers caractères de l’empreinte> (un préfixe d’au moins 8 caractères y renvoie)
+- Adresse pérenne de chaque acte daté, à citer : https://temoinpublic.fr/actes/<code INSEE>/<jour de la datation>/<nature>-<12 premiers caractères de l’empreinte> (un préfixe d’au moins 8 caractères y renvoie) ; toutes les adresses : https://temoinpublic.fr/sitemap-actes.xml
 - Vérifier un document ou un reçu : https://temoinpublic.fr/verifier
 - Registre public des dates : https://temoinpublic.fr/journal
 - API et formules de vérification sans le site : https://temoinpublic.fr/documentation
