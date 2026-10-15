@@ -2,6 +2,7 @@ import { sha256, placeDuFichier, verifierChaine, verifierSignatureDuJournal, ver
 import { tourHorodate, verifierHorodatage, verifierHorodatages } from '/horodatage.mjs';
 import { montrer, suivreLeChoix } from '/fichier.js';
 import { estUnRecu, idDuRecu } from '/depot.mjs';
+import { estUnCertificat, lireCertificat, verifierLeCertificat } from '/serie.mjs';
 import { verifierSignatureDuDeposant } from '/origine.mjs';
 import { T } from '/textes.js';
 
@@ -95,11 +96,11 @@ async function verifier(empreinte) {
 	sortie.innerHTML = [...deposes.map(depot), ...constats].join('');
 }
 
-/** Le recu telecharge, s'il en est un : sa forme, puis son identifiant cherche dans les depots. */
-function recuDans(octets) {
+/** Le fichier lu comme un objet JSON, s'il en est un ; null pour tout autre document. */
+function jsonDans(octets) {
+	if (octets[0] !== 0x7b) return null;
 	try {
-		const r = JSON.parse(new TextDecoder().decode(octets));
-		return estUnRecu(r) ? r : null;
+		return JSON.parse(new TextDecoder().decode(octets));
 	} catch {
 		return null;
 	}
@@ -125,11 +126,82 @@ async function verifierLeRecu(recu) {
 		: `<article class="ko"><h2>${t.inconnu}</h2></article>`;
 }
 
+/** La ligne publique d'un recu, ou null quand le registre ne le connait pas. */
+async function ligneDuRecu(id) {
+	const r = await fetch(`/api/recus/${id}`);
+	if (r.status === 404) return null;
+	if (!r.ok) throw new Error(`/api/recus${NBSP}: ${r.status}`);
+	return r.json();
+}
+
+/** Au plus `n` lectures en vol : un certificat de deux mois porte une soixantaine de recus. */
+function enFile(lecture, n = 6) {
+	let enVol = 0;
+	const attente = [];
+	const suivant = () => {
+		if (enVol >= n || attente.length === 0) return;
+		enVol++;
+		const { id, resoudre, rejeter } = attente.shift();
+		lecture(id)
+			.then(resoudre, rejeter)
+			.finally(() => {
+				enVol--;
+				suivant();
+			});
+	};
+	return (id) =>
+		new Promise((resoudre, rejeter) => {
+			attente.push({ id, resoudre, rejeter });
+			suivant();
+		});
+}
+
+const s = t.serie;
+const CLASSES = { 'au-registre': 'ok', inconnu: 'ko', different: 'ko', 'autre-permis': 'ko', 'sans-photo': 'ko', 'a-venir': '' };
+
+function ligneDuJour(j) {
+	const recu = j.place ? `<a href="/recu/${j.recu}">${s.place(j.place)}</a>` : '';
+	const empreinte = j.sha256 ? `<code>${j.sha256.slice(0, 12)}…</code>` : '';
+	return `<tr class="${CLASSES[j.verdict]}"><td>${T.jour(j.jour)}</td><td>${s.verdicts[j.verdict]}</td><td>${empreinte}</td><td>${recu}</td></tr>`;
+}
+
+function titreDeLaSerie(b) {
+	if (!b.conforme) return s.nonConforme(b.refuses);
+	if (b.sansPhoto > 0) return s.interrompue(b.sansPhoto, T.jour(b.premierManque));
+	return b.aVenir > 0 ? s.enCours(b.auRegistre, b.total) : s.complete(b.total);
+}
+
+/** Le certificat d'une serie d'affichage : chaque recu relu contre sa ligne publique, chaque jour de la periode compte. */
+async function verifierLaSerie(brut) {
+	const lu = lireCertificat(brut);
+	if (lu.erreur) {
+		$('resultat').innerHTML = `<article class="ko"><h2>${s.illisible}</h2><p>${s.erreurs[lu.erreur]}</p></article>`;
+		return;
+	}
+	const b = await verifierLeCertificat(lu.certificat, enFile(ligneDuRecu), new Date().toISOString().slice(0, 10));
+	const permis = b.auRegistre > 0 && b.permisRelus === b.auRegistre ? s.permisRelu : s.permisNonRelu(b.permisRelus, b.auRegistre);
+	$('resultat').innerHTML = `<article class="${b.continue ? 'ok' : 'ko'}">
+<h2>${titreDeLaSerie(b)}</h2>
+<dl>
+<div><dt>${s.permis}</dt><dd>${echapper(b.permis)}, ${permis}</dd></div>
+<div><dt>${s.periode}</dt><dd>${s.duAu(T.jour(b.pose), T.jour(b.fin))}</dd></div>
+<div><dt>${s.auRegistre}</dt><dd>${s.compte(b.auRegistre, b.total)}</dd></div>
+</dl>
+<p>${s.photos}</p>
+<details>
+<summary>${s.details}</summary>
+<div class="defile"><table class="serie"><thead><tr><th>${s.jour}</th><th>${s.registre}</th><th>${s.empreinte}</th><th>${s.recu}</th></tr></thead>
+<tbody>${b.jours.map(ligneDuJour).join('')}</tbody></table></div>
+</details>
+</article>`;
+}
+
 async function verifierLeFichier(fichier) {
 	const octets = new Uint8Array(await fichier.arrayBuffer());
-	// Un recu signe porte le JWS de son deposant, 32 768 caracteres au plus.
-	const recu = fichier.size < 64000 ? recuDans(octets) : null;
-	return recu ? verifierLeRecu(recu) : verifier(await sha256(octets));
+	// Un recu signe porte le JWS de son deposant, 32 768 caracteres au plus ; un certificat de serie, deux mois de recus.
+	const r = fichier.size < 1_000_000 ? jsonDans(octets) : null;
+	if (estUnCertificat(r)) return verifierLaSerie(r);
+	return estUnRecu(r) ? verifierLeRecu(r) : verifier(await sha256(octets));
 }
 
 const lancer = async () => {

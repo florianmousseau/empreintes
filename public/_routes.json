@@ -18,6 +18,7 @@
 		"/personne.mjs",
 		"/annuaire.mjs",
 		"/affichage.mjs",
+		"/serie.mjs",
 		"/tours.json",
 		"/version.json",
 		"/openapi.json",
