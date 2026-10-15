@@ -84,6 +84,9 @@ test('l objet est le libelle nettoye, sinon le nom du fichier, et ne nomme perso
 	assert.equal(objetDe(lien(`${ICI}docs/arrete%20voirie.pdf`, 'pdf')), 'Arrete voirie');
 	assert.equal(objetDe(lien(`${ICI}IMG/pdf/pv_cm_13122025.pdf`, 'PDF - 2.3 Mio')), 'Pv cm 13122025');
 	assert.equal(objetDe(lien(`${ICI}CR-CM-08-12-2025.pdf`, 'Cliquez')), 'CR CM 08 12 2025');
+	assert.equal(objetDe(lien(`${ICI}PV-12-03-2026.pdf`, 'Consulter le')), 'PV 12 03 2026');
+	assert.equal(objetDe(lien(`${ICI}1.pdf`, 'Conseil Municipal du 22 mars 2026 V2. (464.09 k')), 'Conseil Municipal du 22 mars 2026 V2.');
+	assert.equal(objetDe(lien(`${ICI}1.pdf`, 'Arrêté 15 mars 2026')), 'Arrêté 15 mars 2026');
 	assert.equal(objetDe(lien(`${ICI}1.pdf`, 'Arrêté de M. Dupont, maire')), SANS_OBJET);
 	assert.equal(objetDe(lien(`${ICI}0a1b2c3d4e5f6a7b8c9d.pdf`, '')), SANS_OBJET);
 	assert.equal(objetDe(lien(`${ICI}1.pdf`, `Délibération ${'x'.repeat(300)}`)).length, 200);
