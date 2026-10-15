@@ -5,10 +5,13 @@
 // commune sans acte date ne figure dans aucune liste.
 
 import { estUnInsee, estUnSiren } from './acte.mjs';
+import { lireAdresse, resoudre } from './adresse.mjs';
 import { DEPARTEMENTS, departementDe, nomDuDepartement } from './departements.mjs';
+import { pourraitNommer } from './glane.mjs';
+import { nommeUnePersonne } from './personne.mjs';
 import { EDITIONS } from './edition.mjs';
-import { pageCollectivite, pageCommunes, pageDepartement, pageIntrouvable } from './pages.mjs';
-import { actesParCollectivite, serieDeLaCollectivite } from './service.mjs';
+import { pageAdresse, pageAdresses, pageCollectivite, pageCommunes, pageDepartement, pageIntrouvable } from './pages.mjs';
+import { actesAuPrefixe, actesParCollectivite, adressePublique, serieDeLaCollectivite, versionsDeLaSource } from './service.mjs';
 
 const HTML = { 'content-type': 'text/html; charset=utf-8' };
 const LISTE = { ...HTML, 'cache-control': 'public, max-age=300' };
@@ -99,4 +102,34 @@ ${chemins.map((c) => `<url><loc>${adresse}${c}</loc></url>`).join('\n')}
 /** La reponse a `/sitemap-communes.xml`. */
 export async function reponsePlanDesCommunes({ db, commune }) {
 	return { statut: 200, corps: planDesCommunes(await communesAvecActes({ db, commune })), entetes: { 'content-type': 'application/xml; charset=utf-8', 'cache-control': 'public, max-age=3600' } };
+}
+
+/** L'objet d'un acte s'il ne peut nommer personne, null sinon. */
+const objetMontrable = (acte) => (acte.objet && !nommeUnePersonne(acte.objet) && !pourraitNommer(acte.objet, acte.nature) ? acte.objet : null);
+
+/** L'adresse lue d'un acte si ni son chemin ni son nom de fichier ne peuvent nommer personne, null sinon. */
+function sourceMontrable(acte) {
+	const url = acte.url ? adressePublique(acte.url) : null;
+	if (!url) return null;
+	const fichier = decodeURIComponent(new URL(url).pathname.split('/').pop()).replace(/[-_+.]+/g, ' ');
+	return pourraitNommer(fichier, acte.nature) ? null : url;
+}
+
+const garde = (acte) => ({ ...acte, objet: objetMontrable(acte), url: sourceMontrable(acte) });
+
+/**
+ * La reponse a `/actes/<code>/<jour>/<nature>-<hex>` (D-205) : la page de l'acte
+ * a sa forme canonique, 301 vers elle depuis un prefixe ou une ecriture voisine,
+ * la liste des adresses pour un prefixe ambigu, 404 sinon.
+ */
+export async function reponseAdresse({ db, segments, commune }) {
+	const lu = lireAdresse(segments);
+	if (!lu) return introuvable();
+	const r = resoudre(`/actes/${segments.join('/')}`, await actesAuPrefixe({ db, ...lu }));
+	if (r.statut === 404) return introuvable();
+	if (r.statut === 301) return renvoi(r.vers);
+	if (r.statut === 300) return { statut: 300, corps: pageAdresses(r.actes), entetes: { ...HTML, 'cache-control': 'public, max-age=60' } };
+	const fiche = await commune(r.acte.collectivite);
+	const versions = await versionsDeLaSource({ db, collectivite: r.acte.collectivite, url: r.acte.url });
+	return { statut: 200, corps: pageAdresse({ acte: garde(r.acte), commune: fiche, versions }), entetes: { ...HTML, 'cache-control': 'public, max-age=300' } };
 }

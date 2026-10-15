@@ -32,7 +32,7 @@ export const OUTILS = [
 	{
 		name: 'lire_recu',
 		title: 'Lire un reçu',
-		description: 'Rend la ligne publique d’un reçu par son identifiant (64 caractères hexadécimaux) : empreinte, jour, ligne du registre.',
+		description: 'Rend la ligne publique d’un reçu par son identifiant (64 caractères hexadécimaux) : empreinte, jour, ligne du registre, et pour un acte de collectivité son adresse pérenne, à citer.',
 		inputSchema: { type: 'object', properties: { id: { type: 'string', pattern: '^[0-9a-f]{64}$' } }, required: ['id'], additionalProperties: false },
 		annotations: { readOnlyHint: true }
 	}
@@ -64,7 +64,7 @@ async function appeler(nom, args, service) {
 		return contenu({ depots: lignes.map((l) => ({ jour: l.jour, ligne: l.place, adresse: adresseDuRecu(l.recu) })) });
 	}
 	const ligne = await service.ligneDuRecu(a.id);
-	return ligne ? contenu({ jour: ligne.jour, ligne: ligne.place, sha256: ligne.sha256, adresse: adresseDuRecu(ligne.recu) }) : contenu({ erreur: 'reçu inconnu' }, true);
+	return ligne ? contenu({ jour: ligne.jour, ligne: ligne.place, sha256: ligne.sha256, adresse: adresseDuRecu(ligne.recu), ...(ligne.acte ? { acte: ligne.acte } : {}) }) : contenu({ erreur: 'reçu inconnu' }, true);
 }
 
 /**

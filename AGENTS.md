@@ -150,3 +150,13 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   page de la commune. Mesure du 2026-10-15 : `nommeUnePersonne` laissait passer
   « occupation du domaine public SIMON » et « DELEGATION-SIGNATURE-MAINGOT » ; 272
   actes deja publies ont eu objet « Sans objet » et adresse retiree en base.
+- L'adresse perenne d'un acte (D-205) : `/actes/<code>/<jour>/<nature>-<12 hex>`,
+  composee et lue dans `src/adresse.mjs` (pur) ; `<code>` la collectivite du depot,
+  `<jour>` celui de la DATATION (jamais la date de l'acte, qui se devine), les hex le
+  debut du sha256 du document. Une version, une adresse. Un prefixe d'au moins 8 hex
+  ou une ecriture voisine renvoie en 301, un prefixe ambigu rend la liste (300).
+  La page (`reponseAdresse`, `src/collectivite.mjs`) sert la preuve, la source et les
+  versions vues a la meme source ; l'objet et la source y repassent
+  `nommeUnePersonne` ET `pourraitNommer`. `/api/recus/<id>` et `lire_recu` portent
+  `acte`, l'adresse ; la page de la commune et le recu la lient. Aucune migration :
+  elle se lit dans `acte` et `depot`.

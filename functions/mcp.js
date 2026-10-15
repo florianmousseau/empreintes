@@ -1,7 +1,7 @@
 // POST /mcp : le serveur MCP, transport HTTP sans etat ni session.
 import { annuaireDesActifs } from '../src/annuaire.mjs';
 import { traiterMessage } from '../src/mcp.mjs';
-import { deposer, ligneDuRecu, lignesDeLEmpreinte } from '../src/service.mjs';
+import { deposer, ligneEtAdresseDuRecu, lignesDeLEmpreinte } from '../src/service.mjs';
 
 const CORS = { 'access-control-allow-origin': '*', 'access-control-expose-headers': 'mcp-protocol-version' };
 const JSON_UTF8 = { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', ...CORS };
@@ -17,7 +17,7 @@ export async function onRequestPost({ request, env }) {
 	const service = {
 		deposer: (corps) => deposer({ db, corps, adresse: request.headers.get('cf-connecting-ip'), annuaire: annuaireDesActifs(env, request.url) }),
 		lignesDeLEmpreinte: (empreinte) => lignesDeLEmpreinte({ db, empreinte }),
-		ligneDuRecu: (id) => ligneDuRecu({ db, id })
+		ligneDuRecu: (id) => ligneEtAdresseDuRecu({ db, id })
 	};
 	const reponse = await traiterMessage(message, service);
 	if (reponse === null) return new Response(null, { status: 202, headers: CORS });
