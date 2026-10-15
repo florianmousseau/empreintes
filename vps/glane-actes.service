@@ -17,4 +17,4 @@ ExecStart=/usr/bin/node --max-old-space-size=384 scripts/glaner-actes.mjs --depa
 MemoryMax=512M
 CPUQuota=50%
 Nice=10
-RuntimeMaxSec=20h
+TimeoutStartSec=20h
