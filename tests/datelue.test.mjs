@@ -14,6 +14,8 @@ test('la date se lit dans le libelle, en toutes lettres ou en chiffres, la premi
 	assert.equal(lire('PV du 9 juillet 2026 - Publié le 9 octobre 2026').date, '2026-07-09');
 	assert.equal(lire('PV-CM-du-09-07-26').date, '2026-07-09');
 	assert.equal(lire('Liste CM 15122025').date, '2025-12-15');
+	assert.equal(lire('Liste des délibérations', 'https://x.fr/20260416_liste_deliberations.pdf').date, '2026-04-16');
+	assert.equal(lire('Scan_26090209290'), null);
 });
 
 test('a defaut du libelle, le nom du fichier ; a defaut du jour, le mois', () => {

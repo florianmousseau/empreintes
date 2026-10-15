@@ -4,7 +4,7 @@
 //
 // Formes lues, jour en tete : « 12 fevrier 2026 », « 1er mars 2026 », « 12 02
 // 2026 » (separateurs espace, - _ . /), « 12-02-26 », « 15122025 » ; annee en
-// tete : « 2026-02-12 ». A defaut, le mois seul : « fevrier 2026 ». Refusees :
+// tete : « 2026-02-12 », « 20260212 ». A defaut, le mois seul : « fevrier 2026 ». Refusees :
 // une date impossible, avant 2000, apres le jour de la datation, et une annee
 // sur deux chiffres a plus de trois ans de lui (« 26-02-17 » serait 2017).
 
@@ -18,7 +18,8 @@ const FORMES = [
 	{ motif: new RegExp(`${AVANT}(\\d{1,2})(?:er)?${S}(${NOMS})${S}(\\d{4})${APRES}`, 'giu'), lire: (m) => [m[3], MOIS.indexOf(m[2]) + 1, m[1]] },
 	{ motif: new RegExp(`${AVANT}(\\d{4})${S}(\\d{1,2})${S}(\\d{1,2})${APRES}`, 'gu'), lire: (m) => [m[1], m[2], m[3]] },
 	{ motif: new RegExp(`${AVANT}(\\d{1,2})${S}(\\d{1,2})${S}(\\d{4}|\\d{2})${APRES}`, 'gu'), lire: (m) => [m[3], m[2], m[1]] },
-	{ motif: new RegExp(`${AVANT}(\\d{2})(\\d{2})(20\\d{2})${APRES}`, 'gu'), lire: (m) => [m[3], m[2], m[1]] }
+	{ motif: new RegExp(`${AVANT}(\\d{2})(\\d{2})(20\\d{2})${APRES}`, 'gu'), lire: (m) => [m[3], m[2], m[1]] },
+	{ motif: new RegExp(`${AVANT}(20\\d{2})(\\d{2})(\\d{2})${APRES}`, 'gu'), lire: (m) => [m[1], m[2], m[3]] }
 ];
 // Un mois precede d'un jour est une date complete, refusee ou non : il ne se relit pas au mois.
 const MOIS_SEUL = new RegExp(`${AVANT}(?<!\\d(?:er)?${S})(${NOMS})${S}(\\d{4})${APRES}`, 'iu');
