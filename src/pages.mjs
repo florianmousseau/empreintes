@@ -26,13 +26,13 @@ ${chemins.map((c) => `<url><loc>${EDITIONS[langue].adresse}${c}</loc></url>`).jo
 </urlset>
 `;
 
-/** Les consignes aux robots d'une edition : tout, sauf l'index des empreintes, et ses plans (les communes, en francais). */
+/** Les consignes aux robots d'une edition : tout, sauf l'index des empreintes, et ses plans (les communes et les actes, en francais). */
 export const robots = (langue = 'fr') => `User-agent: *
 Allow: /
 Disallow: /index/
 
 Sitemap: ${EDITIONS[langue].adresse}/sitemap.xml
-${EDITIONS[langue].actes.communes ? `Sitemap: ${EDITIONS[langue].adresse}/sitemap-communes.xml\n` : ''}`;
+${EDITIONS[langue].actes.communes ? `Sitemap: ${EDITIONS[langue].adresse}/sitemap-communes.xml\nSitemap: ${EDITIONS[langue].adresse}/sitemap-actes.xml\n` : ''}`;
 
 /** Le service decrit pour les moteurs : gratuit, sans compte, dans la langue de l'edition. */
 export const donneesStructurees = (langue = 'fr') => {
@@ -551,12 +551,33 @@ ${lignes}
 </table>`;
 }
 
+const MOIS_FR = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+const OU_LUE = { libelle: 'dans le libellé', fichier: 'dans le nom du fichier' };
+
+/** La date lue d'un acte, affichee comme lue : ou elle a ete lue, au jour ou au mois. */
+function ligneDeLaDateLue(date) {
+	if (!date) return '';
+	const [an, mois] = date.date.split('-');
+	const texte = date.precision === 'jour' ? jourFr(date.date) : `${MOIS_FR[Number(mois) - 1]} ${an}`;
+	return `<div><dt>Date lue</dt><dd><time datetime="${date.date}">${texte}</time>, ${OU_LUE[date.dans]}</dd></div>\n`;
+}
+
+/** L'etat de la source : remplacee par une version plus recente, sinon ce que la glane y a vu a son dernier passage. */
+function ligneDeLaSource(acte, versions, passage) {
+	const derniere = versions.at(-1);
+	if (derniere && derniere.recu !== acte.recu) return `<div><dt>À la source</dt><dd>Nouvelle version datée le <a href="${cheminDeLActe(derniere)}">${jourFr(derniere.jour)}</a></dd></div>\n`;
+	if (!passage) return '';
+	const vu = passage.etat === 'vue' ? 'Lien publié' : 'Lien non retrouvé';
+	return `<div><dt>À la source</dt><dd>${vu} au passage du ${jourFr(passage.jour)}</dd></div>\n`;
+}
+
 /**
- * La page d'un acte a son adresse perenne (D-205) : la preuve, la source lue et
- * les versions vues a la meme source. `acte.objet` et `acte.url` arrivent deja
- * gardes (null quand ils pourraient nommer une personne).
+ * La page d'un acte a son adresse perenne (D-205) : la preuve, la date lue, la
+ * source et son etat au dernier passage de la glane, les versions vues a la
+ * meme source. `acte.objet` et `acte.url` arrivent deja gardes (null quand ils
+ * pourraient nommer une personne).
  */
-export function pageAdresse({ acte, commune = null, versions = [] }) {
+export function pageAdresse({ acte, commune = null, versions = [], passage = null, date = null }) {
 	const e = EDITIONS.fr;
 	const chemin = cheminDeLActe(acte);
 	const adresse = `${e.adresse}${chemin}`;
@@ -580,7 +601,7 @@ export function pageAdresse({ acte, commune = null, versions = [] }) {
 <div><dt>${e.recu.registre}</dt><dd id="inscription">${e.recu.lecture}</dd></div>
 <div><dt>Reçu</dt><dd><a href="/recu/${acte.recu}">${acte.recu.slice(0, 12)}</a></dd></div>
 <div><dt>${e.recu.collectivite}</dt><dd><a href="/collectivite/${commune?.insee ?? acte.collectivite}">${nom}</a></dd></div>
-${source}</dl>
+${ligneDeLaDateLue(date)}${source}${ligneDeLaSource(acte, versions, passage)}</dl>
 <p class="imprime">${e.hote}${chemin}</p>
 </article>
 ${tableDesVersions(acte, versions)}`

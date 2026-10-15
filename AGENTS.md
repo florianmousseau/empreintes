@@ -159,4 +159,12 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   versions vues a la meme source ; l'objet et la source y repassent
   `nommeUnePersonne` ET `pourraitNommer`. `/api/recus/<id>` et `lire_recu` portent
   `acte`, l'adresse ; la page de la commune et le recu la lient. Aucune migration :
-  elle se lit dans `acte` et `depot`.
+  elle se lit dans `acte` et `depot`. `sitemap-actes.xml` (declare par `robots.txt`)
+  porte chaque adresse, datee du jour de sa datation : une adresse ne nomme personne.
+  La page porte la date de l'acte LUE dans l'objet garde puis le nom du fichier
+  (`src/datelue.mjs`, pur ; au jour ou au mois, jamais apres la datation), dite
+  « lue », jamais dans l'adresse ni dans `Legislation`. L'etat de la source vient
+  de la glane : apres une commune dont chaque page s'est lue en 200, elle poste a
+  `POST /api/passages` (jeton de la flotte) les recus encore lies (`vue`) et non
+  retrouves (`absente`), table `passage` ; une version plus recente a la meme
+  source l'emporte sur la page.

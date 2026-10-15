@@ -26,7 +26,9 @@ export const SCHEMA = [
 	'CREATE INDEX IF NOT EXISTS version_jour ON version (jour)',
 	'CREATE INDEX IF NOT EXISTS version_article ON version (flux, article)',
 	'CREATE INDEX IF NOT EXISTS depot_recu ON depot (recu)',
-	'CREATE INDEX IF NOT EXISTS depot_sha256 ON depot (sha256)'
+	'CREATE INDEX IF NOT EXISTS depot_sha256 ON depot (sha256)',
+	// D-205 : la source d'un acte au dernier passage de la glane, `vue` (le lien y est encore publie) ou `absente`.
+	'CREATE TABLE IF NOT EXISTS passage (recu TEXT PRIMARY KEY, jour TEXT NOT NULL, etat TEXT NOT NULL) WITHOUT ROWID'
 ];
 
 const JSON_UTF8 = { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', 'access-control-allow-origin': '*' };
@@ -312,6 +314,15 @@ export async function actesAuPrefixe({ db, code, jour, prefixe }) {
 	return results;
 }
 
+/** Au plus autant d'adresses dans le plan des actes : la limite d'un fichier sitemaps.org. */
+export const PLAN_DES_ACTES_MAX = 50000;
+
+/** Ce qui compose l'adresse de chaque acte rattache, du plus ancien au plus recent. */
+export async function adressesDesActes({ db, limite = PLAN_DES_ACTES_MAX }) {
+	const { results } = await db.prepare('SELECT d.jour, d.sha256, a.collectivite, a.nature FROM acte a JOIN depot d ON d.recu = a.recu ORDER BY d.jour, d.place LIMIT ?').bind(limite).all();
+	return results;
+}
+
 /** Les versions datees d'une meme source dans une collectivite, de la plus ancienne a la plus recente. */
 export async function versionsDeLaSource({ db, collectivite, url }) {
 	if (!url) return [];
@@ -329,3 +340,51 @@ export async function ligneEtAdresseDuRecu({ db, id }) {
 	const acte = await acteDuRecu({ db, id });
 	return acte ? { ...ligne, acte: `https://temoinpublic.fr${cheminDeLActe({ ...acte, jour: ligne.jour, sha256: ligne.sha256 })}` } : ligne;
 }
+
+/** Au plus autant de recus dans un passage de la glane, vus et absents ensemble. */
+export const PASSAGE_MAX = 500;
+// D1 lie au plus 100 parametres par instruction.
+const PAR_INSTRUCTION = 90;
+
+/** Les erreurs d'un passage `{ vus, absents }` : deux listes de recus (64 hex), disjointes, bornees. */
+function erreursDuPassage(corps) {
+	if (corps === null || typeof corps !== 'object') return ['un objet { vus, absents } attendu'];
+	const listes = [corps.vus ?? [], corps.absents ?? []];
+	if (!listes.every((l) => Array.isArray(l) && l.every((id) => HEX64.test(id)))) return ['vus, absents : des listes de recus (64 hex)'];
+	const [vus, absents] = listes;
+	if (vus.length + absents.length > PASSAGE_MAX) return [`au plus ${PASSAGE_MAX} recus par passage`];
+	if (vus.some((id) => absents.includes(id))) return ['un recu a la fois vu et absent'];
+	return [];
+}
+
+/** Note `etat` au jour pour chaque recu de `ids` qui date un acte ; rend le nombre de lignes ecrites. */
+async function noterEtat(db, ids, jour, etat) {
+	let n = 0;
+	for (let i = 0; i < ids.length; i += PAR_INSTRUCTION) {
+		const lot = ids.slice(i, i + PAR_INSTRUCTION);
+		const r = await faire(
+			db,
+			`INSERT INTO passage (recu, jour, etat) SELECT recu, ?, ? FROM acte WHERE recu IN (${lot.map(() => '?').join(', ')}) ON CONFLICT (recu) DO UPDATE SET jour = excluded.jour, etat = excluded.etat`,
+			jour,
+			etat,
+			...lot
+		);
+		n += r.meta.changes;
+	}
+	return n;
+}
+
+/**
+ * Le passage de la glane sur la page des actes d'une commune (D-205) : les
+ * recus dont le lien y est encore publie (`vus`) et ceux dont il a disparu
+ * (`absents`). Seuls les recus d'actes s'ecrivent ; le jour est celui du serveur.
+ */
+export async function noterPassage({ db, corps, maintenant = new Date() }) {
+	const erreurs = erreursDuPassage(corps);
+	if (erreurs.length) return refus(400, 'passage illisible', erreurs);
+	const jour = jourDe(maintenant);
+	return reponse(200, { jour, vus: await noterEtat(db, corps.vus ?? [], jour, 'vue'), absents: await noterEtat(db, corps.absents ?? [], jour, 'absente') });
+}
+
+/** L'etat de la source d'un acte au dernier passage de la glane, `{ jour, etat }`, ou null. */
+export const passageDeLActe = ({ db, recu }) => un(db, 'SELECT jour, etat FROM passage WHERE recu = ?', recu);

@@ -234,10 +234,11 @@ test('le plan des communes porte l index, les departements et chaque commune dat
 	]);
 	const r = await reponsePlanDesCommunes({ db, commune });
 	assert.equal(r.entetes['content-type'], 'application/xml; charset=utf-8');
-	assert.match(robots(), /Sitemap: https:\/\/temoinpublic.fr\/sitemap-communes.xml\n$/);
+	assert.match(robots(), /Sitemap: https:\/\/temoinpublic.fr\/sitemap-communes.xml\nSitemap: https:\/\/temoinpublic.fr\/sitemap-actes.xml\n$/);
 	assert.doesNotMatch(robots('de'), /communes/);
 	assert.equal(decider('https://datumszeuge.de/collectivite').action, 'redirection');
 	assert.equal(decider('https://datumszeuge.de/sitemap-communes.xml').action, 'redirection');
+	assert.equal(decider('https://datumszeuge.de/sitemap-actes.xml').action, 'redirection');
 });
 
 test('le lecteur de communes ne lit et n analyse chaque fragment qu une fois, et un fragment absent ne nomme personne', async () => {
