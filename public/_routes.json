@@ -25,6 +25,7 @@
 		"/empreintes/*",
 		"/index/*",
 		"/annuaire/*",
+		"/confiance/*",
 		"/attestations/*",
 		"/preuves/*"
 	]

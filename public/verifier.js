@@ -108,10 +108,13 @@ function recuDans(octets) {
 /** La signature du deposant d'un recu version 4, relue ici contre l'empreinte et l'instant du depot ; vide sans signature. */
 async function signatureDuRecu(recu) {
 	if (!recu.signature) return '';
-	const v = await verifierSignatureDuDeposant(recu.signature.jws, recu.sha256, recu.depose);
+	const r = await fetch('/confiance/autorites.json');
+	const v = await verifierSignatureDuDeposant(recu.signature.jws, recu.sha256, recu.depose, r.ok ? (await r.json()).autorites : null);
 	const nom = (n) => echapper(n ?? t.sansNom);
+	const autorite = v.certificat?.autorite;
 	const texte = v.ok ? t.signeeValide(nom(v.certificat.sujet), nom(v.certificat.emetteur)) : t.signeeNonConforme;
-	return `<dl><div><dt>${t.signeePar}</dt><dd>${texte}</dd></div></dl>`;
+	const liste = v.ok && autorite ? `<div><dt>${t.autorite}</dt><dd>${t.inscrite(echapper(autorite.nom), autorite.pays)}</dd></div>` : '';
+	return `<dl><div><dt>${t.signeePar}</dt><dd>${texte}</dd></div>${liste}</dl>`;
 }
 
 async function verifierLeRecu(recu) {

@@ -105,3 +105,11 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   refusee rend 400 et libere la lecture du temoin. Recu version 4 (`signature`
   : jws, certificat, sujet, emetteur), ligne publique a quatre champs ; rien
   n'est garde en base. `/verifier` relit la signature d'un recu telecharge.
+- L'autorite d'un depot signe : `src/confiance.mjs` (MIT, pur) lit la LOTL et les
+  listes nationales, retient les services CA/QC `granted` et indexe leurs
+  certificats par sha256 ; `scripts/confiance.mjs` l'ecrit a chaque publication
+  dans `dist/confiance/autorites.json` (plancher 500, `continue-on-error` : sans
+  lui, la signature se verifie sans juger l'emetteur). `autoriteDuCertificat`
+  remonte `x5c`, chaque certificat verifie sous le suivant (RSA PKCS#1, ECDSA),
+  jusqu'au premier inscrit ; le recu version 4 porte alors `signature.autorite`
+  (pays, nom). Le deposant doit joindre la chaine jusqu'a l'autorite dans `x5c`.

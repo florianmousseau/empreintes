@@ -2,6 +2,12 @@
 import { annuaireDesActifs } from '../../src/annuaire.mjs';
 import { deposer } from '../../src/service.mjs';
 
+/** Le registre des autorites publie avec le site ; null s'il n'a pas ete construit. */
+const autoritesDesActifs = (env, base) => async () => {
+	const r = await env.ASSETS.fetch(new URL('/confiance/autorites.json', base));
+	return r.ok ? r.json() : null;
+};
+
 export async function onRequestPost({ request, env }) {
 	let corps;
 	try {
@@ -9,7 +15,7 @@ export async function onRequestPost({ request, env }) {
 	} catch {
 		corps = null;
 	}
-	const r = await deposer({ db: env.DEPOTS, corps, adresse: request.headers.get('cf-connecting-ip'), annuaire: annuaireDesActifs(env, request.url) });
+	const r = await deposer({ db: env.DEPOTS, corps, adresse: request.headers.get('cf-connecting-ip'), annuaire: annuaireDesActifs(env, request.url), autorites: autoritesDesActifs(env, request.url) });
 	return new Response(r.corps, { status: r.statut, headers: r.entetes });
 }
 
