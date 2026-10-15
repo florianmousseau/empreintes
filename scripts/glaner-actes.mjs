@@ -13,6 +13,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
+import { DEPARTEMENTS } from '../src/departements.mjs';
 import { AGENT_GLANE, acteDuLien, liensDe, pagesCandidates, pdfsDe, reglesRobots, robotsPermet } from '../src/glane.mjs';
 
 const { values: options } = parseArgs({
@@ -158,9 +159,13 @@ async function glanerCommune(code, [hote, prefixe]) {
 }
 
 const communes = [];
-for (const dep of options.departements.split(',')) {
-	const r = await fetch(`${options.base}/annuaire/insee-${dep.trim()}.json`, { headers: { 'user-agent': AGENT_GLANE } });
-	if (!r.ok) throw new Error(`annuaire ${dep} : ${r.status}`);
+const departements = options.departements === 'tous' ? Object.keys(DEPARTEMENTS) : options.departements.split(',').map((d) => d.trim());
+for (const dep of departements) {
+	const r = await fetch(`${options.base}/annuaire/insee-${dep}.json`, { headers: { 'user-agent': AGENT_GLANE } });
+	if (!r.ok) {
+		console.error(`annuaire ${dep} : ${r.status}`);
+		continue;
+	}
 	for (const [code, sites] of Object.entries(await r.json())) communes.push([code, sites[0]]);
 }
 const max = Number(options['communes-max']);
