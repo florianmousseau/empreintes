@@ -142,6 +142,21 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   `.timer` (toutes les communes, `--departements tous`, memoire bornee a
   512 Mo), clone public a jour avant chaque passage, jeton dans
   `/etc/glane-actes.env`. Releve du jour : `/var/lib/glane-actes/etat/glane-<jour>.tsv`.
+- Les documents budgetaires (D-185) : la glane les RELEVE, elle ne les depose pas
+  (un compte administratif n'est pas un acte du registre). `documentBudgetaireDe`
+  (`src/glane.mjs`, pur) lit dans le libelle puis le nom du fichier le genre (CA,
+  CFU, BP, NOTE, ROB ; une note ou un rapport avant la maquette dont il parle, un
+  sigle de deux lettres seul exige une annee ou le mot budget/compte), l'exercice
+  (jamais le chemin des envois ni un horodatage), le budget (principal, annexe,
+  sinon `inconnu`) ; une deliberation qui vote un budget reste un acte, sa piece
+  jointe est le document. Sources : les pages d'actes, l'accueil et jusqu'a trois
+  pages « budget / finances » (`pagesBudget`), dont les lectures ne comptent pas
+  dans le passage des actes ; les liens de telechargement sans `.pdf` comptent
+  (`estUnTelechargement`). Chaque document est lu UNE fois (etat `budgets`, 15
+  par commune et par nuit, quatre lectures a la fois, 15 Mo au plus) pour
+  `coucheTexte` (police ou operateur de texte, flux FlateDecode decompresses).
+  Releve : `glane-<jour>-budgets.jsonl` et les colonnes `budgets`, `genres`,
+  `page_budget` du TSV. `--communes` restreint un passage a une liste INSEE.
 - La glane ne depose pas un acte qui POURRAIT nommer une personne (`pourraitNommer`,
   `src/glane.mjs`) : acte individuel (delegation, nomination, occupation du domaine
   public, permission de voirie...), mot en capitales dans un texte qui ne l'est pas,

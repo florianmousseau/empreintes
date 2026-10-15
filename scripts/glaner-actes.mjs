@@ -5,18 +5,22 @@
 // jeton de la flotte. Ne depose qu'un PDF qu'il n'a jamais depose.
 //
 //   JETON_FLOTTE=... node scripts/glaner-actes.mjs --departements 17,37 --etat <dossier>
-//     [--base https://temoinpublic.fr] [--paralleles 6] [--par-commune 40] [--communes-max N] [--sec]
+//     [--base https://temoinpublic.fr] [--paralleles 6] [--par-commune 40] [--communes-max N] [--communes 17245,37031] [--sec]
 //
 // L'etat (`glane.json` : robots.txt lus, PDF deja deposes) et le releve du jour
 // (`glane-<jour>.tsv`, une ligne par commune) vivent dans `--etat`, hors du depot.
 // Apres une commune dont chaque page s'est lue, la glane dit au service quels
 // actes deja dates y sont encore lies et lesquels ont disparu (D-205).
+// Elle releve aussi, sans les deposer, les documents budgetaires (D-185) des pages
+// d'actes et des pages « budget / finances » : genre, exercice, budget, couche
+// texte, dans `glane-<jour>-budgets.jsonl` ; chaque document n'est lu qu'une fois.
 
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
+import { inflateSync } from 'node:zlib';
 import { DEPARTEMENTS } from '../src/departements.mjs';
-import { AGENT_GLANE, acteDuLien, liensDe, pagesCandidates, pdfsDe, reglesRobots, robotsPermet } from '../src/glane.mjs';
+import { AGENT_GLANE, acteDuLien, coucheTexte, documentBudgetaireDe, liensDe, pagesBudget, pagesCandidates, pdfsDe, reglesRobots, robotsPermet, telechargementsDe } from '../src/glane.mjs';
 
 const { values: options } = parseArgs({
 	options: {
@@ -26,6 +30,7 @@ const { values: options } = parseArgs({
 		paralleles: { type: 'string', default: '6' },
 		'par-commune': { type: 'string', default: '40' },
 		'communes-max': { type: 'string', default: '0' },
+		communes: { type: 'string' },
 		sec: { type: 'boolean', default: false }
 	}
 });
@@ -45,10 +50,14 @@ const OCTETS_MAX = 3e6;
 const ROBOTS_DUREE_MS = 7 * 24 * 3600 * 1000;
 const REFUS = new Set([403, 418, 429, 503]);
 const ESSAIS_MAX = 3;
+const DOC_OCTETS_MAX = 15e6;
+const BUDGETS_PAR_COMMUNE = 15;
+const LECTURES_DE_DOCUMENTS = 4;
 const jour = new Date().toISOString().slice(0, 10);
 fs.mkdirSync(options.etat, { recursive: true });
 const fichierEtat = path.join(options.etat, 'glane.json');
 const etat = fs.existsSync(fichierEtat) ? JSON.parse(fs.readFileSync(fichierEtat, 'utf8')) : { robots: {}, pdfs: {} };
+etat.budgets ??= {};
 const sauver = () => fs.writeFileSync(fichierEtat, `${JSON.stringify(etat)}\n`);
 
 // Un appel par hote toutes les INTERVALLE_MS, file par hote ; un hote qui refuse est laisse pour le passage.
@@ -109,6 +118,65 @@ async function page(url, lus = []) {
 	return { statut: r.statut, liens: r.texte ? liensDe(r.texte, r.url) : [] };
 }
 
+// Un document budgetaire se lit une fois, borne en octets, quatre a la fois au plus pour toute la glane.
+let lecturesEnCours = 0;
+const enAttente = [];
+async function aSonTour(travail) {
+	if (lecturesEnCours >= LECTURES_DE_DOCUMENTS) await new Promise((r) => enAttente.push(r));
+	lecturesEnCours++;
+	try {
+		return await travail();
+	} finally {
+		lecturesEnCours--;
+		enAttente.shift()?.();
+	}
+}
+
+async function lireDocument(url) {
+	const hote = new URL(url).hostname;
+	if (refuses.has(hote)) return { statut: 'refuse' };
+	await tourDe(hote);
+	let r;
+	try {
+		r = await fetch(url, { headers: { 'user-agent': AGENT_GLANE, accept: 'application/pdf,*/*;q=0.8' }, redirect: 'follow', signal: AbortSignal.timeout(60000) });
+	} catch (e) {
+		return { statut: String(e.cause?.code ?? e.name ?? 'reseau') };
+	}
+	if (REFUS.has(r.status)) refuses.add(hote);
+	if (!r.ok) {
+		await r.body?.cancel();
+		return { statut: r.status };
+	}
+	const morceaux = [];
+	let taille = 0;
+	let tronque = false;
+	try {
+		for await (const m of r.body) {
+			taille += m.byteLength;
+			if (taille > DOC_OCTETS_MAX) {
+				tronque = true;
+				break;
+			}
+			morceaux.push(m);
+		}
+	} catch (e) {
+		return { statut: String(e.cause?.code ?? e.name ?? 'reseau') };
+	}
+	return { statut: r.status, octets: taille, ...coucheTexte(Buffer.concat(morceaux), { tronque, inflate: inflateSync }) };
+}
+
+/** Le releve d'un document budgetaire : lu une fois, puis rendu tel que l'etat le garde. */
+async function releverBudget(code, doc, nouveaux) {
+	const connu = etat.budgets[doc.url];
+	if (connu && typeof connu.statut === 'number' && connu.statut < 500) return { ...connu, ...doc, code, issue: 'connu' };
+	if (nouveaux.n >= BUDGETS_PAR_COMMUNE) return { ...doc, code, issue: 'plus-tard' };
+	if (!(await permis(doc.url))) return { ...doc, code, issue: 'robots' };
+	nouveaux.n++;
+	const lu = await aSonTour(() => lireDocument(doc.url));
+	etat.budgets[doc.url] = { jour, code, statut: lu.statut, format: lu.format, couche: lu.couche, octets: lu.octets };
+	return { ...doc, ...etat.budgets[doc.url], issue: 'lu' };
+}
+
 let plafondAtteint = false;
 async function deposer(code, acte) {
 	const deja = etat.pdfs[acte.url];
@@ -165,20 +233,57 @@ async function noterLePassage(code, site, pdfs, lus) {
 
 async function glanerCommune(code, [hote, prefixe]) {
 	const sites = [[hote, prefixe]];
-	const ligne = { code, site: `${hote}${prefixe}`, accueil: '', page: '', pdfs: 0, actes: 0, deposes: 0, autres: '' };
+	const ligne = { code, site: `${hote}${prefixe}`, accueil: '', page: '', pdfs: 0, actes: 0, deposes: 0, autres: '', budgets: 0, genres: '', pageBudget: '' };
 	const lus = [];
 	const accueil = await page(`https://${hote}${prefixe}/`, lus);
 	ligne.accueil = String(accueil.statut);
 	const pdfs = new Map();
-	const ajouter = (liens) => pdfsDe(liens, sites).forEach((l) => pdfs.has(l.href) || pdfs.set(l.href, l));
+	const telechargements = new Map();
+	const ajouter = (liens) => {
+		pdfsDe(liens, sites).forEach((l) => pdfs.has(l.href) || pdfs.set(l.href, l));
+		releverSeulement(liens);
+	};
+	const releverSeulement = (liens) => telechargementsDe(liens, sites).forEach((l) => telechargements.has(l.href) || telechargements.set(l.href, l));
+	releverSeulement(accueil.liens);
+	const lues = new Set([`https://${hote}${prefixe}/`]);
+	const budgetsAVoir = new Map(pagesBudget(accueil.liens, { sites, ici: `https://${hote}${prefixe}/` }).map((l) => [l.href, l]));
 	for (const candidate of pagesCandidates(accueil.liens, { sites, ici: `https://${hote}${prefixe}/` })) {
+		lues.add(candidate.href);
 		const p = await page(candidate.href, lus);
 		const avant = pdfs.size;
 		ajouter(p.liens);
+		pagesBudget(p.liens, { sites, ici: candidate.href, max: 1 }).forEach((l) => budgetsAVoir.has(l.href) || budgetsAVoir.set(l.href, l));
 		if (pdfs.size === avant)
-			for (const suite of pagesCandidates(p.liens, { sites, ici: candidate.href, max: 2, plancher: 3 })) ajouter((await page(suite.href, lus)).liens);
+			for (const suite of pagesCandidates(p.liens, { sites, ici: candidate.href, max: 2, plancher: 3 })) {
+				lues.add(suite.href);
+				ajouter((await page(suite.href, lus)).liens);
+			}
 		if (pdfs.size > avant && !ligne.page) ligne.page = candidate.href;
 	}
+	// Les pages « budget / finances » ne comptent pas dans le passage des actes : leurs lectures restent a part.
+	const lusBudget = [];
+	for (const [href] of [...budgetsAVoir].slice(0, 3)) {
+		if (lues.has(href)) continue;
+		lues.add(href);
+		const avant = telechargements.size;
+		const p = await page(href, lusBudget);
+		releverSeulement(p.liens);
+		if (telechargements.size === avant)
+			for (const suite of pagesBudget(p.liens, { sites, ici: href, max: 2 }).filter((l) => !lues.has(l.href))) {
+				lues.add(suite.href);
+				releverSeulement((await page(suite.href, lusBudget)).liens);
+			}
+		if (telechargements.size > avant && !ligne.pageBudget) ligne.pageBudget = href;
+	}
+	const nouveaux = { n: 0 };
+	const genres = new Set();
+	for (const doc of [...telechargements.values()].map(documentBudgetaireDe).filter(Boolean)) {
+		const releve = await releverBudget(code, doc, nouveaux);
+		fs.appendFileSync(detailBudgets, `${JSON.stringify(releve)}\n`);
+		ligne.budgets++;
+		genres.add(doc.genre);
+	}
+	ligne.genres = [...genres].sort().join(',');
 	ligne.pdfs = pdfs.size;
 	const actes = [...pdfs.values()].map(acteDuLien).filter(Boolean);
 	ligne.actes = actes.length;
@@ -201,6 +306,7 @@ async function glanerCommune(code, [hote, prefixe]) {
 }
 
 const communes = [];
+const seules = options.communes ? new Set(options.communes.split(',').map((c) => c.trim())) : null;
 const departements = options.departements === 'tous' ? Object.keys(DEPARTEMENTS) : options.departements.split(',').map((d) => d.trim());
 for (const dep of departements) {
 	const r = await fetch(`${options.base}/annuaire/insee-${dep}.json`, { headers: { 'user-agent': AGENT_GLANE } });
@@ -208,15 +314,16 @@ for (const dep of departements) {
 		console.error(`annuaire ${dep} : ${r.status}`);
 		continue;
 	}
-	for (const [code, sites] of Object.entries(await r.json())) communes.push([code, sites[0]]);
+	for (const [code, sites] of Object.entries(await r.json())) if (!seules || seules.has(code)) communes.push([code, sites[0]]);
 }
 const max = Number(options['communes-max']);
 const file = max > 0 ? communes.slice(0, max) : communes;
 const releve = path.join(options.etat, `glane-${jour}.tsv`);
 const detail = path.join(options.etat, `glane-${jour}-actes.jsonl`);
-if (!fs.existsSync(releve)) fs.writeFileSync(releve, 'code\tsite\taccueil\tpage\tpdfs\tactes\tdeposes\tautres\n');
+const detailBudgets = path.join(options.etat, `glane-${jour}-budgets.jsonl`);
+if (!fs.existsSync(releve)) fs.writeFileSync(releve, 'code\tsite\taccueil\tpage\tpdfs\tactes\tdeposes\tautres\tbudgets\tgenres\tpage_budget\n');
 let suivant = 0;
-const totaux = { communes: 0, avecPage: 0, pdfs: 0, actes: 0, deposes: 0 };
+const totaux = { communes: 0, avecPage: 0, pdfs: 0, actes: 0, deposes: 0, avecBudgets: 0, budgets: 0 };
 async function ouvrier() {
 	while (suivant < file.length) {
 		const [code, site] = file[suivant++];
@@ -225,14 +332,16 @@ async function ouvrier() {
 			ligne = await glanerCommune(code, site);
 		} catch (e) {
 			if (e.message === 'jeton refuse') throw e;
-			ligne = { code, site: site.join(''), accueil: 'erreur', page: '', pdfs: 0, actes: 0, deposes: 0, autres: String(e.message).slice(0, 80) };
+			ligne = { code, site: site.join(''), accueil: 'erreur', page: '', pdfs: 0, actes: 0, deposes: 0, autres: String(e.message).slice(0, 80), budgets: 0, genres: '', pageBudget: '' };
 		}
-		fs.appendFileSync(releve, `${[ligne.code, ligne.site, ligne.accueil, ligne.page, ligne.pdfs, ligne.actes, ligne.deposes, ligne.autres].join('\t')}\n`);
+		fs.appendFileSync(releve, `${[ligne.code, ligne.site, ligne.accueil, ligne.page, ligne.pdfs, ligne.actes, ligne.deposes, ligne.autres, ligne.budgets, ligne.genres, ligne.pageBudget].join('\t')}\n`);
 		totaux.communes++;
 		totaux.avecPage += ligne.page ? 1 : 0;
 		totaux.pdfs += ligne.pdfs;
 		totaux.actes += ligne.actes;
 		totaux.deposes += ligne.deposes;
+		totaux.avecBudgets += ligne.budgets ? 1 : 0;
+		totaux.budgets += ligne.budgets;
 		if (totaux.communes % 20 === 0) {
 			sauver();
 			console.log(JSON.stringify(totaux));
