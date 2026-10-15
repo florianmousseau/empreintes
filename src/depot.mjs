@@ -23,6 +23,10 @@ import { estUnJws, estUneSignature } from './origine.mjs';
 export const DEPOTS_PAR_ADRESSE = 20;
 /** Au plus autant de depots par jour, toutes adresses confondues. */
 export const DEPOTS_PAR_JOUR = 2000;
+/** Au plus autant d'actes par jour deposes par la glane de la flotte (D-178), hors des deux plafonds ci-dessus. */
+export const ACTES_DE_LA_FLOTTE_PAR_JOUR = 5000;
+/** La cle de compte de la glane : en clair, jamais une adresse, et hors du bilan public des deposants. */
+export const CLE_DE_LA_FLOTTE = 'flotte';
 export const LIBELLE_MAX = 200;
 export const URL_MAX = 2048;
 /** La version du recu ; une forme nouvelle prend un numero nouveau. */
@@ -199,8 +203,27 @@ export function secondesAvantDemain(instant) {
 	return Math.max(1, Math.ceil((minuit - t.getTime()) / 1000));
 }
 
-/** Le verdict des plafonds : `{ ok: true }`, ou le motif et le `retry-after` en secondes. */
-export function plafond({ deCetteAdresse, duJour, instant }) {
+/**
+ * Vrai quand l'en-tete `authorization` porte le jeton de la glane (`Bearer <jeton>`).
+ * Compare les empreintes des deux, de meme longueur ; sans jeton configure,
+ * personne n'est la flotte.
+ */
+export async function estLaFlotte(entete, jeton) {
+	if (!jeton || typeof entete !== 'string' || !entete.startsWith('Bearer ')) return false;
+	const [a, b] = await Promise.all([sha256(entete.slice(7).trim()), sha256(jeton)]);
+	let ecart = 0;
+	for (let i = 0; i < a.length; i++) ecart |= a.charCodeAt(i) ^ b.charCodeAt(i);
+	return ecart === 0;
+}
+
+/**
+ * Le verdict des plafonds : `{ ok: true }`, ou le motif et le `retry-after` en
+ * secondes. La glane de la flotte n'a que le sien, `deCetteAdresse` est alors
+ * son propre compte du jour.
+ */
+export function plafond({ deCetteAdresse, duJour, instant, flotte = false }) {
+	if (flotte)
+		return deCetteAdresse >= ACTES_DE_LA_FLOTTE_PAR_JOUR ? { ok: false, motif: 'plafond de la flotte atteint', apres: secondesAvantDemain(instant) } : { ok: true };
 	if (duJour >= DEPOTS_PAR_JOUR) return { ok: false, motif: 'plafond du jour atteint', apres: secondesAvantDemain(instant) };
 	if (deCetteAdresse >= DEPOTS_PAR_ADRESSE) return { ok: false, motif: 'plafond de cette adresse atteint', apres: secondesAvantDemain(instant) };
 	return { ok: true };

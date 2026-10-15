@@ -122,3 +122,16 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   se RECALCULE depuis la pose (deux mois), un jour passe sans photo interrompt
   la serie ; le numero du permis n'est dit relu que dans un recu complet joint
   dont l'identifiant se recalcule, la ligne publique ne le portant pas.
+- La glane des actes des communes (D-178) : `src/glane.mjs` (pur) trouve sur le
+  site officiel la page des actes (libelle ou chemin du lien, un second saut
+  depuis la page du conseil), ses PDF, et lit nature et objet dans le libelle
+  puis le nom du fichier ; sans indice de nature, ou pour un arrete du prefet,
+  une convocation, un bulletin, rien n'est depose. Un objet qui nommerait une
+  personne devient « Sans objet ». `scripts/glaner-actes.mjs` branche la
+  politesse (robots.txt, jeton `temoinpublic`, un appel par hote toutes les
+  5 s, 403/418/429/503 laisse l'hote pour le passage, agent nomme) et depose
+  par `POST /api/depots` sous `authorization: Bearer <JETON_FLOTTE>` (secret
+  du projet Pages). La flotte ne depose que des actes, lus sur le site
+  officiel (sinon 422), sous son plafond (`ACTES_DE_LA_FLOTTE_PAR_JOUR`), hors
+  du bilan public des deposants (cle de compte `flotte`), et un acte deja date
+  pour sa commune rend son recu (200, `deja`). Etat et releves hors du depot.
