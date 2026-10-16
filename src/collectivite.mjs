@@ -12,8 +12,9 @@ import { DEPARTEMENTS, departementDe, nomDuDepartement } from './departements.mj
 import { pourraitNommer } from './glane.mjs';
 import { nommeUnePersonne } from './personne.mjs';
 import { EDITIONS } from './edition.mjs';
-import { pageAdresse, pageAdresses, pageCollectivite, pageCommunes, pageDepartement, pageIntrouvable } from './pages.mjs';
-import { actesAuPrefixe, actesParCollectivite, adressesDesActes, adressePublique, nombreDActes, PLAN_DES_ACTES_MAX, passageDeLActe, relectureDeLActe, serieDeLaCollectivite, versionsDeLaSource } from './service.mjs';
+import { entreesDesActes } from './disparusactes.mjs';
+import { avecLesActes, pageAdresse, pageAdresses, pageCollectivite, pageCommunes, pageDepartement, pageIntrouvable, sectionDesActes } from './pages.mjs';
+import { actesAuPrefixe, actesDisparus, actesParCollectivite, DISPARUS_DES_ACTES_MAX, adressesDesActes, adressePublique, nombreDActes, PLAN_DES_ACTES_MAX, passageDeLActe, relectureDeLActe, serieDeLaCollectivite, versionsDeLaSource } from './service.mjs';
 
 const HTML = { 'content-type': 'text/html; charset=utf-8' };
 const LISTE = { ...HTML, 'cache-control': 'public, max-age=300' };
@@ -197,4 +198,18 @@ export function veutDuJson(accept) {
 	const json = types.indexOf('application/json');
 	const html = types.indexOf('text/html');
 	return json >= 0 && (html < 0 || json < html);
+}
+
+/**
+ * La reponse a `/disparus` (D-193) : la page publiee (`publiee`, sa Response),
+ * la section des actes des communes disparus ou remplaces a sa place.
+ * `commune(code)` rend `{ nom }` ou null.
+ */
+export async function reponseDisparus({ db, publiee, commune }) {
+	if (!publiee.ok) return { statut: publiee.status, corps: await publiee.text(), entetes: Object.fromEntries(publiee.headers) };
+	const html = await publiee.text();
+	const entrees = await entreesDesActes(await actesDisparus({ db }), DISPARUS_DES_ACTES_MAX);
+	const codes = [...new Set(entrees.map((e) => e.collectivite))];
+	const noms = new Map(await Promise.all(codes.map(async (code) => [code, (await commune(code))?.nom ?? null])));
+	return { statut: 200, corps: avecLesActes(html, sectionDesActes({ entrees, nomDe: (code) => noms.get(code) })), entetes: LISTE };
 }

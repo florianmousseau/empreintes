@@ -18,8 +18,9 @@
 //     existait.
 
 import { createHash } from 'node:crypto';
-import { nommeUnePersonne } from './personne.mjs';
-import { pourraitNommer } from './glane.mjs';
+import { RETENUES, adresseNommante, texteDeLAdresse } from './retenues.mjs';
+
+export { RETENUES, adresseNommante, texteDeLAdresse };
 
 export const CLASSES = ['disparu', 'remplace', 'retire'];
 
@@ -48,24 +49,10 @@ export const SOURCES_PUBLIEES = new Set([
 	'av-cardif-annexes-uc'
 ]);
 
-/** Les sha256 des adresses retenues sur un droit (`docs/legal/demandes.md`). */
-export const RETENUES = new Set([]);
-
 const HEX64 = /^[0-9a-f]{64}$/;
 const JOUR = /^\d{4}-\d{2}-\d{2}$/;
 
 export const empreinteDeLAdresse = (url) => createHash('sha256').update(url).digest('hex');
-
-/** Le texte qu'une adresse donne a lire : son chemin decode, les separateurs en espaces. */
-export function texteDeLAdresse(url) {
-	let chemin = new URL(url).pathname;
-	try {
-		chemin = decodeURIComponent(chemin);
-	} catch {
-		// Un %xx mal forme se lit tel quel : le controle porte alors sur les octets bruts.
-	}
-	return chemin.replace(/[-_+/]+/g, ' ').trim();
-}
 
 const adresseLisible = (url) => {
 	try {
@@ -75,12 +62,6 @@ const adresseLisible = (url) => {
 		return false;
 	}
 };
-
-/** Vrai quand l'adresse pourrait nommer une personne. */
-export function adresseNommante(url) {
-	const texte = texteDeLAdresse(url);
-	return nommeUnePersonne(texte) || pourraitNommer(texte);
-}
 
 /** Vrai quand un evenement de l'entrepot peut paraitre sur la page. */
 export function publiable(e) {

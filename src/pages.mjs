@@ -890,9 +890,33 @@ ${tableDesDisparus(recents, true)}
 ${entrees.length > recents.length ? `<p class="compte">Les ${nombre(recents.length)} plus récents sur ${nombre(entrees.length)}.</p>` : ''}`
 		: ''
 }
+${MARQUE_DES_ACTES}
 <p><a href="${FLUX_DISPARUS}">Flux RSS</a></p>`
 	});
 }
+
+/** La place des actes des communes dans `/disparus` : la Function la remplit depuis la base. */
+export const MARQUE_DES_ACTES = '<!-- actes-des-communes -->';
+
+const ligneDActe = (d, nomDe) =>
+	`<tr><td>${jourFr(d.date)}</td><td>${EVENEMENTS[d.classe]}</td><td><a href="/collectivite/${d.collectivite}">${echapper(nomDe(d.collectivite) ?? d.collectivite)}</a></td><td><a href="${echapper(d.url)}">${echapper(d.objet ?? nomDuDocument(d.url))}</a></td><td class="n">${d.http ?? ''}</td><td><a href="${d.preuve}">Version du ${jourFr(d.avant.jour)}</a></td></tr>`;
+
+/** La section des actes des communes disparus ou remplaces ; vide sans entree. `nomDe(code)` rend le nom de la commune ou null. */
+export function sectionDesActes({ entrees, nomDe = () => null }) {
+	if (!entrees.length) return '';
+	return `<h2>${nombre(entrees.length)} acte${marqueDuPluriel(entrees.length)} de commune${marqueDuPluriel(entrees.length)}</h2>
+<div class="defile">
+<table>
+<thead><tr><th>Vu le</th><th>Événement</th><th>Commune</th><th>Acte</th><th class="n">HTTP</th><th>Preuve</th></tr></thead>
+<tbody>
+${entrees.map((d) => ligneDActe(d, nomDe)).join('\n')}
+</tbody>
+</table>
+</div>`;
+}
+
+/** La page `/disparus` publiee, la section des actes a sa place. */
+export const avecLesActes = (html, section) => html.replace(MARQUE_DES_ACTES, section);
 
 /** Les documents d'un site. */
 export function pageDisparusDuSite({ site, entrees }) {
