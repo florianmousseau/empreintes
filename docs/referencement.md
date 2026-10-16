@@ -10,3 +10,14 @@ Un changement en vol par famille de pages ; chacun porte sa date de jugement.
 | Famille | Changement | Mis en ligne | Jugement | Mesure |
 | --- | --- | --- | --- | --- |
 | `/besoin/<besoin>` (D-177, chantier 5) | une page par besoin cherche, le geste sur la page : `prouver-une-page-web`, `anteriorite-d-une-creation`, `avis-ou-annonce-supprime` ; liees de l'accueil, au plan du site. Le besoin « date de publication d'un acte » est `/acte` | a la mise en ligne de la PR | **2026-11-30** | Search Console : impressions et clics des trois pages ; requetes « prouver qu'une page web existait », « preuve d'anteriorite », « preuve avis supprime » ; depots du jour (`/api/bilan`) apres une visite de ces pages |
+
+| Famille | Changement | Mis en ligne | Jugement | Mesure |
+| --- | --- | --- | --- | --- |
+| offres sans prix (`/marches-publics`, `/publicite-des-actes`, `/date-de-publication` ; D-200, D-195) | famille nee le 2026-10-16 : une page par milieu, une liste d'attente commune ; liees de l'accueil (une phrase), au plan du site, et `/publicite-des-actes` depuis chaque page de commune | 2026-10-16 | **2026-12-15** | Search Console : impressions et clics des trois pages ; `/health` `attente` par offre |
+
+## Pari 2026-10-16 - les offres sans prix
+
+- Ce qui change : la famille nait (trois pages au plan du site) et se maille depuis l'accueil, par une phrase qui lie les trois pages, et depuis chaque page de commune vers `/publicite-des-actes` (PR #76). Pas de lien en pied de page : il toucherait tout le site, et deux paris sont en vol (`/collectivite/<INSEE>` au 2026-12-15, `/besoin/<besoin>` au 2026-11-30).
+- Mesure de depart : 0 impression et 0 clic sur tout le domaine (Search Console, 11 au 13/10/2026, releve du 16/10) ; `/health` `attente` a 0 pour chaque offre au 16/10.
+- Critere de jugement, chiffre et date : au 2026-12-15, au moins deux des trois pages ont des impressions dans Search Console, et au moins une adresse attend sur une liste (`/health`). Sinon : la phrase de l'accueil cede la place a un lien depuis la page du geste voisin (`/besoin/prouver-une-page-web` vers `/date-de-publication`, `/acte` vers `/publicite-des-actes`).
+- Comment il se leve (le fichier) : `OFFRES_DE_L_ACCUEIL` dans `src/offre.mjs` (vide, la phrase disparait de l'accueil) ; les pages restent au plan.
