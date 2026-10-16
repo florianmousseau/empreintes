@@ -176,6 +176,7 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   `acte`, l'adresse ; la page de la commune et le recu la lient. Aucune migration :
   elle se lit dans `acte` et `depot`. `sitemap-actes.xml` (declare par `robots.txt`)
   porte chaque adresse, datee du jour de sa datation : une adresse ne nomme personne.
+  Au-dela de 50 000 adresses il devient un index de `?page=<n>`, dans l'ordre des datations.
   La page porte la date de l'acte LUE dans l'objet garde puis le nom du fichier
   (`src/datelue.mjs`, pur ; au jour ou au mois, jamais apres la datation), dite
   « lue », jamais dans l'adresse ni dans `Legislation`. L'etat de la source vient

@@ -13,7 +13,7 @@ import { pourraitNommer } from './glane.mjs';
 import { nommeUnePersonne } from './personne.mjs';
 import { EDITIONS } from './edition.mjs';
 import { pageAdresse, pageAdresses, pageCollectivite, pageCommunes, pageDepartement, pageIntrouvable } from './pages.mjs';
-import { actesAuPrefixe, actesParCollectivite, adressesDesActes, adressePublique, passageDeLActe, serieDeLaCollectivite, versionsDeLaSource } from './service.mjs';
+import { actesAuPrefixe, actesParCollectivite, adressesDesActes, adressePublique, nombreDActes, PLAN_DES_ACTES_MAX, passageDeLActe, serieDeLaCollectivite, versionsDeLaSource } from './service.mjs';
 
 const HTML = { 'content-type': 'text/html; charset=utf-8' };
 const LISTE = { ...HTML, 'cache-control': 'public, max-age=300' };
@@ -121,9 +121,28 @@ ${actes.map((a) => `<url><loc>${adresse}${cheminDeLActe(a)}</loc><lastmod>${a.jo
 `;
 }
 
-/** La reponse a `/sitemap-actes.xml`. */
-export async function reponsePlanDesActes({ db }) {
-	return { statut: 200, corps: planDesActes(await adressesDesActes({ db })), entetes: XML };
+/** L'index des plans d'actes quand ils passent la limite d'un fichier : `?page=1` a `?page=<pages>`. */
+export function indexDesPlansDActes(pages) {
+	const adresse = EDITIONS.fr.adresse;
+	return `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${Array.from({ length: pages }, (_, i) => `<sitemap><loc>${adresse}/sitemap-actes.xml?page=${i + 1}</loc></sitemap>`).join('\n')}
+</sitemapindex>
+`;
+}
+
+/**
+ * La reponse a `/sitemap-actes.xml` : le plan lui-meme tant qu'il tient dans un
+ * fichier (50 000 adresses), un index de pages au-dela ; `?page=<n>` sert la page,
+ * dans l'ordre des datations, qui ne bouge pas puisqu'un acte s'ajoute a la fin.
+ */
+export async function reponsePlanDesActes({ db, page = null, parPage = PLAN_DES_ACTES_MAX }) {
+	const total = await nombreDActes({ db });
+	const pages = Math.max(1, Math.ceil(total / parPage));
+	if (page === null) return { statut: 200, corps: pages === 1 ? planDesActes(await adressesDesActes({ db, limite: parPage })) : indexDesPlansDActes(pages), entetes: XML };
+	const n = /^[1-9]\d{0,5}$/.test(page) ? Number(page) : 0;
+	if (n < 1 || n > pages) return introuvable();
+	return { statut: 200, corps: planDesActes(await adressesDesActes({ db, limite: parPage, decalage: (n - 1) * parPage })), entetes: XML };
 }
 
 /** L'objet d'un acte s'il ne peut nommer personne, null sinon. */

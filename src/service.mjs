@@ -318,10 +318,13 @@ export async function actesAuPrefixe({ db, code, jour, prefixe }) {
 export const PLAN_DES_ACTES_MAX = 50000;
 
 /** Ce qui compose l'adresse de chaque acte rattache, du plus ancien au plus recent. */
-export async function adressesDesActes({ db, limite = PLAN_DES_ACTES_MAX }) {
-	const { results } = await db.prepare('SELECT d.jour, d.sha256, a.collectivite, a.nature FROM acte a JOIN depot d ON d.recu = a.recu ORDER BY d.jour, d.place LIMIT ?').bind(limite).all();
+export async function adressesDesActes({ db, limite = PLAN_DES_ACTES_MAX, decalage = 0 }) {
+	const { results } = await db.prepare('SELECT d.jour, d.sha256, a.collectivite, a.nature FROM acte a JOIN depot d ON d.recu = a.recu ORDER BY d.jour, d.place LIMIT ? OFFSET ?').bind(limite, decalage).all();
 	return results;
 }
+
+/** Le nombre d'actes rattaches, qui ont chacun une adresse. */
+export const nombreDActes = async ({ db }) => (await un(db, 'SELECT COUNT(*) AS n FROM acte')).n;
 
 /** Les versions datees d'une meme source dans une collectivite, de la plus ancienne a la plus recente. */
 export async function versionsDeLaSource({ db, collectivite, url }) {
