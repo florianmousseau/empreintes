@@ -10,8 +10,14 @@ export const CHEMIN_OFFRE_MARCHES = '/marches-publics';
 /** L'offre des communes (D-195) : leurs actes dates le jour de leur mise en ligne. */
 export const CHEMIN_OFFRE_COMMUNES = '/publicite-des-actes';
 
+/** L'offre des editeurs (D-195, D-170) : chaque version de leurs articles datee a sa mise en ligne. */
+export const CHEMIN_OFFRE_EDITEURS = '/date-de-publication';
+
 /** La page de chaque offre qui tient une liste d'attente (`src/attente.mjs`). */
-export const CHEMINS_DES_OFFRES = { 'marches-publics': CHEMIN_OFFRE_MARCHES, communes: CHEMIN_OFFRE_COMMUNES };
+export const CHEMINS_DES_OFFRES = { 'marches-publics': CHEMIN_OFFRE_MARCHES, communes: CHEMIN_OFFRE_COMMUNES, editeurs: CHEMIN_OFFRE_EDITEURS };
+
+/** Un flux suivi, montre en exemple : son registre public (ni adresse ni titre), lu en prod le 16/10/2026. */
+export const EXEMPLE_DE_REGISTRE = { id: '90bfb8a65ae28b58', depuis: '2026-10-12', articles: 13 };
 
 /** Ce que le registre des communes tenait au jour de la page (`/collectivite`, 16/10/2026). */
 export const COUVERTURE_COMMUNES = { au: '2026-10-16', communes: 835, actes: 10006 };
