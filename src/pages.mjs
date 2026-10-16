@@ -8,7 +8,7 @@ import { nomDuDepartement } from './departements.mjs';
 import { BESOINS } from './besoins.mjs';
 import { EDITIONS, cheminsDe, planDe } from './edition.mjs';
 import { ADRESSES, FORMULES } from './documentation.mjs';
-import { CHEMIN_OFFRE_ASSUREURS, CHEMIN_OFFRE_COMMUNES, CHEMIN_OFFRE_EDITEURS, CHEMIN_OFFRE_MARCHES, CHEMIN_OFFRE_NOTAIRES, CHEMINS_DES_OFFRES, COUVERTURE, COUVERTURE_COMMUNES, COUVERTURE_DU_REGISTRE, ECHANTILLON, EXEMPLE_D_ACTE, EXEMPLE_DE_REGISTRE, OFFRES_DE_L_ACCUEIL, lienDeLAvis } from './offre.mjs';
+import { CHEMIN_OFFRE_ASSUREURS, CHEMIN_OFFRE_COMMUNES, CHEMIN_OFFRE_DRH, CHEMIN_OFFRE_EDITEURS, CHEMIN_OFFRE_MARCHES, CHEMIN_OFFRE_NOTAIRES, CHEMINS_DES_OFFRES, COUVERTURE, COUVERTURE_COMMUNES, COUVERTURE_DU_REGISTRE, ECHANTILLON, EXEMPLE_D_ACTE, EXEMPLE_DE_REGISTRE, OFFRES_DE_L_ACCUEIL, lienDeLAvis } from './offre.mjs';
 import { PROFILS_DES_OFFRES } from './attente.mjs';
 
 const NBSP = '\u00A0';
@@ -1176,6 +1176,33 @@ ${formulaireDAttente('notaires')}
 <p><a class="bouton principal" href="${ACTES.dater.chemin}">Dater une version</a> <a class="bouton" href="${ACTES.verifier.chemin}">Vérifier une version reçue</a></p>
 <h2>Ce que la date ne dit pas</h2>
 <p>Le reçu prouve qu’une version existait telle quelle à cette date. Il ne donne pas date certaine à un acte sous seing privé${NBSP}: l’enregistrement ou l’acte authentique restent nécessaires.</p>`
+	});
+}
+
+/* ------------------------------------------------------------ l'offre des DRH (D-195) */
+
+/** Chaque version d'un document du personnel datee le jour de sa diffusion : l'offre, ce qui existe deja sans compte, la liste d'attente. Sans prix. */
+export function pageOffreDrh(couverture = COUVERTURE_DU_REGISTRE) {
+	const titre = 'Chaque version d’un document du personnel, datée le jour de sa diffusion';
+	return gabarit(EDITIONS.fr, {
+		titre,
+		description: 'Règlement intérieur, chartes et notes de service datés à chaque version, le jour de leur diffusion, chacun avec son reçu, vérifiable par tous. Liste d’attente ouverte.',
+		chemin: CHEMIN_OFFRE_DRH,
+		corps: `<section class="une une-page"><h1>${titre}</h1>
+<p class="chapeau">Le règlement intérieur, une charte ou une note de service changent d’une année sur l’autre. Témoin public date chaque version au registre public, le jour où elle est diffusée, sans que le fichier quitte votre poste, et remet un reçu à classer avec elle.</p></section>
+${formulaireDAttente('drh')}
+<h2>Ce que l’offre ajoutera</h2>
+<ul>
+<li>Chaque version est datée depuis votre outil de diffusion, au moment où elle part.</li>
+<li>Les versions d’un même document se suivent, de la première à celle en vigueur.</li>
+<li>Une version produite par un salarié ou son conseil se compare en un geste aux versions datées.</li>
+<li>Vous recevez le relevé de vos versions datées, mois par mois.</li>
+</ul>
+<h2>Déjà en ligne, sans compte</h2>
+<p>Au ${jourFr(couverture.au)}, le registre porte ${nombre(couverture.dates)} dates enregistrées depuis le ${jourFr(couverture.depuis)}.</p>
+<p><a class="bouton principal" href="${ACTES.dater.chemin}">Dater une version</a> <a class="bouton" href="${ACTES.verifier.chemin}">Vérifier une version</a></p>
+<h2>Ce que la date ne dit pas</h2>
+<p>Le reçu prouve qu’une version existait telle quelle à cette date. Il ne prouve pas qu’un salarié l’a reçue${NBSP}: la remise se prouve par une décharge signée ou un recommandé.</p>`
 	});
 }
 
