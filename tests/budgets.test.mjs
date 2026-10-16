@@ -104,3 +104,19 @@ test('la couche texte se lit dans les octets ou dans un flux decompresse', () =>
 	assert.deepEqual(lire(Buffer.from('bonjour', 'latin1')), { format: 'autre', couche: 'non' });
 	assert.deepEqual(coucheTexte(pdf('<< /Font >>')), { format: 'pdf', couche: 'oui' }, 'sans inflate fourni, les octets suffisent quand ils parlent');
 });
+
+test('un flux se decompresse borne : une image de page scannee ne remplit pas le tas', () => {
+	let plusGrand = 0;
+	const inflate = (octets, options) => {
+		const clair = inflateSync(octets, options);
+		plusGrand = Math.max(plusGrand, clair.length);
+		return clair;
+	};
+	const image = flux('\0'.repeat(60e6));
+	assert.deepEqual(coucheTexte(pdf(image, flux('BT /F1 12 Tf (Budget) Tj ET')), { inflate }), { format: 'pdf', couche: 'oui' }, 'le flux suivant se lit encore');
+	assert.ok(plusGrand <= 4 * 1024 * 1024, `au plus 4 Mo en clair, lu ${plusGrand}`);
+	let graine = 1;
+	const bruit = Array.from({ length: 2e6 }, () => String.fromCharCode((graine = (Math.imul(graine, 1103515245) + 12345) >>> 0) >>> 24)).join('');
+	assert.ok(deflateSync(Buffer.from(bruit, 'latin1')).length > 256 * 1024, 'le flux de texte depasse le debut lu');
+	assert.deepEqual(coucheTexte(pdf(flux(`BT /F1 12 Tf (Budget) Tj ET ${bruit}`)), { inflate }), { format: 'pdf', couche: 'oui' }, 'son debut suffit');
+});

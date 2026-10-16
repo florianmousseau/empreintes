@@ -99,11 +99,12 @@ async function permis(url) {
 	const hote = new URL(url).hostname;
 	const connu = etat.robots[hote];
 	if (!(connu && Date.now() - Date.parse(connu.lu) < ROBOTS_DUREE_MS)) {
-		if (!robotsEnVol.has(hote)) robotsEnVol.set(hote, lireTexte(`${new URL(url).origin}/robots.txt`));
+		// Seules les regles restent en memoire, jamais le texte lu : une page HTML servie pour robots.txt pese des centaines de Ko.
+		if (!robotsEnVol.has(hote)) robotsEnVol.set(hote, lireTexte(`${new URL(url).origin}/robots.txt`).then((r) => ({ statut: r.statut, regles: r.texte ? reglesRobots(r.texte) : [] })));
 		const r = await robotsEnVol.get(hote);
 		// RFC 9309 : injoignable ou en erreur serveur, rien ce jour-la ; absent, tout est permis.
 		if (typeof r.statut !== 'number' || r.statut >= 500 || REFUS.has(r.statut)) return false;
-		etat.robots[hote] = { lu: new Date().toISOString(), regles: r.texte ? reglesRobots(r.texte) : [] };
+		etat.robots[hote] = { lu: new Date().toISOString(), regles: r.regles };
 	}
 	return robotsPermet(etat.robots[hote].regles, url);
 }
