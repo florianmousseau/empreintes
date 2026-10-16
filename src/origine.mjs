@@ -125,7 +125,22 @@ async function signePar(enfant, parent) {
 }
 
 
-/** L'autorite des listes de confiance au bout d'une chaine de certificats en DER, chacun signe par le suivant ; null sinon. */
+/**
+ * Vrai quand l'autorite etait inscrite a l'instant `t` (millisecondes) : une
+ * de ses periodes `[debut, fin]` du registre le contient, `fin` null pour
+ * celle qui court. Une entree sans periodes (registre d'avant l'historique)
+ * vaut inscrite.
+ */
+export function inscriteA(autorite, t) {
+	if (!Array.isArray(autorite.periodes)) return true;
+	return autorite.periodes.some(([debut, fin]) => (debut === null || Date.parse(debut) <= t) && (fin === null || t < Date.parse(fin)));
+}
+
+/**
+ * L'autorite des listes de confiance au bout d'une chaine de certificats en DER,
+ * chacun signe par le suivant, inscrite a l'instant ou elle a emis le maillon
+ * d'en dessous (son debut de validite) ; null sinon.
+ */
 async function autoriteDeLaChaine(ders, autorites) {
 	let enfant = null;
 	for (const der of ders) {
@@ -137,7 +152,7 @@ async function autoriteDeLaChaine(ders, autorites) {
 		}
 		if (enfant && !(await signePar(enfant, cert))) return null;
 		const autorite = enfant ? autorites[await sha256(der)] : null;
-		if (autorite) return { pays: autorite.pays, nom: autorite.nom };
+		if (autorite) return inscriteA(autorite, enfant.debut) ? { pays: autorite.pays, nom: autorite.nom } : null;
 		enfant = cert;
 	}
 	return null;
@@ -146,7 +161,8 @@ async function autoriteDeLaChaine(ders, autorites) {
 /**
  * L'autorite des listes de confiance qui a emis le certificat : on remonte
  * `x5c`, chaque certificat signe par le suivant, jusqu'au premier dont
- * l'empreinte est dans `autorites` (le registre de `src/confiance.mjs`). Le
+ * l'empreinte est dans `autorites` (le registre de `src/confiance.mjs`), et
+ * qui etait inscrite quand elle a emis le maillon d'en dessous. Le
  * certificat du deposant lui-meme n'en est jamais une. Null sinon.
  */
 export async function autoriteDuCertificat(x5c, autorites) {

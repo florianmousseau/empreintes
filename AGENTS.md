@@ -129,12 +129,16 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   : jws, certificat, sujet, emetteur), ligne publique a quatre champs ; rien
   n'est garde en base. `/verifier` relit la signature d'un recu telecharge.
 - L'autorite d'un depot signe : `src/confiance.mjs` (MIT, pur) lit la LOTL et les
-  listes nationales, retient les services CA/QC `granted` et indexe leurs
-  certificats par sha256 ; `scripts/confiance.mjs` l'ecrit a chaque publication
+  listes nationales, retient les services CA/QC qui ont ete en vigueur (`granted`,
+  et avant juillet 2016 `accredited`, `undersupervision`, `supervisionincessation`),
+  historique compris, et indexe leurs certificats par sha256 avec leurs `periodes`
+  en vigueur ; `scripts/confiance.mjs` l'ecrit a chaque publication
   dans `dist/confiance/autorites.json` (plancher 500, `continue-on-error` : sans
   lui, la signature se verifie sans juger l'emetteur). `autoriteDuCertificat`
   remonte `x5c`, chaque certificat verifie sous le suivant (RSA PKCS#1, ECDSA),
-  jusqu'au premier inscrit ; le recu version 4 porte alors `signature.autorite`
+  jusqu'au premier inscrit, qui ne compte que s'il etait en vigueur au debut de
+  validite du maillon qu'il a signe (`inscriteA`, ETSI TS 119 615 : le statut a
+  l'emission, pas celui du jour) ; le recu version 4 porte alors `signature.autorite`
   (pays, nom). Le deposant doit joindre la chaine jusqu'a l'autorite dans `x5c`.
 - Le certificat d'une serie d'affichage (D-166) se depose sur `/verifier` : un
   JSON `type: certificat-affichage`, format en tete de `src/serie.mjs` (pur),

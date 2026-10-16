@@ -258,8 +258,8 @@ export const TEXTES = {
 				de: 'die vom Archiv gesehenen Dokumente der öffentlichen Listen: Adresse, Prüfsumme, erster und letzter Tag, Beweis'
 			},
 			autorites: {
-				fr: 'les autorités en vigueur (services <code>CA/QC</code>) des listes de confiance européennes, <code>sha256</code> du certificat vers pays, nom et usages, relues à chaque publication\u00A0; une signature de déposant dont <code>x5c</code> remonte à l’une d’elles la nomme',
-				de: 'die gültigen Zertifizierungsstellen der europäischen Vertrauenslisten, <code>sha256</code> des Zertifikats zu Land, Name und Verwendung, bei jeder Veröffentlichung neu gelesen; eine Signatur, deren <code>x5c</code> zu einer von ihnen führt, nennt sie'
+				fr: 'les autorités (services <code>CA/QC</code>) des listes de confiance européennes, <code>sha256</code> du certificat vers pays, nom, usages et <code>periodes</code> où elles étaient inscrites, relues à chaque publication\u00A0; une signature de déposant dont <code>x5c</code> remonte à l’une d’elles la nomme si elle était inscrite quand elle a émis le certificat',
+				de: 'die Zertifizierungsstellen (Dienste <code>CA/QC</code>) der europäischen Vertrauenslisten, <code>sha256</code> des Zertifikats zu Land, Name, Verwendung und den <code>periodes</code> ihrer Eintragung, bei jeder Veröffentlichung neu gelesen; eine Signatur, deren <code>x5c</code> zu einer von ihnen führt, nennt sie, wenn sie bei Ausstellung des Zertifikats eingetragen war'
 			},
 			preuveDUnObjet: {
 				fr: 'la preuve d’un document\u00A0: chemin d’audit, racine, <code>.ots</code>, signature du journal',
