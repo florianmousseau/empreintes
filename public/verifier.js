@@ -1,4 +1,5 @@
 import { sha256, placeDuFichier, verifierChaine, verifierSignatureDuJournal, verifierSignatures, certificatDuTour } from '/chaine.mjs';
+import { cleSlhDuTour, verifierSignatureSlhDuJournal, verifierSignaturesSlh } from '/slh.mjs';
 import { tourHorodate, verifierHorodatage, verifierHorodatages } from '/horodatage.mjs';
 import { montrer, suivreLeChoix } from '/fichier.js';
 import { estUnRecu, idDuRecu } from '/depot.mjs';
@@ -41,6 +42,15 @@ const octets = async (chemin) => {
 	return new Uint8Array(await r.arrayBuffer());
 };
 
+/** La signature post-quantique d'un tour, relue contre sa racine et la cle epinglee ; null quand le tour n'en porte pas. */
+async function signatureSlhDe(tour, racine) {
+	const nom = `${tour.id}.racine.slh`;
+	if (!tour.fichiers?.includes(nom)) return null;
+	const cle = cleSlhDuTour(tour.id);
+	const v = cle ? verifierSignatureSlhDuJournal(await octets(`/empreintes/${nom}`), racine, await octets(`/empreintes/${cle.fichier}`), cle.empreinte) : { ok: false };
+	return { ...v, nom };
+}
+
 /** L'horodatage qualifie qui couvre le tour : le premier a partir de lui, relu contre sa racine ; null sans. */
 async function horodatageDu(id) {
 	const tour = tourHorodate(await lesTours(), id);
@@ -54,8 +64,9 @@ async function constat(empreinte, vu) {
 	const place = await placeDuFichier(releve, empreinte);
 	const tour = (await lesTours()).find((t) => t.id === vu.premier);
 	const signature = tour ? await signatureDe(tour, releve.racine) : null;
+	const signatureSlh = tour ? await signatureSlhDe(tour, releve.racine) : null;
 	const horodatage = await horodatageDu(vu.premier);
-	const ok = place?.ok && signature?.ok !== false && horodatage?.ok !== false;
+	const ok = place?.ok && signature?.ok !== false && signatureSlh?.ok !== false && horodatage?.ok !== false;
 	const preuves = (tour?.fichiers ?? [])
 		.filter((f) => f.endsWith('.ots') || f.endsWith('.tsr'))
 		.map((f) => `<a href="/empreintes/${f}">${f.endsWith('.ots') ? t.preuveOts : t.horodatageTsr}</a>`)
@@ -72,6 +83,7 @@ async function constat(empreinte, vu) {
 <div><dt>Bitcoin</dt><dd>${ancrage(tour)} ${preuves}</dd></div>
 ${horodatage ? `<div><dt>${t.horodatage}</dt><dd><a href="/empreintes/${horodatage.nom}">${horodatage.ok ? t.horodatageValide(T.instant(horodatage.instant)) : t.signatureNonConforme}</a></dd></div>` : ''}
 ${signature ? `<div><dt>${t.signature}</dt><dd><a href="/empreintes/${signature.nom}">${signature.ok ? t.signatureValide : t.signatureNonConforme}</a></dd></div>` : ''}
+${signatureSlh ? `<div><dt>${t.signaturePq}</dt><dd><a href="/empreintes/${signatureSlh.nom}">${signatureSlh.ok ? t.signatureValide : t.signatureNonConforme}</a></dd></div>` : ''}
 </dl>
 </details>
 </article>`;
@@ -239,10 +251,11 @@ $('chaine')?.addEventListener('click', async () => {
 			surTour: (id) => (sortie.innerHTML = `<p>${t.tour(T.heure(id))}</p>`)
 		});
 		const s = await verifierSignatures(await lesTours(), async (chemin) => (await fetch(chemin)).text());
+		const pq = await verifierSignaturesSlh(await lesTours(), octets);
 		const h = await verifierHorodatages(await lesTours(), octets);
-		const raisons = [...v.raisons, ...s.raisons, ...h.raisons];
+		const raisons = [...v.raisons, ...s.raisons, ...pq.raisons, ...h.raisons];
 		sortie.innerHTML = raisons.length === 0
-			? `<article class="ok"><h2>${t.intacte(v.tours)}</h2><p>${t.signatures(s.signees)}</p><p>${t.horodatages(h.horodates)}</p><p>${t.derniere} <code class="racine">${v.derniere}</code></p></article>`
+			? `<article class="ok"><h2>${t.intacte(v.tours)}</h2><p>${t.signatures(s.signees)}</p>${pq.signees ? `<p>${t.signaturesPq(pq.signees)}</p>` : ''}<p>${t.horodatages(h.horodates)}</p><p>${t.derniere} <code class="racine">${v.derniere}</code></p></article>`
 			: `<article class="ko"><h2>${t.rompue}</h2><ul>${raisons.map((r) => `<li>${echapper(r)}</li>`).join('')}</ul></article>`;
 	} catch (erreur) {
 		sortie.innerHTML = `<article class="ko"><h2>${T.erreur}</h2><p>${echapper(erreur.message)}</p></article>`;

@@ -97,6 +97,8 @@ const TEXTES = {
 		autorite: { fr: 'Autorité', de: 'Aussteller' },
 		inscrite: { fr: (nom, pays) => `${nom}, inscrite sur la liste de confiance européenne (${pays})`, de: (nom, pays) => `${nom}, eingetragen in der europäischen Vertrauensliste (${pays})` },
 		signatures: { fr: (n) => `${n} signatures du journal valides`, de: (n) => `${n} gültige Signaturen des Journals` },
+		signaturePq: { fr: 'Signature post-quantique', de: 'Post-Quanten-Signatur' },
+		signaturesPq: { fr: (n) => `${n} signatures post-quantiques valides`, de: (n) => `${n} gültige Post-Quanten-Signaturen` },
 		horodatage: { fr: 'Horodatage eIDAS', de: 'eIDAS-Zeitstempel' },
 		horodatageValide: { fr: (h) => `valide, ${h}`, de: (h) => `gültig, ${h}` },
 		horodatages: { fr: (n) => `${n} horodatages eIDAS valides`, de: (n) => `${n} gültige eIDAS-Zeitstempel` },

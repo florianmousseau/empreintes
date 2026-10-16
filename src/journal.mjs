@@ -1,11 +1,13 @@
 // Ce que la surface tire des fichiers du journal : la liste des tours,
 // l'index des empreintes et le verdict de fraicheur. Pur : ni disque, ni reseau.
 
+import { CLES_SLH_DU_JOURNAL, toursSansSignatureSlh } from './slh.mjs';
+
 /** Un identifiant de tour, tel que l'entrepot le nomme. */
 export const ID_DE_TOUR = /^\d{8}T\d{6}Z$/;
 
 /** Les fichiers du journal qui se publient ; tout le reste (cache, .bak) reste chez l'entrepot. */
-export const FICHIER_PUBLIE = /^(\d{8}T\d{6}Z\.(json|racine|racine\.ots|racine\.tsr|racine\.jws)|ancrages\.json|depots\.jsonl)$/;
+export const FICHIER_PUBLIE = /^(\d{8}T\d{6}Z\.(json|racine|racine\.ots|racine\.tsr|racine\.jws|racine\.slh)|cle-slh-dsa(-\d+)?\.pub|ancrages\.json|depots\.jsonl)$/;
 
 /** Une preuve d'objet publiee par l'entrepot : `preuves/<sha256>.json`. */
 export const PREUVE_PUBLIEE = /^[0-9a-f]{64}\.json$/;
@@ -76,7 +78,7 @@ export const SEUIL_HORODATAGE_H = 36;
  * Une copie SUSPENDUE de propos delibere ne lit plus l'age ni les ancrages, qui
  * ne bougent plus par construction : un seul constat, `attention`, qui la nomme.
  */
-export function verdict(tours, maintenant = new Date(), copie = null) {
+export function verdict(tours, maintenant = new Date(), copie = null, clesSlh = CLES_SLH_DU_JOURNAL) {
 	if (tours.length === 0) return { alerte: 'rouge', constats: ['aucun tour publie'] };
 	if (copie?.etat === 'suspendue') {
 		return { alerte: 'attention', constats: [`copie du journal suspendue depuis le ${copie.depuis} : dernier tour publie ${tours.at(-1).id}`] };
@@ -103,6 +105,11 @@ export function verdict(tours, maintenant = new Date(), copie = null) {
 	if (ageHorodatage > SEUIL_HORODATAGE_H) {
 		monter('attention');
 		constats.push(`dernier horodatage qualifie ${horodate.id}, il y a ${Math.round(ageHorodatage)} h`);
+	}
+	const sansSlh = toursSansSignatureSlh(tours, clesSlh);
+	if (sansSlh.length) {
+		monter('attention');
+		constats.push(`${sansSlh.length} tour(s) sans signature post-quantique, dernier ${sansSlh.at(-1).id}`);
 	}
 	return { alerte, constats };
 }

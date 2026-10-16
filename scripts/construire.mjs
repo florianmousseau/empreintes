@@ -85,6 +85,6 @@ ecrire('disparus.html', pageDisparus({ entrees, sites }));
 ecrire('disparus.xml', fluxDisparus(entrees));
 for (const { site } of sites) ecrire(`${cheminDuSite(site).slice(1)}.html`, pageDisparusDuSite({ site, entrees: entrees.filter((d) => d.site === site) }));
 for (const b of BESOINS) ecrire(`${b.chemin.slice(1)}.html`, pageBesoin(b));
-for (const m of ['chaine.mjs', 'horodatage.mjs', 'depot.mjs', 'acte.mjs', 'personne.mjs', 'annuaire.mjs', 'affichage.mjs', 'origine.mjs', 'serie.mjs']) ecrire(m, fs.readFileSync(path.join(RACINE, 'src', m)));
+for (const m of ['chaine.mjs', 'horodatage.mjs', 'slh.mjs', 'depot.mjs', 'acte.mjs', 'personne.mjs', 'annuaire.mjs', 'affichage.mjs', 'origine.mjs', 'serie.mjs']) ecrire(m, fs.readFileSync(path.join(RACINE, 'src', m)));
 for (const f of fs.readdirSync(path.join(RACINE, 'public'))) ecrire(f, fs.readFileSync(path.join(RACINE, 'public', f)));
 console.log(`${tours.length} tours, ${fichiers.length} fichiers du journal, ${preuves.length} preuves, ${entrees.length} disparus, dist/ ecrit`);
