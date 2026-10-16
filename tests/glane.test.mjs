@@ -154,13 +154,14 @@ import { aRelire, issueDeRelecture } from '../src/glane.mjs';
 
 test('la glane relit ses actes les plus anciennement lus, apres leur delai, quand elle sait les redemander', () => {
 	const pdfs = {
-		a: { jour: '2026-10-16', id: 'r1', code: '17133', nature: 'deliberation' },
-		b: { jour: '2026-10-08', id: 'r2', code: '17133', nature: 'arrete', relu: '2026-10-09' },
-		c: { jour: '2026-10-02', id: 'r3', code: '17133', nature: 'deliberation' },
+		a: { jour: '2026-10-16', id: 'r1', code: '17133', nature: 'deliberation', libelle: 'PV' },
+		b: { jour: '2026-10-08', id: 'r2', code: '17133', nature: 'arrete', libelle: 'Arrete', relu: '2026-10-09' },
+		c: { jour: '2026-10-02', id: 'r3', code: '17133', nature: 'deliberation', libelle: 'PV' },
 		d: { jour: '2026-10-01', id: 'r4', code: '17133' },
+		h: { jour: '2026-10-01', id: 'r8', code: '17133', nature: 'deliberation' },
 		e: { jour: '2026-10-01', statut: 422, essais: 1 },
 		f: { jour: '2026-10-01', id: 'r6', nature: 'deliberation' },
-		g: { jour: '2026-10-09', id: 'r7', code: '17133', nature: 'decision', relu: '2026-10-16' }
+		g: { jour: '2026-10-09', id: 'r7', code: '17133', nature: 'decision', libelle: 'Decision', relu: '2026-10-16' }
 	};
 	assert.deepEqual(aRelire(pdfs, { jour: '2026-10-16', jours: 7, max: 10 }).map(([u]) => u), ['c', 'b']);
 	assert.deepEqual(aRelire(pdfs, { jour: '2026-10-16', jours: 7, max: 1 }).map(([u]) => u), ['c']);
@@ -175,5 +176,6 @@ test('la reponse du service a une relecture dit le meme document, une version no
 	assert.equal(issueDeRelecture(422, { details: ['la source a repondu 4040'] }), 'illisible');
 	assert.equal(issueDeRelecture(422, { details: ['la source a repondu 500'] }), 'illisible');
 	assert.equal(issueDeRelecture(422), 'illisible');
+	assert.equal(issueDeRelecture(400, { erreur: 'demande illisible' }), 'illisible', 'une demande refusee ne garde pas la tete de la file');
 	for (const s of [409, 429, 500, 503]) assert.equal(issueDeRelecture(s), null);
 });
