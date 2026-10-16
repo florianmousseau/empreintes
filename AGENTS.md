@@ -35,6 +35,13 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   qu'elle signe : tant que la liste est vide rien n'est exige ; ensuite `/health`
   passe `attention` sur tout tour couvert sans sa signature. Une cle nouvelle
   s'ajoute (`cle-slh-dsa-<n>.pub`), l'ancienne reste.
+- Le cahier imprime d'un trimestre (D-201, depot legal) : `node scripts/cahier.mjs
+  [--trimestre 2026-T4] [--issn ...]` ecrit `dist/cahiers/<trimestre>.pdf`, A5,
+  une ligne par tour (instant UTC, racine en huit groupes), couverture avec
+  premiere et derniere racine et les empreintes du signataire. Le PDF est ecrit a
+  la main (`src/cahier.mjs`, polices standard en WinAnsi) et ne porte aucune date
+  de fabrication : le meme trimestre rend les memes octets. Le cahier 1 est le
+  4e trimestre 2026.
 - Rien que des empreintes : `FICHIER_PUBLIE` fixe ce qui se publie de
   `donnees/empreintes/`.
 - Une page affiche, elle n'explique pas ; deux-points soudes (` `),
