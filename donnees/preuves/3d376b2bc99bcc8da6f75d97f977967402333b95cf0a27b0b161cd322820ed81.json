@@ -1,0 +1,179 @@
+{
+ "service": {
+  "nom": "entrepot",
+  "prestataire": "Florian Mousseau",
+  "adresse": "https://florianmousseau.com",
+  "algorithme": "sha256"
+ },
+ "produite": "2026-10-16T10:44:04.779Z",
+ "operation": "existence et integrite d un objet de l archive",
+ "objet": {
+  "cle": "corpus-truecopy/0d0c7dce421969dfd6f9",
+  "chemin": "documents/corpus-truecopy/0d0c7dce421969dfd6f9.pdf",
+  "jour": "2026-10-16",
+  "sha256": "3d376b2bc99bcc8da6f75d97f977967402333b95cf0a27b0b161cd322820ed81",
+  "sha256Range": "3d376b2bc99bcc8da6f75d97f977967402333b95cf0a27b0b161cd322820ed81",
+  "octetsBruts": 3844204,
+  "octetsRanges": 3844204,
+  "integrite": null
+ },
+ "premierTour": {
+  "id": "20261016T101644Z",
+  "debut": "2026-10-16T10:16:44.763Z",
+  "feuille": {
+   "cle": "corpus-truecopy/0d0c7dce421969dfd6f9",
+   "sha256": "3d376b2bc99bcc8da6f75d97f977967402333b95cf0a27b0b161cd322820ed81",
+   "jour": "2026-10-16"
+  },
+  "index": 1959,
+  "empreinte": "c89bcc89102aaf3a4a3b500b7c8c7d0f517f326af6813e27a3e8c49dfedbb0df",
+  "chemin": [
+   {
+    "cote": "gauche",
+    "empreinte": "d7ee357016d2cf1b0e06bc8548fb2a37c6f75f11aeb54824fb4812588c62ba50"
+   },
+   {
+    "cote": "gauche",
+    "empreinte": "5bb4ad1cb6cd8aa0ce4a902d177038cbc86371a60d7b4876147c94724ca183c5"
+   },
+   {
+    "cote": "gauche",
+    "empreinte": "808fbd1597764ad93fe369066741b2e1895e07c4fce9d60f15c9e54c65f0aae4"
+   },
+   {
+    "cote": "droite",
+    "empreinte": "6b094a52311e7865089820c1a67a6d0727b8fa8b49e93d4d926f4136f888e0b6"
+   },
+   {
+    "cote": "droite",
+    "empreinte": "3e2b50d0b54b1915ef99c87547e3e02089544d332eb440ee7fd25b95cfd8caeb"
+   },
+   {
+    "cote": "gauche",
+    "empreinte": "5a7fd83d87affad9550d21f57db69c094d99078cceb40d02be07dff05cb3fed8"
+   },
+   {
+    "cote": "droite",
+    "empreinte": "5229ccc1daa9a3f27f4379918f16c5b6d0cf53b036e89144ca43f31726be7af7"
+   },
+   {
+    "cote": "gauche",
+    "empreinte": "6dda74cdcb0a211d1b7fb94067d91b4e8aa0cc8e7edda9225cddc2002acdefd4"
+   },
+   {
+    "cote": "gauche",
+    "empreinte": "ce97cd115b1401f7e618029a92774bc287856c4460981e6378467791bc77edad"
+   },
+   {
+    "cote": "gauche",
+    "empreinte": "4b3df78471709365dc4ba499e77eeb877593902a4737a5ecbf8e9661b13f08f8"
+   },
+   {
+    "cote": "gauche",
+    "empreinte": "e02f4a18bc1ef4cb28cd4bf3265cf6f53f5a88b61e7d4f2fc6ede72265dd4906"
+   },
+   {
+    "cote": "droite",
+    "empreinte": "9b7a098c3b62febc671fe59cfbc6da80bf9604e51a4981598d7a59dc341fa1ac"
+   },
+   {
+    "cote": "droite",
+    "empreinte": "4f74766292d982dc16d6c939934b77c4848e28d7824512e76eb613ec03f181b7"
+   }
+  ],
+  "arbre": "b744e9ac67580c6d5009f6cd48ceda8e43b41fae69dcbfd3d97533a709df8309",
+  "precedente": "367ca797a35353e21e404f91a37209d9a84e729539b8cc6e0b77cd32aa278b8a",
+  "racine": "fad0d7d285caae0b813ced2237232a02b99eced6dba0f3c1bcc1b435ab2335f4",
+  "ancrage": {
+   "ots": "calendrier",
+   "bloc": null,
+   "horodatage": {
+    "etat": "deja",
+    "tour": "20261016T041744Z"
+   }
+  },
+  "otsBase64": "AE9wZW5UaW1lc3RhbXBzAABQcm9vZgC/ieLohOiSlAEIUIYWTFE5NKgB12lYT5qmSwuw/knHSCya8I5PqsZWBPXwELQTZDrYwJsWwf/TnFcwlVwI//AIIf2/mbBCQnYI8SDm9ycKXR4sKy79yhXrMvf9tnvBx7+P56QQlkwxtI8BvQjwECmiHMN30cte0RKLvFW9Cp4I8SA+jqU5YKxJ4/5CDFlhKp89lxuaJIXKsj4ykrX8QG1caAjwIBtJRY7AYzNIgHy4zLzqmu1uI4BFDl04K7kPlxtfAHgQCPAg91pwiuWMSTTbI9ot3A7fGuN9VFE4eDuD1+Ora1dsROoI8QRq0f/o8AhdIdQ58j7PyQCD3+MNLvkMjiwraHR0cHM6Ly9ib2IuYnRjLmNhbGVuZGFyLm9wZW50aW1lc3RhbXBzLm9yZ//wEHu1j6hvRs1Ped3xHVRoe5EI8CDuWQuCNTVSoIppg26p+pQuyXJyNEwWbRYahBfq7CTf/AjxIM/ZA946VUleCwQmJzvFg39iuODnfDaCmy9WjpMCtB66CPAgrWHHzBJammNjpUC6dSz/U3T57jciYDCtm61x15inFj8I8QRq0f/n8AjAbi2ZImxGJACD3+MNLvkMjikoaHR0cHM6Ly9maW5uZXkuY2FsZW5kYXIuZXRlcm5pdHl3YWxsLmNvbf/wEIc/YRPDAT0JlaIQBEQMH2sI8CDmXwsQ2LTFTJcZMPJ8BNmTCEhD8c1dNVQzntwUhStdFQjwIE60aVUbwC+f8Y8QZHvSNZAm3NCy3hDhewyJh3GOQNf3CPAgd66EbRstYfNOdwEJNve49KcJMZa8ZOkEt9Bwh3nX4ewI8QRq0f/o8AhLEyRafP9ffgCD3+MNLvkMjiMiaHR0cHM6Ly9idGMuY2FsZW5kYXIuY2F0YWxsYXh5LmNvbfAI3MUHYLpKTQII8BCZdk2ISCLjXtWFKfWtuehrCPEg+ikDO6mgFf+Xkq+vsEZSUrYliXaBne8l2J2L+zZySvkI8SAq2amQ8v2r6kQp1dvGG054xC8Zb94z5y7mo+VcXWSEugjxBGrR/+fwCIQxxjTj5wexAIPf4w0u+QyOLi1odHRwczovL2FsaWNlLmJ0Yy5jYWxlbmRhci5vcGVudGltZXN0YW1wcy5vcmc=",
+  "tsrBase64": null,
+  "signature": "eyJhbGciOiJFUzI1NiIsInR5cCI6Impvc2UiLCJjdHkiOiJ0ZXh0L3BsYWluIiwieDVjIjpbIk1JSUJxRENDQVUrZ0F3SUJBZ0lVYVNrbjZTbVgyWjR4c1FsNFBvVkNJMVJObzF3d0NnWUlLb1pJemowRUF3SXdLakVvTUNZR0ExVUVBd3dmWlc1MGNtVndiM1FnTFNCemFXZHVZWFIxY21VZ1pIVWdhbTkxY201aGJEQWVGdzB5TmpFd01USXhPRFE0TVRGYUZ3MHpOakV3TURreE9EUTRNVEZhTUNveEtEQW1CZ05WQkFNTUgyVnVkSEpsY0c5MElDMGdjMmxuYm1GMGRYSmxJR1IxSUdwdmRYSnVZV3d3V1RBVEJnY3Foa2pPUFFJQkJnZ3Foa2pPUFFNQkJ3TkNBQVFjLzFaZFdCSS9tK1NTSTVRTVFiRVhOaWYvY0pnVW9BYlI0bnAzcjhzYUpFU2dBUjg4Um9UMHVIRlZITHJ3aFNpQ0d3YmJ5L1F2WjNWUkJVOFZYajhSbzFNd1VUQWRCZ05WSFE0RUZnUVVyc1V4K3VpR2xWdGdMc1ZiQUthY3ZYQ1ZCSWN3SHdZRFZSMGpCQmd3Rm9BVXJzVXgrdWlHbFZ0Z0xzVmJBS2FjdlhDVkJJY3dEd1lEVlIwVEFRSC9CQVV3QXdFQi96QUtCZ2dxaGtqT1BRUURBZ05IQURCRUFpQmRNcWNBcVVodHA4aXIvM3FLb3VlVHRiRWRIMXdLNXJTTE95MFUrMm1MRXdJZ1UvSXh6dG9MVWNkcXpHUzRwejY1WGVDZll4M0VkcGEyWitMeHo4ZnBaN0U9Il0sIng1dCNTMjU2IjoiVW1QLXVsX0hIRWNseVRNb3dNZGFsUHhPRzJNcnVmOEJWMEk1VlJxelM0QSIsInNpZ1QiOiIyMDI2LTEwLTE2VDEwOjQzOjQ5WiIsImNyaXQiOlsic2lnVCJdfQ.ZmFkMGQ3ZDI4NWNhYWUwYjgxM2NlZDIyMzcyMzJhMDJiOTllY2VkNmRiYTBmM2MxYmNjMWI0MzVhYjIzMzVmNA.dPWmNaTHakuMOBKvcxblWOBt6yZf8jB2jf3fuMoT6sxogm9xifiQyYBNPVO5uamrpcLlWEAJQ5XHnhP9x6-b2Q"
+ },
+ "dernierTour": {
+  "id": "20261016T101644Z",
+  "debut": "2026-10-16T10:16:44.763Z",
+  "feuille": {
+   "cle": "corpus-truecopy/0d0c7dce421969dfd6f9",
+   "sha256": "3d376b2bc99bcc8da6f75d97f977967402333b95cf0a27b0b161cd322820ed81",
+   "jour": "2026-10-16"
+  },
+  "index": 1959,
+  "empreinte": "c89bcc89102aaf3a4a3b500b7c8c7d0f517f326af6813e27a3e8c49dfedbb0df",
+  "chemin": [
+   {
+    "cote": "gauche",
+    "empreinte": "d7ee357016d2cf1b0e06bc8548fb2a37c6f75f11aeb54824fb4812588c62ba50"
+   },
+   {
+    "cote": "gauche",
+    "empreinte": "5bb4ad1cb6cd8aa0ce4a902d177038cbc86371a60d7b4876147c94724ca183c5"
+   },
+   {
+    "cote": "gauche",
+    "empreinte": "808fbd1597764ad93fe369066741b2e1895e07c4fce9d60f15c9e54c65f0aae4"
+   },
+   {
+    "cote": "droite",
+    "empreinte": "6b094a52311e7865089820c1a67a6d0727b8fa8b49e93d4d926f4136f888e0b6"
+   },
+   {
+    "cote": "droite",
+    "empreinte": "3e2b50d0b54b1915ef99c87547e3e02089544d332eb440ee7fd25b95cfd8caeb"
+   },
+   {
+    "cote": "gauche",
+    "empreinte": "5a7fd83d87affad9550d21f57db69c094d99078cceb40d02be07dff05cb3fed8"
+   },
+   {
+    "cote": "droite",
+    "empreinte": "5229ccc1daa9a3f27f4379918f16c5b6d0cf53b036e89144ca43f31726be7af7"
+   },
+   {
+    "cote": "gauche",
+    "empreinte": "6dda74cdcb0a211d1b7fb94067d91b4e8aa0cc8e7edda9225cddc2002acdefd4"
+   },
+   {
+    "cote": "gauche",
+    "empreinte": "ce97cd115b1401f7e618029a92774bc287856c4460981e6378467791bc77edad"
+   },
+   {
+    "cote": "gauche",
+    "empreinte": "4b3df78471709365dc4ba499e77eeb877593902a4737a5ecbf8e9661b13f08f8"
+   },
+   {
+    "cote": "gauche",
+    "empreinte": "e02f4a18bc1ef4cb28cd4bf3265cf6f53f5a88b61e7d4f2fc6ede72265dd4906"
+   },
+   {
+    "cote": "droite",
+    "empreinte": "9b7a098c3b62febc671fe59cfbc6da80bf9604e51a4981598d7a59dc341fa1ac"
+   },
+   {
+    "cote": "droite",
+    "empreinte": "4f74766292d982dc16d6c939934b77c4848e28d7824512e76eb613ec03f181b7"
+   }
+  ],
+  "arbre": "b744e9ac67580c6d5009f6cd48ceda8e43b41fae69dcbfd3d97533a709df8309",
+  "precedente": "367ca797a35353e21e404f91a37209d9a84e729539b8cc6e0b77cd32aa278b8a",
+  "racine": "fad0d7d285caae0b813ced2237232a02b99eced6dba0f3c1bcc1b435ab2335f4",
+  "ancrage": {
+   "ots": "calendrier",
+   "bloc": null,
+   "horodatage": {
+    "etat": "deja",
+    "tour": "20261016T041744Z"
+   }
+  },
+  "otsBase64": "AE9wZW5UaW1lc3RhbXBzAABQcm9vZgC/ieLohOiSlAEIUIYWTFE5NKgB12lYT5qmSwuw/knHSCya8I5PqsZWBPXwELQTZDrYwJsWwf/TnFcwlVwI//AIIf2/mbBCQnYI8SDm9ycKXR4sKy79yhXrMvf9tnvBx7+P56QQlkwxtI8BvQjwECmiHMN30cte0RKLvFW9Cp4I8SA+jqU5YKxJ4/5CDFlhKp89lxuaJIXKsj4ykrX8QG1caAjwIBtJRY7AYzNIgHy4zLzqmu1uI4BFDl04K7kPlxtfAHgQCPAg91pwiuWMSTTbI9ot3A7fGuN9VFE4eDuD1+Ora1dsROoI8QRq0f/o8AhdIdQ58j7PyQCD3+MNLvkMjiwraHR0cHM6Ly9ib2IuYnRjLmNhbGVuZGFyLm9wZW50aW1lc3RhbXBzLm9yZ//wEHu1j6hvRs1Ped3xHVRoe5EI8CDuWQuCNTVSoIppg26p+pQuyXJyNEwWbRYahBfq7CTf/AjxIM/ZA946VUleCwQmJzvFg39iuODnfDaCmy9WjpMCtB66CPAgrWHHzBJammNjpUC6dSz/U3T57jciYDCtm61x15inFj8I8QRq0f/n8AjAbi2ZImxGJACD3+MNLvkMjikoaHR0cHM6Ly9maW5uZXkuY2FsZW5kYXIuZXRlcm5pdHl3YWxsLmNvbf/wEIc/YRPDAT0JlaIQBEQMH2sI8CDmXwsQ2LTFTJcZMPJ8BNmTCEhD8c1dNVQzntwUhStdFQjwIE60aVUbwC+f8Y8QZHvSNZAm3NCy3hDhewyJh3GOQNf3CPAgd66EbRstYfNOdwEJNve49KcJMZa8ZOkEt9Bwh3nX4ewI8QRq0f/o8AhLEyRafP9ffgCD3+MNLvkMjiMiaHR0cHM6Ly9idGMuY2FsZW5kYXIuY2F0YWxsYXh5LmNvbfAI3MUHYLpKTQII8BCZdk2ISCLjXtWFKfWtuehrCPEg+ikDO6mgFf+Xkq+vsEZSUrYliXaBne8l2J2L+zZySvkI8SAq2amQ8v2r6kQp1dvGG054xC8Zb94z5y7mo+VcXWSEugjxBGrR/+fwCIQxxjTj5wexAIPf4w0u+QyOLi1odHRwczovL2FsaWNlLmJ0Yy5jYWxlbmRhci5vcGVudGltZXN0YW1wcy5vcmc=",
+  "tsrBase64": null,
+  "signature": "eyJhbGciOiJFUzI1NiIsInR5cCI6Impvc2UiLCJjdHkiOiJ0ZXh0L3BsYWluIiwieDVjIjpbIk1JSUJxRENDQVUrZ0F3SUJBZ0lVYVNrbjZTbVgyWjR4c1FsNFBvVkNJMVJObzF3d0NnWUlLb1pJemowRUF3SXdLakVvTUNZR0ExVUVBd3dmWlc1MGNtVndiM1FnTFNCemFXZHVZWFIxY21VZ1pIVWdhbTkxY201aGJEQWVGdzB5TmpFd01USXhPRFE0TVRGYUZ3MHpOakV3TURreE9EUTRNVEZhTUNveEtEQW1CZ05WQkFNTUgyVnVkSEpsY0c5MElDMGdjMmxuYm1GMGRYSmxJR1IxSUdwdmRYSnVZV3d3V1RBVEJnY3Foa2pPUFFJQkJnZ3Foa2pPUFFNQkJ3TkNBQVFjLzFaZFdCSS9tK1NTSTVRTVFiRVhOaWYvY0pnVW9BYlI0bnAzcjhzYUpFU2dBUjg4Um9UMHVIRlZITHJ3aFNpQ0d3YmJ5L1F2WjNWUkJVOFZYajhSbzFNd1VUQWRCZ05WSFE0RUZnUVVyc1V4K3VpR2xWdGdMc1ZiQUthY3ZYQ1ZCSWN3SHdZRFZSMGpCQmd3Rm9BVXJzVXgrdWlHbFZ0Z0xzVmJBS2FjdlhDVkJJY3dEd1lEVlIwVEFRSC9CQVV3QXdFQi96QUtCZ2dxaGtqT1BRUURBZ05IQURCRUFpQmRNcWNBcVVodHA4aXIvM3FLb3VlVHRiRWRIMXdLNXJTTE95MFUrMm1MRXdJZ1UvSXh6dG9MVWNkcXpHUzRwejY1WGVDZll4M0VkcGEyWitMeHo4ZnBaN0U9Il0sIng1dCNTMjU2IjoiVW1QLXVsX0hIRWNseVRNb3dNZGFsUHhPRzJNcnVmOEJWMEk1VlJxelM0QSIsInNpZ1QiOiIyMDI2LTEwLTE2VDEwOjQzOjQ5WiIsImNyaXQiOlsic2lnVCJdfQ.ZmFkMGQ3ZDI4NWNhYWUwYjgxM2NlZDIyMzcyMzJhMDJiOTllY2VkNmRiYTBmM2MxYmNjMWI0MzVhYjIzMzVmNA.dPWmNaTHakuMOBKvcxblWOBt6yZf8jB2jf3fuMoT6sxogm9xifiQyYBNPVO5uamrpcLlWEAJQ5XHnhP9x6-b2Q"
+ },
+ "recalcul": null
+}
