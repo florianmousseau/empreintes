@@ -1,0 +1,41 @@
+// La liste d'attente d'une offre pas encore ouverte (D-200) : une adresse
+// electronique, le profil de qui attend, le jour. Rien d'autre n'est garde :
+// ni adresse IP, ni cookie. La reponse est la meme pour une adresse nouvelle et
+// pour une adresse deja inscrite, pour ne rien dire de qui attend deja.
+
+/** Les offres qui tiennent une liste d'attente, par leur nom dans la table. */
+export const OFFRES = ['marches-publics'];
+
+/** Qui attend : la valeur du formulaire, et ce que la page de reponse en dit. */
+export const PROFILS = { entreprise: 'Entreprise qui répond aux marchés', acheteur: 'Collectivité ou acheteur public', autre: 'Autre' };
+
+/** Au-dela, une offre refuse les inscriptions du jour : un robot ne remplit pas la table. */
+export const PLAFOND_DU_JOUR = 200;
+
+const ADRESSE = /^[^\s@<>"',;]{1,64}@[^\s@<>"',;]+\.[^\s@<>"',;]{2,}$/;
+
+/** L'inscription lue dans le formulaire, ou la raison de son refus. */
+export function lireInscription(champs) {
+	const adresse = String(champs.adresse ?? '')
+		.trim()
+		.toLowerCase();
+	// Le champ `site` est cache aux personnes : rempli, c'est un robot, qui recoit la meme reponse qu'une inscription.
+	if (champs.site) return { robot: true };
+	if (!OFFRES.includes(champs.offre)) return { refus: 'offre' };
+	if (adresse.length > 254 || !ADRESSE.test(adresse)) return { refus: 'adresse' };
+	return { offre: champs.offre, adresse, profil: Object.hasOwn(PROFILS, champs.profil) ? champs.profil : 'autre' };
+}
+
+/** Inscrit une adresse sur la liste d'une offre : `inscrit`, ou `plafond` quand le jour est plein. */
+export async function inscrire(db, { offre, adresse, profil }, jour) {
+	const { n } = await db.prepare('SELECT COUNT(*) AS n FROM attente WHERE offre = ? AND jour = ?').bind(offre, jour).first();
+	if (n >= PLAFOND_DU_JOUR) return 'plafond';
+	await db.prepare('INSERT INTO attente (offre, adresse, profil, jour) VALUES (?, ?, ?, ?) ON CONFLICT (offre, adresse) DO NOTHING').bind(offre, adresse, profil, jour).run();
+	return 'inscrit';
+}
+
+/** Le nombre d'adresses qui attendent, par offre, pour la sonde. */
+export async function comptesDAttente(db) {
+	const { results } = await db.prepare('SELECT offre, COUNT(*) AS n FROM attente GROUP BY offre').all();
+	return Object.fromEntries(OFFRES.map((o) => [o, Number(results.find((r) => r.offre === o)?.n ?? 0)]));
+}

@@ -1,0 +1,70 @@
+// L'offre des marches publics (D-200), preparee sans prix : ce qu'un acheteur
+// public a demande la derniere fois. L'entrepot garde le reglement de chaque
+// consultation nouvelle publiee au BOAMP sur une plateforme Atexo ; la page en
+// montre un echantillon : l'acheteur, l'objet, le jour de l'avis, les criteres
+// lus dans le reglement, le lien de l'avis. Archiver n'est pas republier : aucun
+// dossier n'est servi.
+
+export const CHEMIN_OFFRE_MARCHES = '/marches-publics';
+
+/** L'avis au BOAMP, par son numero : la seule adresse publique qui reste apres la cloture. */
+export const lienDeLAvis = (numero) => `https://www.boamp.fr/pages/avis/?q=idweb:${numero}`;
+
+/** Ce que la capture tenait au jour de la page (entrepot, `serie.jsonl` du 16/10/2026). */
+export const COUVERTURE = { au: '2026-10-16', depuis: '2026-10-13', consultations: 252, reglements: 183 };
+
+/**
+ * L'echantillon : six consultations de communes et d'intercommunalites, prises
+ * au vol. Les criteres sont lus dans le reglement garde (son sha256 en tete) ;
+ * ils se disent en phrase, jamais recopies.
+ */
+export const ECHANTILLON = [
+	{
+		acheteur: 'Ville de Nevers',
+		objet: 'Fourniture et livraison de signalisation routière verticale',
+		jour: '2026-10-13',
+		boamp: '26-98309',
+		reglement: '0305306ed23e41cd0011353c97fb81861e1e602ed55a24c1b5ff4749aa8975c1',
+		criteres: 'Le prix compte pour 50 points sur 100, la valeur technique pour 40 et la performance environnementale pour 10.'
+	},
+	{
+		acheteur: 'Commune de Saint-Jean-de-Luz',
+		objet: 'Marché public d’assurances',
+		jour: '2026-10-13',
+		boamp: '26-98442',
+		reglement: '9cf8200b1e0f62e6bfa8518aceb9064ac470d89d5f2b7f996c976dfeba2d0ad0',
+		criteres: 'Les garanties comptent pour 45 points sur 100, le prix pour 40, la gestion du contrat et des sinistres pour 10 et l’environnement pour 5.'
+	},
+	{
+		acheteur: 'Commune de Saint-Médard-en-Jalles',
+		objet: 'Aménagement d’un terrain de football en gazon synthétique',
+		jour: '2026-10-13',
+		boamp: '26-98922',
+		reglement: '391533029e5557446f2d0d2d748959ee7e150d440be34ef7caac12aa3ab50560',
+		criteres: 'La valeur technique compte pour 60 points sur 100, dont 30 pour la qualité des fournitures, et le prix pour 40.'
+	},
+	{
+		acheteur: 'Grand Verdun',
+		objet: 'Maintenance de l’éclairage public',
+		jour: '2026-10-14',
+		boamp: '26-98905',
+		reglement: 'dc742dda0ebd878db273771527c7786347ad0bbc0f06e92c10d8c8029056fed7',
+		criteres: 'La valeur technique compte pour 60 points sur 100, dont 40 pour la méthodologie, et le prix pour 40.'
+	},
+	{
+		acheteur: 'Commune de Châtillon-sur-Seine',
+		objet: 'Entretien des espaces verts de la ville',
+		jour: '2026-10-15',
+		boamp: '26-100050',
+		reglement: '41d6b47740de3e88bbaa611b85e30cb473aff8b58a8b7b0b5e8cc01e7b8383b9',
+		criteres: 'La valeur technique compte pour 60 % de la note et le prix pour 40 %.'
+	},
+	{
+		acheteur: 'Lorient Agglomération',
+		objet: 'Fourniture de carburants par cartes accréditives',
+		jour: '2026-10-15',
+		boamp: '26-99292',
+		reglement: '7f4ed68317eec00f5fb66927e9eeae5ede877bee2f1906b45cadd9bf8b49c363',
+		criteres: 'Le prix compte pour 65 % de la note, la valeur technique pour 30 % et la valeur environnementale pour 5 %.'
+	}
+];

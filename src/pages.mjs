@@ -8,6 +8,8 @@ import { nomDuDepartement } from './departements.mjs';
 import { BESOINS } from './besoins.mjs';
 import { EDITIONS, cheminsDe, planDe } from './edition.mjs';
 import { ADRESSES, FORMULES } from './documentation.mjs';
+import { CHEMIN_OFFRE_MARCHES, COUVERTURE, ECHANTILLON, lienDeLAvis } from './offre.mjs';
+import { PROFILS } from './attente.mjs';
 
 const NBSP = '\u00A0';
 const DEPOT = 'https://github.com/temoinpublic/empreintes';
@@ -1002,5 +1004,83 @@ ${table(['Adresse', 'Champ', 'Valeur'], s.API.map(([adresse, champ, porte]) => [
 <ul>
 <li><a href="${EDITIONS.fr.adresse}/sitemap-actes.xml">${EDITIONS.fr.adresse}</a></li>
 </ul>`
+	});
+}
+
+/* ------------------------------------------------------------ l'offre des marches publics (D-200) */
+
+/** Le formulaire de la liste d'attente : l'adresse, le profil, un champ cache aux personnes ; sans script. */
+const formulaireDAttente = (offre) => `<form method="post" action="/api/attente" class="carte">
+<h2>Être prévenu à l’ouverture</h2>
+<p class="recoit">L’offre n’est pas encore ouverte. Laissez votre adresse${NBSP}: vous recevrez un seul message, le jour où elle ouvre.</p>
+<input type="hidden" name="offre" value="${offre}">
+<label for="adresse">Adresse électronique</label>
+<input type="email" id="adresse" name="adresse" autocomplete="email" maxlength="254" required>
+<fieldset class="profils">
+<legend>Vous êtes</legend>
+${Object.entries(PROFILS)
+	.map(([valeur, nom], i) => `<label><input type="radio" name="profil" value="${valeur}"${i ? '' : ' checked'}> ${nom}</label>`)
+	.join('\n')}
+</fieldset>
+<div hidden><label for="site">Ne pas remplir</label><input type="text" id="site" name="site" tabindex="-1" autocomplete="off"></div>
+<button type="submit" class="principal large-bouton">Me prévenir</button>
+<p class="recoit">Votre adresse ne sert qu’à ce message. Elle s’efface sur simple demande à <a href="mailto:contact@florianmousseau.com">contact@florianmousseau.com</a>.</p>
+</form>`;
+
+const ligneDEchantillon = (c) =>
+	`<tr><td>${echapper(c.acheteur)}</td><td>${echapper(c.objet)}</td><td>${jourFr(c.jour)}</td><td>${echapper(c.criteres)}</td><td><a href="${lienDeLAvis(c.boamp)}">BOAMP ${c.boamp}</a></td></tr>`;
+
+/** Ce qu'un acheteur public a demande la derniere fois : l'offre, un echantillon, ce qui est garde, la liste d'attente. Sans prix. */
+export function pageOffreMarches(echantillon = ECHANTILLON, couverture = COUVERTURE) {
+	const jours = echantillon.map((c) => c.jour).sort();
+	return gabarit(EDITIONS.fr, {
+		titre: 'Ce qu’un acheteur public a demandé la dernière fois',
+		description: 'Le règlement de chaque consultation publiée au BOAMP sur une plateforme Atexo, gardé après la clôture et relié à l’avis d’attribution. Liste d’attente ouverte.',
+		chemin: CHEMIN_OFFRE_MARCHES,
+		corps: `<section class="une une-page"><h1>Ce qu’un acheteur public a demandé la dernière fois</h1>
+<p class="chapeau">Le dossier d’une consultation quitte la plateforme de l’acheteur à la clôture. Témoin public garde son règlement et le relie à l’avis d’attribution quand celui-ci paraît.</p></section>
+${formulaireDAttente('marches-publics')}
+<h2>Ce que vous y lirez</h2>
+<ul>
+<li>Le règlement de la consultation tel que l’acheteur l’a publié${NBSP}: les critères et leur poids, les pièces demandées, la durée du marché.</li>
+<li>L’avis d’attribution du BOAMP${NBSP}: le titulaire et le montant, quand l’avis les donne.</li>
+<li>La suite des consultations d’un même acheteur pour un même objet, d’une année sur l’autre.</li>
+</ul>
+<h2>Un échantillon</h2>
+<div class="defile">
+<table>
+<thead><tr><th>Acheteur</th><th>Objet</th><th>Avis du</th><th>Ce que le règlement demande</th><th>Avis</th></tr></thead>
+<tbody>
+${echantillon.map(ligneDEchantillon).join('\n')}
+</tbody>
+</table>
+</div>
+<p class="compte">${nombre(echantillon.length)} consultations prises au vol entre le ${jourFr(jours[0])} et le ${jourFr(jours.at(-1))}. Chaque règlement est gardé tel que la plateforme l’a servi.</p>
+<h2>Ce qui est gardé</h2>
+<p>Témoin public suit les consultations publiées au BOAMP sur une plateforme Atexo, soit environ un avis de marché sur trois. Au ${jourFr(couverture.au)}, il suit ${nombre(couverture.consultations)} consultations depuis le ${jourFr(couverture.depuis)} et garde ${nombre(couverture.reglements)} règlements.</p>
+<p>Le reste du dossier, dont le CCAP et le CCTP, n’est pas encore gardé.</p>
+<p>Le dossier d’un acheteur n’est pas republié${NBSP}: la page en donne l’objet, la date, ce qui est demandé et le lien de l’avis.</p>`
+	});
+}
+
+/** Ce que dit la page de reponse de la liste d'attente, selon l'issue. */
+export const ISSUES_DE_L_ATTENTE = {
+	inscrit: ['Votre adresse est notée', 'Vous recevrez un seul message, le jour où l’offre ouvre.'],
+	adresse: ['Cette adresse ne se lit pas', 'Vérifiez l’adresse électronique et recommencez.'],
+	offre: ['Cette liste n’existe pas', 'Revenez à la page de l’offre et recommencez.'],
+	plafond: ['La liste est pleine pour aujourd’hui', 'Recommencez demain.']
+};
+
+/** La page rendue apres l'envoi du formulaire d'attente ; elle ne s'indexe pas. */
+export function pageAttente(issue) {
+	const [titre, phrase] = ISSUES_DE_L_ATTENTE[issue];
+	return gabarit(EDITIONS.fr, {
+		titre,
+		description: phrase,
+		chemin: CHEMIN_OFFRE_MARCHES,
+		indexer: false,
+		corps: `<h1>${titre}</h1>
+<p>${phrase}</p>
+<p><a class="bouton" href="${CHEMIN_OFFRE_MARCHES}">Revenir à l’offre</a></p>`
 	});
 }
