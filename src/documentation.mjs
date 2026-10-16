@@ -38,6 +38,8 @@ export const ADRESSES = {
 		['tours', 'GET /tours.json'],
 		['releve', 'GET /empreintes/&lt;tour&gt;.json'],
 		['signature', 'GET /empreintes/&lt;tour&gt;.racine.jws'],
+		['signaturePostQuantique', 'GET /empreintes/&lt;tour&gt;.racine.slh'],
+		['clePostQuantique', 'GET /empreintes/cle-slh-dsa.pub'],
 		['depots', 'GET /empreintes/depots.jsonl'],
 		['attestations', 'GET /attestations/par-url.json'],
 		['autorites', 'GET /confiance/autorites.json'],
@@ -55,6 +57,7 @@ export const FORMULES = {
 	recu: '',
 	bitcoin: '<code>ots verify &lt;tour&gt;.racine.ots</code>',
 	signature: '<code>sha256(x5c[0]) = 5263feba5fc71c4725c93328c0c75a94fc4e1b632bb9ff01574239551ab34b80</code>',
+	signaturePostQuantique: '<code>sha256(cle-slh-dsa.pub) = c1eccce60b9e07019b60e86f8c65836332a302f5140e09df54e7c762bc989f9c</code>',
 	signatureDuDeposant: '<code>JAdES, charge utile = empreinte en 64 hex</code>, <code>CAdES, messageDigest = sha256 du document</code>',
 	horodatage: '<code>openssl ts -verify -data &lt;tour&gt;.racine -in &lt;tour&gt;.racine.tsr</code>',
 	script: '<a href="https://github.com/temoinpublic/empreintes/blob/main/scripts/verifier.mjs">node scripts/verifier.mjs &lt;document | --chaine&gt;</a>'

@@ -253,6 +253,14 @@ export const TEXTES = {
 				fr: 'la signature du journal d’un tour\u00A0: JWS compact ES256, la racine en charge utile, <code>x5c</code> épinglé dans la formule ci-dessous',
 				de: 'die Signatur des Journals einer Runde: kompaktes JWS ES256, die Wurzel als Nutzlast, <code>x5c</code> wie in der Formel unten festgelegt'
 			},
+			signaturePostQuantique: {
+				fr: 'la signature post-quantique d’un tour\u00A0: SLH-DSA-SHA2-128s (FIPS 205), 7\u00A0856 octets bruts, sur le texte hexadécimal de la racine',
+				de: 'die Post-Quanten-Signatur einer Runde: SLH-DSA-SHA2-128s (FIPS 205), 7 856 rohe Bytes, über den Hexadezimaltext der Wurzel'
+			},
+			clePostQuantique: {
+				fr: 'la clé publique SLH-DSA du journal, 32 octets bruts, épinglée dans la formule ci-dessous',
+				de: 'der öffentliche SLH-DSA-Schlüssel des Journals, 32 rohe Bytes, wie in der Formel unten festgelegt'
+			},
 			attestations: {
 				fr: 'les documents des listes publiques vus par l’entrepôt\u00A0: adresse, empreinte, premier et dernier jour vu, preuve',
 				de: 'die vom Archiv gesehenen Dokumente der öffentlichen Listen: Adresse, Prüfsumme, erster und letzter Tag, Beweis'
@@ -285,6 +293,7 @@ export const TEXTES = {
 			},
 			bitcoin: { fr: ['Bitcoin'], de: ['Bitcoin'] },
 			signature: { fr: ['signature du journal', '\u00A0; ES256 sur <code>en-tête.charge</code>'], de: ['Signatur des Journals', '; ES256 über <code>Header.Nutzlast</code>'] },
+			signaturePostQuantique: { fr: ['signature post-quantique', '\u00A0; SLH-DSA-SHA2-128s pur, contexte vide, sur la racine en 64 caractères hexadécimaux'], de: ['Post-Quanten-Signatur', '; reines SLH-DSA-SHA2-128s, leerer Kontext, über die Wurzel in 64 Hexadezimalzeichen'] },
 			signatureDuDeposant: {
 				fr: ['signature du déposant', '\u00A0; JAdES\u00A0: ES256, ES384, RS256 ou PS256 sous la clé de <code>x5c[0]</code>, charge jointe ou détachée\u00A0; CAdES\u00A0: un signataire, attributs signés, RSA ou ECDSA\u00A0; certificat valide à l’instant du dépôt'],
 				de: ['Signatur des Einreichers', '; JAdES: ES256, ES384, RS256 oder PS256 unter dem Schlüssel von <code>x5c[0]</code>, Nutzlast angehängt oder abgetrennt; CAdES: ein Unterzeichner, signierte Attribute, RSA oder ECDSA; Zertifikat zum Zeitpunkt der Datierung gültig']
