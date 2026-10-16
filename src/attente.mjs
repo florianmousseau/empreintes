@@ -3,11 +3,20 @@
 // ni adresse IP, ni cookie. La reponse est la meme pour une adresse nouvelle et
 // pour une adresse deja inscrite, pour ne rien dire de qui attend deja.
 
-/** Les offres qui tiennent une liste d'attente, par leur nom dans la table. */
-export const OFFRES = ['marches-publics'];
+/**
+ * Les offres qui tiennent une liste d'attente, par leur nom dans la table, et
+ * qui attend : la valeur du formulaire et son libelle. Le premier profil est
+ * coche par defaut ; `autre` ferme chaque liste (D-200, D-195).
+ */
+export const PROFILS_DES_OFFRES = {
+	'marches-publics': { entreprise: 'Entreprise qui répond aux marchés', acheteur: 'Collectivité ou acheteur public', autre: 'Autre' },
+	communes: { commune: 'Commune ou intercommunalité', prestataire: 'Éditeur ou prestataire des collectivités', autre: 'Autre' }
+};
 
-/** Qui attend : la valeur du formulaire, et ce que la page de reponse en dit. */
-export const PROFILS = { entreprise: 'Entreprise qui répond aux marchés', acheteur: 'Collectivité ou acheteur public', autre: 'Autre' };
+export const OFFRES = Object.keys(PROFILS_DES_OFFRES);
+
+/** L'offre nommee par le formulaire, si elle tient une liste ; sinon rien. */
+export const offreConnue = (offre) => (Object.hasOwn(PROFILS_DES_OFFRES, offre) ? offre : null);
 
 /** Au-dela, une offre refuse les inscriptions du jour : un robot ne remplit pas la table. */
 export const PLAFOND_DU_JOUR = 200;
@@ -21,9 +30,10 @@ export function lireInscription(champs) {
 		.toLowerCase();
 	// Le champ `site` est cache aux personnes : rempli, c'est un robot, qui recoit la meme reponse qu'une inscription.
 	if (champs.site) return { robot: true };
-	if (!OFFRES.includes(champs.offre)) return { refus: 'offre' };
+	const offre = offreConnue(champs.offre);
+	if (!offre) return { refus: 'offre' };
 	if (adresse.length > 254 || !ADRESSE.test(adresse)) return { refus: 'adresse' };
-	return { offre: champs.offre, adresse, profil: Object.hasOwn(PROFILS, champs.profil) ? champs.profil : 'autre' };
+	return { offre, adresse, profil: Object.hasOwn(PROFILS_DES_OFFRES[offre], champs.profil) ? champs.profil : 'autre' };
 }
 
 /** Inscrit une adresse sur la liste d'une offre : `inscrit`, ou `plafond` quand le jour est plein. */

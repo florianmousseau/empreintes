@@ -236,3 +236,10 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   filtre est `src/disparusactes.mjs` (pur) : adresse que `adresseNommante` refuse ou retenue (`RETENUES`, sha256
   de l'adresse, partages avec `disparus.mjs` par `src/retenues.mjs`, sans `node:`) ne parait pas, objet qui
   pourrait nommer ne s'affiche pas ; la preuve est l'adresse perenne de la version d'avant.
+- Les offres pas encore ouvertes (D-195, D-200) : une page statique par milieu, en francais
+  seulement, SANS PRIX (le prix est a Florian) : `/marches-publics`, `/publicite-des-actes`
+  (les communes). Une seule liste d'attente pour toutes : `src/attente.mjs`
+  (`PROFILS_DES_OFFRES`, le nom de l'offre est la cle de la table D1 `attente`), formulaire
+  sans script poste a `/api/attente`, la page de reponse renvoie a son offre
+  (`CHEMINS_DES_OFFRES`, `src/offre.mjs`). Une offre nouvelle s'ajoute aux deux tables, pas
+  a une seconde liste. `/health` compte les adresses par offre.

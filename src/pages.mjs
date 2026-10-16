@@ -8,8 +8,8 @@ import { nomDuDepartement } from './departements.mjs';
 import { BESOINS } from './besoins.mjs';
 import { EDITIONS, cheminsDe, planDe } from './edition.mjs';
 import { ADRESSES, FORMULES } from './documentation.mjs';
-import { CHEMIN_OFFRE_MARCHES, COUVERTURE, ECHANTILLON, lienDeLAvis } from './offre.mjs';
-import { PROFILS } from './attente.mjs';
+import { CHEMIN_OFFRE_COMMUNES, CHEMIN_OFFRE_MARCHES, CHEMINS_DES_OFFRES, COUVERTURE, COUVERTURE_COMMUNES, ECHANTILLON, EXEMPLE_D_ACTE, lienDeLAvis } from './offre.mjs';
+import { PROFILS_DES_OFFRES } from './attente.mjs';
 
 const NBSP = '\u00A0';
 const DEPOT = 'https://github.com/temoinpublic/empreintes';
@@ -420,7 +420,8 @@ ${coupe(serie)}`
 ${tableau}
 <p class="compte">${serie.depuis ? `Actes datés ici depuis le ${jourFr(serie.depuis)}, lus` : 'Actes lus'} sur le site officiel de la commune. ${lien(EDITIONS.fr, 'preuve')}</p>
 <p class="appel">Cette page est celle de votre commune${NBSP}? Datez vos actes le jour de leur mise en ligne.</p>
-<p><a class="bouton principal" href="${ACTES.acte.chemin}">${ACTES.acte.titre}</a></p>`
+<p><a class="bouton principal" href="${ACTES.acte.chemin}">${ACTES.acte.titre}</a></p>
+<p class="recoit">Vos actes pourront se dater seuls, depuis votre outil de publication${NBSP}: <a href="${CHEMIN_OFFRE_COMMUNES}">être prévenu à l’ouverture</a>.</p>`
 	});
 }
 
@@ -1018,7 +1019,7 @@ const formulaireDAttente = (offre) => `<form method="post" action="/api/attente"
 <input type="email" id="adresse" name="adresse" autocomplete="email" maxlength="254" required>
 <fieldset class="profils">
 <legend>Vous êtes</legend>
-${Object.entries(PROFILS)
+${Object.entries(PROFILS_DES_OFFRES[offre])
 	.map(([valeur, nom], i) => `<label><input type="radio" name="profil" value="${valeur}"${i ? '' : ' checked'}> ${nom}</label>`)
 	.join('\n')}
 </fieldset>
@@ -1063,6 +1064,32 @@ ${echantillon.map(ligneDEchantillon).join('\n')}
 	});
 }
 
+/* ------------------------------------------------------------ l'offre des communes (D-195) */
+
+/** Les actes d'une commune dates le jour de leur mise en ligne : l'offre, ce qui existe deja sans compte, la liste d'attente. Sans prix. */
+export function pageOffreCommunes(couverture = COUVERTURE_COMMUNES, exemple = EXEMPLE_D_ACTE) {
+	const titre = 'Les actes de votre commune, datés le jour de leur mise en ligne';
+	return gabarit(EDITIONS.fr, {
+		titre,
+		description: 'Chaque acte publié sur le site de la commune, daté au moment de sa mise en ligne, avec son reçu. Liste d’attente ouverte.',
+		chemin: CHEMIN_OFFRE_COMMUNES,
+		corps: `<section class="une une-page"><h1>${titre}</h1>
+<p class="chapeau">Une commune qui publie ses actes sur son site fait courir le délai de recours du jour de leur mise en ligne. Témoin public date la mise en ligne de chaque acte qu’il lit sur le site officiel, à son adresse.</p></section>
+${formulaireDAttente('communes')}
+<h2>Ce que l’offre ajoutera</h2>
+<ul>
+<li>Chaque acte est daté depuis votre outil de publication, au moment où il part en ligne, sans que personne ait à cliquer.</li>
+<li>Chaque acte a son reçu, à classer avec lui${NBSP}: son adresse, le jour et l’heure de sa mise en ligne.</li>
+<li>Vous êtes averti quand un acte quitte votre site avant la fin de ses deux mois de publication.</li>
+<li>Vous recevez le relevé de vos actes datés, mois par mois.</li>
+</ul>
+<h2>Déjà en ligne, sans compte</h2>
+<p>Au ${jourFr(couverture.au)}, ${nombre(couverture.communes)} communes ont ${nombre(couverture.actes)} actes datés, lus sur leur site officiel.</p>
+<p>Un exemple${NBSP}: <a href="${exemple.adresse}">${echapper(exemple.nature)}, ${echapper(exemple.commune)}, en ligne le ${jourFr(exemple.jour)}</a>, «${NBSP}${echapper(exemple.objet)}${NBSP}».</p>
+<p><a class="bouton principal" href="${ACTES.acte.chemin}">${ACTES.acte.titre}</a> <a class="bouton" href="${ACTES.communes.chemin}">Voir les communes</a></p>`
+	});
+}
+
 /** Ce que dit la page de reponse de la liste d'attente, selon l'issue. */
 export const ISSUES_DE_L_ATTENTE = {
 	inscrit: ['Votre adresse est notée', 'Vous recevrez un seul message, le jour où l’offre ouvre.'],
@@ -1072,15 +1099,15 @@ export const ISSUES_DE_L_ATTENTE = {
 };
 
 /** La page rendue apres l'envoi du formulaire d'attente ; elle ne s'indexe pas. */
-export function pageAttente(issue) {
+export function pageAttente(issue, offre = 'marches-publics') {
 	const [titre, phrase] = ISSUES_DE_L_ATTENTE[issue];
 	return gabarit(EDITIONS.fr, {
 		titre,
 		description: phrase,
-		chemin: CHEMIN_OFFRE_MARCHES,
+		chemin: CHEMINS_DES_OFFRES[offre],
 		indexer: false,
 		corps: `<h1>${titre}</h1>
 <p>${phrase}</p>
-<p><a class="bouton" href="${CHEMIN_OFFRE_MARCHES}">Revenir à l’offre</a></p>`
+<p><a class="bouton" href="${CHEMINS_DES_OFFRES[offre]}">Revenir à l’offre</a></p>`
 	});
 }
