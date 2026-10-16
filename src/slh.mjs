@@ -257,9 +257,9 @@ const encodeur = new TextEncoder();
  * bruts) : comme le certificat ES256, une cle ne prouve l'origine que comparee
  * a une empreinte publiee hors du fichier signe. Une cle signe les tours a
  * partir de `depuis` ; `retire` refuse ses signatures a partir de ce tour.
- * Vide tant que l'entrepot ne signe pas : rien n'est alors exige.
+ * La premiere cle signe depuis le tour 20261016T161252Z (entrepot#82).
  */
-export const CLES_SLH_DU_JOURNAL = [];
+export const CLES_SLH_DU_JOURNAL = [{ empreinte: 'c1eccce60b9e07019b60e86f8c65836332a302f5140e09df54e7c762bc989f9c', fichier: 'cle-slh-dsa.pub', depuis: '20261016T161252Z', retire: null }];
 
 /** La cle SLH-DSA qui signe le tour `id`, ou null si aucune ne le couvre. */
 export function cleSlhDuTour(id, cles = CLES_SLH_DU_JOURNAL) {

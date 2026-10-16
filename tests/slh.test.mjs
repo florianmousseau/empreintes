@@ -79,7 +79,9 @@ test('la cle qui couvre un tour : la derniere a partir de son depuis, refusee de
 	assert.equal(cleSlhDuTour('20261201T000000Z', cles).fichier, 'cle-slh-dsa.pub');
 	assert.equal(cleSlhDuTour('20270201T000000Z', cles).fichier, 'cle-slh-dsa-2.pub');
 	assert.equal(cleSlhDuTour('20270601T000000Z', cles), null);
-	assert.equal(cleSlhDuTour('20261201T000000Z'), null, 'aucune cle epinglee tant que l entrepot ne signe pas');
+	assert.equal(cleSlhDuTour('20261201T000000Z').fichier, 'cle-slh-dsa.pub', 'la cle du journal couvre les tours d apres sa premiere signature');
+	assert.equal(cleSlhDuTour('20261016T101644Z'), null, 'un tour d avant la premiere signature n est pas couvert');
+	assert.equal(cleSlhDuTour('20261201T000000Z', []), null, 'aucune cle epinglee, rien n est exige');
 });
 
 test('la signature d un tour dit pourquoi elle est refusee', () => {
@@ -109,7 +111,7 @@ test('les signatures de toute la liste : chacune relue, la cle lue une fois, l e
 	assert.equal(lus.filter((c) => c.endsWith('.pub')).length, 1);
 	const rompue = await verifierSignaturesSlh([...tours, tour('20261104T000000Z', F.racines[1])], lireOctets, EPINGLE);
 	assert.deepEqual(rompue.raisons, ['20261104T000000Z : la signature ne correspond pas']);
-	const sansCle = await verifierSignaturesSlh(tours, lireOctets);
+	const sansCle = await verifierSignaturesSlh(tours, lireOctets, []);
 	assert.deepEqual(sansCle.raisons, ['20261102T000000Z : aucune cle post-quantique epinglee ne couvre ce tour', '20261103T000000Z : aucune cle post-quantique epinglee ne couvre ce tour']);
 });
 
@@ -118,7 +120,7 @@ test('la sonde passe attention quand un tour couvert par une cle n a pas sa sign
 	const tours = [tour('20261102T000000Z', F.racines[0]), tour('20261103T000000Z', F.racines[1], false)].map((t) => ({ ...t, instant: '2026-11-03T00:00:00Z', ots: 'bitcoin' }));
 	assert.deepEqual(toursSansSignatureSlh(tours, EPINGLE).map((t) => t.id), ['20261103T000000Z']);
 	assert.deepEqual(verdict(tours, maintenant, null, EPINGLE), { alerte: 'attention', constats: ['1 tour(s) sans signature post-quantique, dernier 20261103T000000Z'] });
-	assert.equal(verdict(tours, maintenant).alerte, 'ok', 'rien n est exige avant la premiere cle epinglee');
+	assert.equal(verdict(tours, maintenant, null, []).alerte, 'ok', 'rien n est exige avant la premiere cle epinglee');
 });
 
 test('la signature et la cle se publient ; rien d autre de ce nom', () => {
@@ -136,7 +138,7 @@ test('le verificateur en ligne de commande relit la signature d un tour sur le s
 	try {
 		assert.equal(await signatureSlhDu(site, tour('20261101T000000Z', F.racines[0], false), F.racines[0], EPINGLE), null);
 		assert.deepEqual(await signatureSlhDu(site, tour('20261102T000000Z', F.racines[0]), F.racines[0], EPINGLE), { ok: true, raisons: [] });
-		assert.deepEqual((await signatureSlhDu(site, tour('20261102T000000Z', F.racines[0]), F.racines[0])).raisons, ['aucune cle post-quantique epinglee ne couvre ce tour']);
+		assert.deepEqual((await signatureSlhDu(site, tour('20261102T000000Z', F.racines[0]), F.racines[0], [])).raisons, ['aucune cle post-quantique epinglee ne couvre ce tour']);
 	} finally {
 		serveur.close();
 	}
