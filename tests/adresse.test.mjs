@@ -321,3 +321,19 @@ test('la construction publie la page du schema et son fichier versionne, sans no
 	assert.ok(JSON.parse(fs.readFileSync(path.join(DIST, '_routes.json'), 'utf8')).exclude.includes('/schema/*'));
 	assert.equal(decider('https://datumszeuge.de/adresse-des-actes').vers, 'https://temoinpublic.fr/adresse-des-actes');
 });
+
+test('au-dela de la limite d un fichier, le plan des actes devient un index de pages stables', async () => {
+	const { db } = await base();
+	const loc = (corps) => [...corps.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+	const index = await reponsePlanDesActes({ db, parPage: 2 });
+	assert.match(index.corps, /<sitemapindex xmlns="http:\/\/www.sitemaps.org\/schemas\/sitemap\/0.9">/);
+	assert.deepEqual(loc(index.corps), ['https://temoinpublic.fr/sitemap-actes.xml?page=1', 'https://temoinpublic.fr/sitemap-actes.xml?page=2']);
+	const [un, deux] = await Promise.all(['1', '2'].map((page) => reponsePlanDesActes({ db, page, parPage: 2 })));
+	assert.deepEqual([...loc(un.corps), ...loc(deux.corps)], loc((await reponsePlanDesActes({ db })).corps));
+	assert.equal(loc(deux.corps).length, 1);
+	for (const page of ['0', '3', 'x', '01', '1e3']) assert.equal((await reponsePlanDesActes({ db, page, parPage: 2 })).statut, 404, page);
+	const servi = await planDesActesGet({ env: { DEPOTS: db }, request: new Request('https://temoinpublic.fr/sitemap-actes.xml?page=1') });
+	assert.equal(servi.status, 200);
+	assert.equal(loc(await servi.text()).length, 3);
+	assert.equal((await planDesActesGet({ env: { DEPOTS: db }, request: new Request('https://temoinpublic.fr/sitemap-actes.xml?page=2') })).status, 404);
+});
