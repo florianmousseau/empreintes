@@ -30,6 +30,7 @@ export const ADRESSES = {
 		['indexCommunes', 'GET /collectivite'],
 		['departement', 'GET /collectivite/departement/&lt;département&gt;'],
 		['collectivite', 'GET /collectivite/&lt;INSEE&gt;'],
+		['adresseActe', 'GET /actes/&lt;code&gt;/&lt;jour&gt;/&lt;nature&gt;-&lt;12 hex&gt;'],
 		['communes', 'GET /annuaire/communes/insee-&lt;département&gt;.json'],
 		['sites', 'GET /annuaire/insee-&lt;département&gt;.json'],
 		['bilan', 'GET /api/bilan'],

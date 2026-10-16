@@ -221,3 +221,103 @@ test('un passage illisible est refuse, et seule la flotte en ecrit', async () =>
 	assert.equal((await appel('Bearer secret', '{"vus":[]}')).status, 200);
 	assert.equal((await appel('Bearer secret', 'pas du json')).status, 400);
 });
+
+import fs from 'node:fs';
+import path from 'node:path';
+import { veutDuJson } from '../src/collectivite.mjs';
+import * as SCHEMA from '../src/schemaadresse.mjs';
+import { pageSchemaAdresse } from '../src/pages.mjs';
+
+/** Le sous-ensemble de JSON Schema que le schema emploie : type, required, pattern, enum, const, items. */
+function ecarts(schema, valeur, ou = '') {
+	const typeDe = (v) => (v === null ? 'null' : Array.isArray(v) ? 'array' : Number.isInteger(v) ? 'integer' : typeof v);
+	const types = [schema.type ?? []].flat();
+	if (types.length && !types.includes(typeDe(valeur))) return [`${ou} : ${typeDe(valeur)}`];
+	const fautes = [];
+	if (schema.pattern && typeof valeur === 'string' && !new RegExp(schema.pattern).test(valeur)) fautes.push(`${ou} : motif`);
+	if (schema.enum && !schema.enum.includes(valeur)) fautes.push(`${ou} : enum`);
+	if ('const' in schema && schema.const !== valeur) fautes.push(`${ou} : const`);
+	for (const r of schema.required ?? []) if (!(r in valeur)) fautes.push(`${ou}.${r} : absent`);
+	for (const [k, s] of Object.entries(schema.properties ?? {})) if (valeur && k in valeur) fautes.push(...ecarts(s, valeur[k], `${ou}.${k}`));
+	if (schema.items && Array.isArray(valeur)) valeur.forEach((v, i) => fautes.push(...ecarts(schema.items, v, `${ou}[${i}]`)));
+	return fautes;
+}
+
+test("l'adresse sert sa fiche JSON quand on la demande, conforme au schema publie", async () => {
+	const { db, ids } = await base();
+	await noterPassage({ db, corps: { vus: [ids.c] }, maintenant: new Date('2026-10-14T03:00:00Z') });
+	const schema = SCHEMA.schemaDeLAdresse();
+	const r = await reponseAdresse({ db, segments: ['17133', '2026-10-12', 'deliberation-abcdef012366'], commune, json: true });
+	assert.equal(r.statut, 200);
+	assert.equal(r.entetes['content-type'], 'application/json; charset=utf-8');
+	assert.equal(r.entetes.vary, 'accept');
+	const fiche = JSON.parse(r.corps);
+	assert.deepEqual(ecarts(schema, fiche), []);
+	assert.equal(fiche.adresse, 'https://temoinpublic.fr/actes/17133/2026-10-12/deliberation-abcdef012366');
+	assert.equal(fiche.recu, ids.c);
+	assert.equal(fiche.registre, 'https://temoinpublic.fr/depots/2026-10-12.jsonl');
+	assert.deepEqual(fiche.passage, { jour: '2026-10-14', etat: 'vue' });
+	assert.deepEqual(fiche.versions, ['https://temoinpublic.fr/actes/17133/2026-10-11/deliberation-abcdef012344', fiche.adresse]);
+	assert.deepEqual(ecarts(schema, { ...fiche, nature: 'avis', sha256: 'x', passage: 1 }), ['.nature : enum', '.sha256 : motif', '.passage : integer']);
+	assert.deepEqual(ecarts(schema, { adresse: 'https://temoinpublic.fr/actes/1713/2026-10-12/deliberation-abcdef012366' }).slice(0, 2), ['.schema : absent', '.collectivite : absent']);
+	assert.ok(ecarts(schema, { ...fiche, adresse: 'https://temoinpublic.fr/actes/1713/2026-10-12/deliberation-abcdef012366' }).includes('.adresse : motif'));
+	const ambigu = await reponseAdresse({ db, segments: ['17133', '2026-10-11', 'abcdef01'], commune, json: true });
+	assert.equal(ambigu.statut, 300);
+	assert.equal(JSON.parse(ambigu.corps).adresses.length, 2);
+	const inconnu = await reponseAdresse({ db, segments: ['17133', '2026-10-11', 'deadbeef00'], commune, json: true });
+	assert.deepEqual([inconnu.statut, JSON.parse(inconnu.corps)], [404, { erreur: 'adresse inconnue' }]);
+	assert.equal((await reponseAdresse({ db, segments: ['17133', '2026-10-11', 'abcdef0123'], commune, json: true })).statut, 301);
+	assert.equal((await repondre(db, '/actes/17133/2026-10-11/deadbeef00')).entetes.vary, 'accept');
+});
+
+test('la fiche ne porte ni objet ni source qui pourraient nommer une personne', async () => {
+	const db = baseDeTest();
+	await dater(db, { n: 1, url: 'https://www.cravans.fr/arrete-occupation-domaine-public-SIMON.pdf', sha256: A, jour: '2026-10-11', nature: 'arrete', libelle: 'occupation du domaine public SIMON' });
+	const r = await reponseAdresse({ db, segments: ['17133', '2026-10-11', 'arrete-abcdef012344'], commune, json: true });
+	assert.doesNotMatch(r.corps, /SIMON/);
+	assert.equal(JSON.parse(r.corps).objet, null);
+});
+
+test('la Function choisit la fiche sur Accept', async () => {
+	const { db } = await base();
+	const env = { DEPOTS: db, ASSETS: { fetch: async () => new Response('', { status: 404 }) } };
+	const chemin = '/actes/17133/2026-10-11/deliberation-abcdef012344';
+	const r = await pageDeLAdresse({ params: { chemin: chemin.split('/').slice(2) }, env, request: new Request(`https://temoinpublic.fr${chemin}`, { headers: { accept: 'application/json' } }) });
+	assert.equal((await r.json()).sha256, A);
+	assert.equal(veutDuJson('application/json'), true);
+	assert.equal(veutDuJson('application/json;q=0.9, */*'), true);
+	assert.equal(veutDuJson('text/html,application/xhtml+xml,application/json'), false);
+	assert.equal(veutDuJson('application/json, text/html'), true);
+	assert.equal(veutDuJson(null), false);
+	assert.equal(veutDuJson('*/*'), false);
+});
+
+test('les motifs du schema sont ceux du resolveur', () => {
+	const [code, jour, nature, empreinte] = SCHEMA.SEGMENTS.map((s) => new RegExp(s.motif));
+	const exemple = new URL(SCHEMA.EXEMPLE).pathname.split('/').slice(2);
+	assert.ok(lireAdresse(exemple));
+	assert.ok(code.test(exemple[0]) && jour.test(exemple[1]));
+	const [n, hex] = exemple[2].split('-');
+	assert.ok(nature.test(n) && empreinte.test(hex));
+	for (const c of ['17133', '2A004', '211701339', '1713', '20004', '9900A']) assert.equal(code.test(c), Boolean(lireAdresse([c, '2026-10-11', 'abcdef01'])) || c === '211701338', c);
+	assert.equal(new RegExp(SCHEMA.schemaDeLAdresse().properties.adresse.pattern).test(SCHEMA.EXEMPLE), true);
+	assert.equal(SCHEMA.schemaDeLAdresse().$id, `https://temoinpublic.fr${SCHEMA.CHEMIN_DU_SCHEMA}`);
+	assert.deepEqual(SCHEMA.CHAMPS.map(([n]) => n), SCHEMA.schemaDeLAdresse().required);
+});
+
+test('la construction publie la page du schema et son fichier versionne, sans nom ni explication', () => {
+	const DIST = path.resolve(import.meta.dirname, '..', 'dist');
+	const fichier = JSON.parse(fs.readFileSync(path.join(DIST, SCHEMA.CHEMIN_DU_SCHEMA.slice(1)), 'utf8'));
+	assert.deepEqual(fichier, SCHEMA.schemaDeLAdresse());
+	const page = fs.readFileSync(path.join(DIST, 'adresse-des-actes.html'), 'utf8');
+	assert.equal(pageSchemaAdresse(SCHEMA), page);
+	assert.match(page, /<h1>Adresse pérenne d’un acte local<\/h1>/);
+	assert.match(page, /<a href="\/schema\/adresse-des-actes\/1.json">/);
+	assert.equal((page.match(/<table>/g) ?? []).length, 4);
+	assert.doesNotMatch(page, / [:;?!]/);
+	assert.match(fs.readFileSync(path.join(DIST, 'sitemap.xml'), 'utf8'), /<loc>https:\/\/temoinpublic.fr\/adresse-des-actes<\/loc>/);
+	assert.match(fs.readFileSync(path.join(DIST, 'llms.txt'), 'utf8'), /https:\/\/temoinpublic.fr\/schema\/adresse-des-actes\/1.json/);
+	assert.match(fs.readFileSync(path.join(DIST, 'documentation.html'), 'utf8'), /Accept: application\/json/);
+	assert.ok(JSON.parse(fs.readFileSync(path.join(DIST, '_routes.json'), 'utf8')).exclude.includes('/schema/*'));
+	assert.equal(decider('https://datumszeuge.de/adresse-des-actes').vers, 'https://temoinpublic.fr/adresse-des-actes');
+});

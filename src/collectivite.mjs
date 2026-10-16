@@ -7,6 +7,7 @@
 import { estUnInsee, estUnSiren } from './acte.mjs';
 import { cheminDeLActe, lireAdresse, resoudre } from './adresse.mjs';
 import { dateLue } from './datelue.mjs';
+import { ficheDeLActe } from './schemaadresse.mjs';
 import { DEPARTEMENTS, departementDe, nomDuDepartement } from './departements.mjs';
 import { pourraitNommer } from './glane.mjs';
 import { nommeUnePersonne } from './personne.mjs';
@@ -143,16 +144,38 @@ const garde = (acte) => ({ ...acte, objet: objetMontrable(acte), url: sourceMont
  * a sa forme canonique, 301 vers elle depuis un prefixe ou une ecriture voisine,
  * la liste des adresses pour un prefixe ambigu, 404 sinon.
  */
-export async function reponseAdresse({ db, segments, commune }) {
+export async function reponseAdresse({ db, segments, commune, json = false }) {
 	const lu = lireAdresse(segments);
-	if (!lu) return introuvable();
-	const r = resoudre(`/actes/${segments.join('/')}`, await actesAuPrefixe({ db, ...lu }));
-	if (r.statut === 404) return introuvable();
+	const r = lu ? resoudre(`/actes/${segments.join('/')}`, await actesAuPrefixe({ db, ...lu })) : { statut: 404 };
 	if (r.statut === 301) return renvoi(r.vers);
-	if (r.statut === 300) return { statut: 300, corps: pageAdresses(r.actes), entetes: { ...HTML, 'cache-control': 'public, max-age=60' } };
-	const fiche = await commune(r.acte.collectivite);
+	const forme = json ? FORME_JSON : FORME_HTML;
+	if (r.statut === 404) return forme.introuvable();
+	if (r.statut === 300) return { statut: 300, corps: forme.liste(r.actes), entetes: { ...forme.entetes, 'cache-control': 'public, max-age=60' } };
 	const versions = await versionsDeLaSource({ db, collectivite: r.acte.collectivite, url: r.acte.url });
 	const passage = await passageDeLActe({ db, recu: r.acte.recu });
 	const acte = garde(r.acte);
-	return { statut: 200, corps: pageAdresse({ acte, commune: fiche, versions, passage, date: dateLue(acte) }), entetes: { ...HTML, 'cache-control': 'public, max-age=300' } };
+	const corps = json
+		? enJson(ficheDeLActe({ adresse: `${EDITIONS.fr.adresse}${cheminDeLActe(acte)}`, acte, versions, passage, date: dateLue(acte), cheminDe: cheminDeLActe }))
+		: pageAdresse({ acte, commune: await commune(r.acte.collectivite), versions, passage, date: dateLue(acte) });
+	return { statut: 200, corps, entetes: { ...forme.entetes, 'cache-control': 'public, max-age=300' } };
+}
+
+const enJson = (valeur) => `${JSON.stringify(valeur, null, 1)}\n`;
+
+/** La meme adresse sert la page ou la fiche du schema (D-205), selon `Accept` ; `vary` le dit aux caches. */
+const avecVary = (r) => ({ ...r, entetes: { ...r.entetes, vary: 'accept' } });
+const FORME_HTML = { entetes: { ...HTML, vary: 'accept' }, introuvable: () => avecVary(introuvable()), liste: pageAdresses };
+const JSON_ADRESSE = { 'content-type': 'application/json; charset=utf-8', 'access-control-allow-origin': '*', vary: 'accept' };
+const FORME_JSON = {
+	entetes: JSON_ADRESSE,
+	introuvable: () => ({ statut: 404, corps: enJson({ erreur: 'adresse inconnue' }), entetes: { ...JSON_ADRESSE, 'cache-control': 'public, max-age=300' } }),
+	liste: (actes) => enJson({ adresses: actes.map((a) => `${EDITIONS.fr.adresse}${cheminDeLActe(a)}`) })
+};
+
+/** Vrai quand la requete prefere JSON a HTML : `application/json` nomme dans `Accept`, sans `text/html` avant lui. */
+export function veutDuJson(accept) {
+	const types = String(accept ?? '').toLowerCase().split(',').map((t) => t.split(';')[0].trim());
+	const json = types.indexOf('application/json');
+	const html = types.indexOf('text/html');
+	return json >= 0 && (html < 0 || json < html);
 }
