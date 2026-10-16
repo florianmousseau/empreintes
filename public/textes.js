@@ -95,7 +95,7 @@ const TEXTES = {
 		signeeNonConforme: { fr: 'signature non conforme', de: 'Signatur ungültig' },
 		sansNom: { fr: 'certificat sans nom', de: 'Zertifikat ohne Namen' },
 		autorite: { fr: 'Autorité', de: 'Aussteller' },
-		inscrite: { fr: (nom, pays) => `${nom}, inscrite sur la liste de confiance européenne (${pays})`, de: (nom, pays) => `${nom}, eingetragen in der europäischen Vertrauensliste (${pays})` },
+		inscrite: { fr: (nom, pays) => `${nom}, inscrite sur la liste de confiance européenne (${pays}) quand elle a émis le certificat`, de: (nom, pays) => `${nom}, bei Ausstellung des Zertifikats in der europäischen Vertrauensliste eingetragen (${pays})` },
 		signatures: { fr: (n) => `${n} signatures du journal valides`, de: (n) => `${n} gültige Signaturen des Journals` },
 		signaturePq: { fr: 'Signature post-quantique', de: 'Post-Quanten-Signatur' },
 		signaturesPq: { fr: (n) => `${n} signatures post-quantiques valides`, de: (n) => `${n} gültige Post-Quanten-Signaturen` },

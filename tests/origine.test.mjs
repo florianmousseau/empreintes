@@ -6,7 +6,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { baseDeTest } from './d1.mjs';
-import { autoriteDuCertificat, estUnJws, nomLisible, verifierSignatureDuDeposant } from '../src/origine.mjs';
+import { autoriteDuCertificat, estUnJws, inscriteA, nomLisible, verifierSignatureDuDeposant } from '../src/origine.mjs';
 import { element } from '../src/horodatage.mjs';
 import { estUnRecu, idDuRecu, lireDemande } from '../src/depot.mjs';
 import { deposer } from '../src/service.mjs';
@@ -241,6 +241,24 @@ test("une autorite qui n'a pas signe, le certificat du deposant lui-meme ou un m
 	const v = await verifierSignatureDuDeposant(avecMaillon, H, midi.toISOString(), tout);
 	assert.deepEqual([v.raisons, v.certificat.autorite], [['la signature ne correspond pas'], null], 'l en-tete change casse la signature, la chaine illisible ne nomme personne');
 	assert.equal(await autoriteDuCertificat(seul, null), null);
+});
+
+test("l'autorite se juge a l'emission du certificat qu'elle a signe, pas au jour du depot", async () => {
+	const { inter, derRacine, derInter } = await chaineDeTest();
+	const { jws } = await jwsDe({ certificat: { par: { alg: 'RS256', cle: inter.privateKey } }, chaine: [derInter, derRacine] });
+	const x5c = JSON.parse(Buffer.from(jws.split('.')[0], 'base64url')).x5c;
+	const avec = (periodes) => ({ [empreinteDe(derInter)]: { pays: 'FR', nom: 'Intermediaire', usages: [], periodes } });
+	// le certificat du deposant est emis le 2026-01-01
+	const nomme = { pays: 'FR', nom: 'Intermediaire' };
+	assert.deepEqual(await autoriteDuCertificat(x5c, avec([['2016-07-01T00:00:00Z', null]])), nomme, 'en vigueur depuis');
+	assert.deepEqual(await autoriteDuCertificat(x5c, avec([['2020-01-01T00:00:00Z', '2026-06-01T00:00:00Z']])), nomme, 'retiree apres l emission : le certificat reste emis par une autorite inscrite');
+	assert.deepEqual(await autoriteDuCertificat(x5c, avec([[null, null]])), nomme, 'une periode sans debut');
+	assert.equal(await autoriteDuCertificat(x5c, avec([['2016-07-01T00:00:00Z', '2025-12-31T00:00:00Z']])), null, 'retiree avant l emission');
+	assert.equal(await autoriteDuCertificat(x5c, avec([['2026-02-01T00:00:00Z', null]])), null, 'inscrite apres l emission');
+	assert.equal(await autoriteDuCertificat(x5c, avec([])), null, 'jamais inscrite');
+	const v = await verifierSignatureDuDeposant(jws, H, midi.toISOString(), avec([['2016-07-01T00:00:00Z', '2025-12-31T00:00:00Z']]));
+	assert.deepEqual([v.ok, v.certificat.autorite], [true, null], 'la signature reste valide, l autorite n est pas nommee');
+	assert.equal(inscriteA({ pays: 'FR', nom: 'X' }, 0), true, 'un registre sans periodes vaut inscrite');
 });
 
 test("un depot signe nomme l'autorite dans son recu ; un registre absent ou illisible n'empeche pas le depot", async () => {
