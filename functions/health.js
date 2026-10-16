@@ -1,5 +1,6 @@
 // La sonde de la surface : 200 dans tous les cas, `alerte` dit si le journal publie est encore frais.
 import { verdict } from '../src/journal.mjs';
+import { comptesDAttente } from '../src/attente.mjs';
 
 async function lireAsset(env, url, chemin) {
 	const r = await env.ASSETS.fetch(new URL(chemin, url));
@@ -16,6 +17,8 @@ export async function onRequestGet({ request, env }) {
 		copie: liste?.copie ?? null,
 		dernierTour: dernier && { id: dernier.id, racine: dernier.racine, objets: dernier.objets, ots: dernier.ots, bloc: dernier.bloc },
 		tours: tours.length,
+		// Les adresses en attente de chaque offre (D-200) ; null quand la base ne repond pas, la sonde reste a 200.
+		attente: env.DEPOTS ? await comptesDAttente(env.DEPOTS).catch(() => null) : null,
 		deploye: { commit: version?.commit ?? 'inconnu', construit: version?.construit ?? null }
 	};
 	return new Response(`${JSON.stringify(corps, null, 1)}\n`, {

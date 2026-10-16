@@ -11,8 +11,9 @@ import { execFileSync } from 'node:child_process';
 import { FICHIER_PUBLIE, ID_DE_TOUR, PREUVE_PUBLIEE, indexDesEmpreintes, resumeDe } from '../src/journal.mjs';
 import { BESOINS } from '../src/besoins.mjs';
 import { entreesDe, sitesDe } from '../src/disparus.mjs';
-import { CHEMIN_DISPARUS, cheminDuSite, fluxDisparus, pageDisparus, pageDisparusDuSite, pageAccueil, pageActe, pageBesoin, pageDeposer, pageDocumentation, pageIntrouvable, pageJournal, pageMentions, pagePreuve, pageRoles, pageSections, pageSchemaAdresse, pageVerifier, TEXTES_DE_L_ARCHIVAGE, planDuSite, robots } from '../src/pages.mjs';
+import { CHEMIN_DISPARUS, cheminDuSite, fluxDisparus, pageDisparus, pageDisparusDuSite, pageAccueil, pageActe, pageBesoin, pageDeposer, pageDocumentation, pageIntrouvable, pageJournal, pageMentions, pageOffreMarches, pagePreuve, pageRoles, pageSections, pageSchemaAdresse, pageVerifier, TEXTES_DE_L_ARCHIVAGE, planDuSite, robots } from '../src/pages.mjs';
 import { EDITIONS, dossierDe, planDe } from '../src/edition.mjs';
+import { CHEMIN_OFFRE_MARCHES } from '../src/offre.mjs';
 import * as SCHEMA from '../src/schemaadresse.mjs';
 
 const RACINE = path.resolve(import.meta.dirname, '..');
@@ -73,7 +74,7 @@ for (const [langue, e] of Object.entries(EDITIONS)) {
 	dans(`${e.actes.conditions.chemin.slice(1)}.html`, pageSections('conditions', langue));
 	dans(`${e.actes.roles.chemin.slice(1)}.html`, pageRoles(langue));
 	for (const acte of TEXTES_DE_L_ARCHIVAGE) dans(`${e.actes[acte].chemin.slice(1)}.html`, pageSections(acte, langue));
-	dans('sitemap.xml', planDuSite(langue === 'fr' ? [...planDe(langue), SCHEMA.CHEMIN_DE_LA_PAGE, ...(entrees.length ? [CHEMIN_DISPARUS] : []), ...sites.map((x) => cheminDuSite(x.site))] : planDe(langue), langue));
+	dans('sitemap.xml', planDuSite(langue === 'fr' ? [...planDe(langue), SCHEMA.CHEMIN_DE_LA_PAGE, CHEMIN_OFFRE_MARCHES, ...(entrees.length ? [CHEMIN_DISPARUS] : []), ...sites.map((x) => cheminDuSite(x.site))] : planDe(langue), langue));
 	dans('robots.txt', robots(langue));
 	dans('llms.txt', e.llms);
 }
@@ -84,6 +85,8 @@ ecrire(SCHEMA.CHEMIN_DU_SCHEMA.slice(1), `${JSON.stringify(SCHEMA.schemaDeLAdres
 ecrire('disparus.html', pageDisparus({ entrees, sites }));
 ecrire('disparus.xml', fluxDisparus(entrees));
 for (const { site } of sites) ecrire(`${cheminDuSite(site).slice(1)}.html`, pageDisparusDuSite({ site, entrees: entrees.filter((d) => d.site === site) }));
+// L'offre des marches publics (D-200), en francais seulement, sans prix.
+ecrire(`${CHEMIN_OFFRE_MARCHES.slice(1)}.html`, pageOffreMarches());
 for (const b of BESOINS) ecrire(`${b.chemin.slice(1)}.html`, pageBesoin(b));
 for (const m of ['chaine.mjs', 'horodatage.mjs', 'slh.mjs', 'depot.mjs', 'acte.mjs', 'personne.mjs', 'annuaire.mjs', 'affichage.mjs', 'origine.mjs', 'serie.mjs']) ecrire(m, fs.readFileSync(path.join(RACINE, 'src', m)));
 for (const f of fs.readdirSync(path.join(RACINE, 'public'))) ecrire(f, fs.readFileSync(path.join(RACINE, 'public', f)));

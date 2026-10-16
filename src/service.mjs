@@ -31,7 +31,9 @@ export const SCHEMA = [
 	'CREATE TABLE IF NOT EXISTS passage (recu TEXT PRIMARY KEY, jour TEXT NOT NULL, etat TEXT NOT NULL) WITHOUT ROWID',
 	// D-193 : la derniere relecture de la source d'un acte par le temoin, quand la glane la redemande : `statut` 200
 	// (les memes octets), 404 ou 410 ; `depuis`, le premier jour de ce statut.
-	'CREATE TABLE IF NOT EXISTS relecture (recu TEXT PRIMARY KEY, jour TEXT NOT NULL, depuis TEXT NOT NULL, statut INTEGER NOT NULL) WITHOUT ROWID'
+	'CREATE TABLE IF NOT EXISTS relecture (recu TEXT PRIMARY KEY, jour TEXT NOT NULL, depuis TEXT NOT NULL, statut INTEGER NOT NULL) WITHOUT ROWID',
+	// D-200 : la liste d'attente d'une offre pas encore ouverte (`src/attente.mjs`) ; l'adresse electronique et le profil, rien d'autre.
+	'CREATE TABLE IF NOT EXISTS attente (offre TEXT NOT NULL, adresse TEXT NOT NULL, profil TEXT NOT NULL, jour TEXT NOT NULL, PRIMARY KEY (offre, adresse)) WITHOUT ROWID'
 ];
 
 const JSON_UTF8 = { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', 'access-control-allow-origin': '*' };
