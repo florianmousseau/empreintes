@@ -13,7 +13,8 @@ export const PROFILS_DES_OFFRES = {
 	communes: { commune: 'Commune ou intercommunalité', prestataire: 'Éditeur ou prestataire des collectivités', autre: 'Autre' },
 	editeurs: { presse: 'Éditeur de presse ou rédaction', site: 'Site, blog ou administration qui publie', autre: 'Autre' },
 	assureurs: { assureur: 'Assureur ou mutuelle', expert: 'Expert, courtier ou gestionnaire de sinistres', autre: 'Autre' },
-	notaires: { notaire: 'Office notarial', juriste: 'Avocat ou juriste', autre: 'Autre' }
+	notaires: { notaire: 'Office notarial', juriste: 'Avocat ou juriste', autre: 'Autre' },
+	drh: { rh: 'Service du personnel ou direction', cabinet: 'Cabinet de paie, d’avocats ou d’expertise comptable', autre: 'Autre' }
 };
 
 export const OFFRES = Object.keys(PROFILS_DES_OFFRES);

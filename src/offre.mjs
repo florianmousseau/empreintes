@@ -19,8 +19,11 @@ export const CHEMIN_OFFRE_ASSUREURS = '/dossier-de-sinistre';
 /** L'offre des notaires (D-195) : chaque version d'un projet d'acte datee quand elle circule. */
 export const CHEMIN_OFFRE_NOTAIRES = '/versions-d-un-acte';
 
+/** L'offre des DRH (D-195) : chaque version d'un document du personnel datee le jour de sa diffusion. */
+export const CHEMIN_OFFRE_DRH = '/documents-du-personnel';
+
 /** La page de chaque offre qui tient une liste d'attente (`src/attente.mjs`). */
-export const CHEMINS_DES_OFFRES = { 'marches-publics': CHEMIN_OFFRE_MARCHES, communes: CHEMIN_OFFRE_COMMUNES, editeurs: CHEMIN_OFFRE_EDITEURS, assureurs: CHEMIN_OFFRE_ASSUREURS, notaires: CHEMIN_OFFRE_NOTAIRES };
+export const CHEMINS_DES_OFFRES = { 'marches-publics': CHEMIN_OFFRE_MARCHES, communes: CHEMIN_OFFRE_COMMUNES, editeurs: CHEMIN_OFFRE_EDITEURS, assureurs: CHEMIN_OFFRE_ASSUREURS, notaires: CHEMIN_OFFRE_NOTAIRES, drh: CHEMIN_OFFRE_DRH };
 
 /** Ce que le registre tenait au jour de la page (accueil de temoinpublic.fr, 16/10/2026). */
 export const COUVERTURE_DU_REGISTRE = { au: '2026-10-16', dates: 5999, depuis: '2026-10-11' };
@@ -31,7 +34,8 @@ export const OFFRES_DE_L_ACCUEIL = [
 	{ chemin: CHEMIN_OFFRE_COMMUNES, nom: 'les communes' },
 	{ chemin: CHEMIN_OFFRE_EDITEURS, nom: 'les éditeurs' },
 	{ chemin: CHEMIN_OFFRE_ASSUREURS, nom: 'les assureurs' },
-	{ chemin: CHEMIN_OFFRE_NOTAIRES, nom: 'les notaires' }
+	{ chemin: CHEMIN_OFFRE_NOTAIRES, nom: 'les notaires' },
+	{ chemin: CHEMIN_OFFRE_DRH, nom: 'les services du personnel' }
 ];
 
 /** Un flux suivi, montre en exemple : son registre public (ni adresse ni titre), lu en prod le 16/10/2026. */

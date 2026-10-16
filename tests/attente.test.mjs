@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { baseDeTest } from './d1.mjs';
 import { OFFRES, PLAFOND_DU_JOUR, PROFILS_DES_OFFRES, comptesDAttente, inscrire, lireInscription, offreConnue } from '../src/attente.mjs';
-import { CHEMIN_OFFRE_NOTAIRES, CHEMIN_OFFRE_ASSUREURS, CHEMIN_OFFRE_COMMUNES, CHEMIN_OFFRE_EDITEURS, CHEMIN_OFFRE_MARCHES, CHEMINS_DES_OFFRES, COUVERTURE, COUVERTURE_COMMUNES, COUVERTURE_DU_REGISTRE, ECHANTILLON, EXEMPLE_D_ACTE, EXEMPLE_DE_REGISTRE, OFFRES_DE_L_ACCUEIL, lienDeLAvis } from '../src/offre.mjs';
-import { ISSUES_DE_L_ATTENTE, pageAccueil, pageAttente, pageOffreAssureurs, pageOffreNotaires, pageOffreCommunes, pageOffreEditeurs, pageOffreMarches } from '../src/pages.mjs';
+import { CHEMIN_OFFRE_DRH, CHEMIN_OFFRE_NOTAIRES, CHEMIN_OFFRE_ASSUREURS, CHEMIN_OFFRE_COMMUNES, CHEMIN_OFFRE_EDITEURS, CHEMIN_OFFRE_MARCHES, CHEMINS_DES_OFFRES, COUVERTURE, COUVERTURE_COMMUNES, COUVERTURE_DU_REGISTRE, ECHANTILLON, EXEMPLE_D_ACTE, EXEMPLE_DE_REGISTRE, OFFRES_DE_L_ACCUEIL, lienDeLAvis } from '../src/offre.mjs';
+import { ISSUES_DE_L_ATTENTE, pageAccueil, pageAttente, pageOffreAssureurs, pageOffreNotaires, pageOffreDrh, pageOffreCommunes, pageOffreEditeurs, pageOffreMarches } from '../src/pages.mjs';
 import { decider } from '../src/hote.mjs';
 import { onRequestPost } from '../functions/api/attente.js';
 import { onRequestGet as sonde } from '../functions/health.js';
@@ -18,7 +18,7 @@ test("une inscription garde l'adresse en minuscules, l'offre et le profil, rien 
 	assert.equal(lireInscription({ offre: 'marches-publics', adresse: 'a@b.fr' }).profil, 'autre');
 	assert.deepEqual(Object.keys(PROFILS_DES_OFFRES['marches-publics']), ['entreprise', 'acheteur', 'autre']);
 	assert.deepEqual(Object.keys(PROFILS_DES_OFFRES.communes), ['commune', 'prestataire', 'autre']);
-	assert.deepEqual(OFFRES, ['marches-publics', 'communes', 'editeurs', 'assureurs', 'notaires']);
+	assert.deepEqual(OFFRES, ['marches-publics', 'communes', 'editeurs', 'assureurs', 'notaires', 'drh']);
 	assert.deepEqual(Object.keys(CHEMINS_DES_OFFRES), OFFRES);
 	// Un profil se juge dans la liste de son offre : celui d'une autre offre devient `autre`.
 	assert.equal(lireInscription({ offre: 'communes', adresse: 'mairie@b.fr', profil: 'commune' }).profil, 'commune');
@@ -43,8 +43,8 @@ test('une adresse deja inscrite ne fait pas de seconde ligne, et la reponse est 
 		lignes(db).map((l) => ({ ...l })),
 		[{ offre: 'marches-publics', adresse: 'a@b.fr', profil: 'entreprise', jour: '2026-10-16' }]
 	);
-	assert.deepEqual(await comptesDAttente(db), { 'marches-publics': 1, communes: 0, editeurs: 0, assureurs: 0, notaires: 0 });
-	assert.deepEqual(await comptesDAttente(baseDeTest()), { 'marches-publics': 0, communes: 0, editeurs: 0, assureurs: 0, notaires: 0 });
+	assert.deepEqual(await comptesDAttente(db), { 'marches-publics': 1, communes: 0, editeurs: 0, assureurs: 0, notaires: 0, drh: 0 });
+	assert.deepEqual(await comptesDAttente(baseDeTest()), { 'marches-publics': 0, communes: 0, editeurs: 0, assureurs: 0, notaires: 0, drh: 0 });
 });
 
 test('au plafond du jour, une offre refuse les inscriptions jusqu’au lendemain', async () => {
@@ -98,7 +98,7 @@ test("la liste des communes s'inscrit a part, et sa reponse renvoie a son offre"
 			{ offre: 'marches-publics', adresse: 'mairie@commune.fr', profil: 'acheteur' }
 		]
 	);
-	assert.deepEqual(await comptesDAttente(db), { 'marches-publics': 1, communes: 1, editeurs: 0, assureurs: 0, notaires: 0 });
+	assert.deepEqual(await comptesDAttente(db), { 'marches-publics': 1, communes: 1, editeurs: 0, assureurs: 0, notaires: 0, drh: 0 });
 	const mauvaise = await envoyer({ DEPOTS: db }, { offre: 'communes', adresse: 'pas une adresse' });
 	assert.equal(mauvaise.status, 400);
 	assert.match(await mauvaise.text(), /href="\/publicite-des-actes">Revenir/);
@@ -159,7 +159,7 @@ test('la sonde compte les adresses en attente, et reste a 200 sans base ou quand
 	assert.equal((await lire({ ASSETS: assets })).attente, null);
 	const db = baseDeTest();
 	await inscrire(db, { offre: 'marches-publics', adresse: 'a@b.fr', profil: 'autre' }, '2026-10-16');
-	assert.deepEqual((await lire({ ASSETS: assets, DEPOTS: db })).attente, { 'marches-publics': 1, communes: 0, editeurs: 0, assureurs: 0, notaires: 0 });
+	assert.deepEqual((await lire({ ASSETS: assets, DEPOTS: db })).attente, { 'marches-publics': 1, communes: 0, editeurs: 0, assureurs: 0, notaires: 0, drh: 0 });
 	const lie = {
 		bind: () => lie,
 		all: async () => {
@@ -191,12 +191,12 @@ test("la page de l'offre des editeurs ne dit aucun prix, porte le formulaire et 
 	assert.equal(ok.status, 200);
 	assert.match(await ok.text(), /<a class="bouton" href="\/date-de-publication">Revenir à l’offre<\/a>/);
 	assert.equal(lireInscription({ offre: 'editeurs', adresse: 'a@b.fr', profil: 'commune' }).profil, 'autre');
-	assert.deepEqual(await comptesDAttente(db), { 'marches-publics': 0, communes: 0, editeurs: 1, assureurs: 0, notaires: 0 });
+	assert.deepEqual(await comptesDAttente(db), { 'marches-publics': 0, communes: 0, editeurs: 1, assureurs: 0, notaires: 0, drh: 0 });
 });
 
 test("l'accueil francais lie chaque offre, l'accueil allemand aucune", () => {
 	const accueil = pageAccueil([]);
-	assert.ok(accueil.includes('<p class="suite">Des offres ouvriront bientôt, pour <a href="/marches-publics">les marchés publics</a>, <a href="/publicite-des-actes">les communes</a>, <a href="/date-de-publication">les éditeurs</a>, <a href="/dossier-de-sinistre">les assureurs</a> et <a href="/versions-d-un-acte">les notaires</a>.</p>'));
+	assert.ok(accueil.includes('<p class="suite">Des offres ouvriront bientôt, pour <a href="/marches-publics">les marchés publics</a>, <a href="/publicite-des-actes">les communes</a>, <a href="/date-de-publication">les éditeurs</a>, <a href="/dossier-de-sinistre">les assureurs</a>, <a href="/versions-d-un-acte">les notaires</a> et <a href="/documents-du-personnel">les services du personnel</a>.</p>'));
 	assert.deepEqual(
 		OFFRES_DE_L_ACCUEIL.map((o) => o.chemin),
 		Object.values(CHEMINS_DES_OFFRES)
@@ -224,7 +224,7 @@ test("la page de l'offre des assureurs ne dit aucun prix, porte le formulaire et
 	assert.equal(ok.status, 200);
 	assert.match(await ok.text(), /<a class="bouton" href="\/dossier-de-sinistre">Revenir à l’offre<\/a>/);
 	assert.deepEqual(lignes(db).map((l) => [l.offre, l.profil]), [['assureurs', 'expert']]);
-	assert.deepEqual(await comptesDAttente(db), { 'marches-publics': 0, communes: 0, editeurs: 0, assureurs: 1, notaires: 0 });
+	assert.deepEqual(await comptesDAttente(db), { 'marches-publics': 0, communes: 0, editeurs: 0, assureurs: 1, notaires: 0, drh: 0 });
 });
 
 test("la page de l'offre des notaires ne dit aucun prix, avertit sur la date certaine et porte le formulaire", async () => {
@@ -248,4 +248,25 @@ test("la page de l'offre des notaires ne dit aucun prix, avertit sur la date cer
 	assert.match(await ok.text(), /<a class="bouton" href="\/versions-d-un-acte">Revenir à l’offre<\/a>/);
 	assert.deepEqual(lignes(db).map((l) => [l.offre, l.profil]), [['notaires', 'juriste']]);
 	assert.equal((await comptesDAttente(db)).notaires, 1);
+});
+
+test("la page de l'offre des DRH ne dit aucun prix, avertit sur la remise et porte le formulaire", async () => {
+	const html = pageOffreDrh();
+	const texte = texteDe(html);
+	for (const interdit of [/€/, /\beuros?\b/i, /tarif/i, /abonnement/i, /gratuit/i, /payant/i, /\bHT\b/, /qualifi/i, /certifi/i, /opposable/i]) assert.doesNotMatch(texte, interdit);
+	assert.deepEqual(texte.match(/[^\S ][:;?!»%]/g), null, 'deux-points soudes');
+	assert.ok(texte.includes('Il ne prouve pas qu’un salarié l’a reçue : la remise se prouve par une décharge signée ou un recommandé.'));
+	assert.match(html, /<link rel="canonical" href="https:\/\/temoinpublic.fr\/documents-du-personnel">/);
+	assert.match(html, /<input type="hidden" name="offre" value="drh">/);
+	assert.match(html, /<input type="radio" name="profil" value="rh" checked> Service du personnel ou direction/);
+	assert.doesNotMatch(html, /<script/);
+	assert.match(html, /<a class="bouton principal" href="\/deposer">Dater une version<\/a> <a class="bouton" href="\/verifier">Vérifier une version<\/a>/);
+	assert.equal(CHEMIN_OFFRE_DRH, '/documents-du-personnel');
+	assert.deepEqual(decider('https://datumszeuge.de/documents-du-personnel'), { action: 'redirection', vers: 'https://temoinpublic.fr/documents-du-personnel' });
+	const db = baseDeTest();
+	const ok = await envoyer({ DEPOTS: db }, { offre: 'drh', adresse: 'rh@entreprise.fr', profil: 'cabinet' });
+	assert.equal(ok.status, 200);
+	assert.match(await ok.text(), /<a class="bouton" href="\/documents-du-personnel">Revenir à l’offre<\/a>/);
+	assert.deepEqual(lignes(db).map((l) => [l.offre, l.profil]), [['drh', 'cabinet']]);
+	assert.equal((await comptesDAttente(db)).drh, 1);
 });
