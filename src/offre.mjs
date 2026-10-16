@@ -16,6 +16,13 @@ export const CHEMIN_OFFRE_EDITEURS = '/date-de-publication';
 /** La page de chaque offre qui tient une liste d'attente (`src/attente.mjs`). */
 export const CHEMINS_DES_OFFRES = { 'marches-publics': CHEMIN_OFFRE_MARCHES, communes: CHEMIN_OFFRE_COMMUNES, editeurs: CHEMIN_OFFRE_EDITEURS };
 
+/** Les offres liees de l'accueil, dans l'ordre de la phrase : la page et son milieu (D-200, D-195). */
+export const OFFRES_DE_L_ACCUEIL = [
+	{ chemin: CHEMIN_OFFRE_MARCHES, nom: 'les marchés publics' },
+	{ chemin: CHEMIN_OFFRE_COMMUNES, nom: 'les communes' },
+	{ chemin: CHEMIN_OFFRE_EDITEURS, nom: 'les éditeurs' }
+];
+
 /** Un flux suivi, montre en exemple : son registre public (ni adresse ni titre), lu en prod le 16/10/2026. */
 export const EXEMPLE_DE_REGISTRE = { id: '90bfb8a65ae28b58', depuis: '2026-10-12', articles: 13 };
 

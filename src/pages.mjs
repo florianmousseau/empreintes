@@ -8,7 +8,7 @@ import { nomDuDepartement } from './departements.mjs';
 import { BESOINS } from './besoins.mjs';
 import { EDITIONS, cheminsDe, planDe } from './edition.mjs';
 import { ADRESSES, FORMULES } from './documentation.mjs';
-import { CHEMIN_OFFRE_COMMUNES, CHEMIN_OFFRE_EDITEURS, CHEMIN_OFFRE_MARCHES, CHEMINS_DES_OFFRES, COUVERTURE, COUVERTURE_COMMUNES, ECHANTILLON, EXEMPLE_D_ACTE, EXEMPLE_DE_REGISTRE, lienDeLAvis } from './offre.mjs';
+import { CHEMIN_OFFRE_COMMUNES, CHEMIN_OFFRE_EDITEURS, CHEMIN_OFFRE_MARCHES, CHEMINS_DES_OFFRES, COUVERTURE, COUVERTURE_COMMUNES, ECHANTILLON, EXEMPLE_D_ACTE, EXEMPLE_DE_REGISTRE, OFFRES_DE_L_ACCUEIL, lienDeLAvis } from './offre.mjs';
 import { PROFILS_DES_OFFRES } from './attente.mjs';
 
 const NBSP = '\u00A0';
@@ -219,7 +219,7 @@ export function pageAccueil(tours, langue = 'fr') {
 ${formulaireDater(e, false)}
 <p class="suite">${e.accueil.deja} ${lien(e, 'verifier')}.</p>
 ${etapes(e)}
-${lignePour(e)}${compte}`
+${lignePour(e)}${ligneDesOffres(e)}${compte}`
 	});
 }
 
@@ -341,6 +341,13 @@ const formulaireDuLien = (e) => `<form id="formulaire" class="carte">
 
 /** Les besoins, pour l'accueil : chacun lie a sa page. Francais seulement. */
 const lignePour = (e) => (e.actes.acte ? `<p class="suite">Pour ${BESOINS.map((b) => `<a href="${b.chemin}">${b.nom}</a>`).join(', ')}.</p>\n` : '');
+
+/** Les offres pas encore ouvertes, pour l'accueil : chacune liee a sa page. Francais seulement. */
+const ligneDesOffres = (e) => {
+	if (!e.actes.acte || !OFFRES_DE_L_ACCUEIL.length) return '';
+	const liens = OFFRES_DE_L_ACCUEIL.map((o) => `<a href="${o.chemin}">${o.nom}</a>`);
+	return `<p class="suite">Trois offres ouvriront bientôt, pour ${liens.slice(0, -1).join(', ')} et ${liens.at(-1)}.</p>\n`;
+};
 
 /** Dater un acte de collectivite : l'adresse ou il est publie, la collectivite, la nature. */
 export function pageActe() {

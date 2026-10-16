@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { baseDeTest } from './d1.mjs';
 import { OFFRES, PLAFOND_DU_JOUR, PROFILS_DES_OFFRES, comptesDAttente, inscrire, lireInscription, offreConnue } from '../src/attente.mjs';
-import { CHEMIN_OFFRE_COMMUNES, CHEMIN_OFFRE_EDITEURS, CHEMIN_OFFRE_MARCHES, CHEMINS_DES_OFFRES, COUVERTURE, COUVERTURE_COMMUNES, ECHANTILLON, EXEMPLE_D_ACTE, EXEMPLE_DE_REGISTRE, lienDeLAvis } from '../src/offre.mjs';
-import { ISSUES_DE_L_ATTENTE, pageAttente, pageOffreCommunes, pageOffreEditeurs, pageOffreMarches } from '../src/pages.mjs';
+import { CHEMIN_OFFRE_COMMUNES, CHEMIN_OFFRE_EDITEURS, CHEMIN_OFFRE_MARCHES, CHEMINS_DES_OFFRES, COUVERTURE, COUVERTURE_COMMUNES, ECHANTILLON, EXEMPLE_D_ACTE, EXEMPLE_DE_REGISTRE, OFFRES_DE_L_ACCUEIL, lienDeLAvis } from '../src/offre.mjs';
+import { ISSUES_DE_L_ATTENTE, pageAccueil, pageAttente, pageOffreCommunes, pageOffreEditeurs, pageOffreMarches } from '../src/pages.mjs';
 import { decider } from '../src/hote.mjs';
 import { onRequestPost } from '../functions/api/attente.js';
 import { onRequestGet as sonde } from '../functions/health.js';
@@ -192,4 +192,14 @@ test("la page de l'offre des editeurs ne dit aucun prix, porte le formulaire et 
 	assert.match(await ok.text(), /<a class="bouton" href="\/date-de-publication">Revenir à l’offre<\/a>/);
 	assert.equal(lireInscription({ offre: 'editeurs', adresse: 'a@b.fr', profil: 'commune' }).profil, 'autre');
 	assert.deepEqual(await comptesDAttente(db), { 'marches-publics': 0, communes: 0, editeurs: 1 });
+});
+
+test("l'accueil francais lie chaque offre, l'accueil allemand aucune", () => {
+	const accueil = pageAccueil([]);
+	assert.ok(accueil.includes('<p class="suite">Trois offres ouvriront bientôt, pour <a href="/marches-publics">les marchés publics</a>, <a href="/publicite-des-actes">les communes</a> et <a href="/date-de-publication">les éditeurs</a>.</p>'));
+	assert.deepEqual(
+		OFFRES_DE_L_ACCUEIL.map((o) => o.chemin),
+		Object.values(CHEMINS_DES_OFFRES)
+	);
+	for (const { chemin } of OFFRES_DE_L_ACCUEIL) assert.ok(!pageAccueil([], 'de').includes(`href="${chemin}"`), chemin);
 });
