@@ -208,3 +208,9 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   version nouvelle. Table `relecture` (appliquer `SCHEMA` AVANT le merge). Le plafond de la flotte ne compte que
   les actes nouveaux : il se juge APRES la lecture, une relecture passe au plafond. La page de l'acte le dit
   (« Relecture ») ; la fiche JSON ne le porte pas encore (champ requis = version 2 du schema).
+- Les actes des communes sur `/disparus` (D-193) : la Function `functions/disparus.js` sert la page publiee et met
+  a la place de `MARQUE_DES_ACTES` la section lue dans D1 (`actesDisparus`) : `disparu`, une relecture 404/410
+  (date = `depuis`) ; `remplace`, chaque version nouvelle datee a la meme adresse et la precedente (`LAG`). Le
+  filtre est `src/disparusactes.mjs` (pur) : adresse que `adresseNommante` refuse ou retenue (`RETENUES`, sha256
+  de l'adresse, partages avec `disparus.mjs` par `src/retenues.mjs`, sans `node:`) ne parait pas, objet qui
+  pourrait nommer ne s'affiche pas ; la preuve est l'adresse perenne de la version d'avant.

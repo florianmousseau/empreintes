@@ -422,3 +422,30 @@ export async function noterPassage({ db, corps, maintenant = new Date() }) {
 
 /** L'etat de la source d'un acte au dernier passage de la glane, `{ jour, etat }`, ou null. */
 export const passageDeLActe = ({ db, recu }) => un(db, 'SELECT jour, etat FROM passage WHERE recu = ?', recu);
+
+/** Au plus autant d'evenements d'actes par classe sur `/disparus` (D-193). */
+export const DISPARUS_DES_ACTES_MAX = 100;
+
+/**
+ * Les actes des communes dont la source a change (D-193), les plus recents
+ * d'abord, `{ disparus, remplaces }` : `disparus`, ceux que leur
+ * adresse ne sert plus (relecture 404 ou 410, `date` le premier jour de ce
+ * statut) ; `remplaces`, chaque version nouvelle datee a la meme adresse, avec
+ * la version qui la precede (`avant_*`). Bruts : le filtre de ce qui se
+ * publie est `entreesDesActes`.
+ */
+export async function actesDisparus({ db, max = DISPARUS_DES_ACTES_MAX }) {
+	const disparus = await db
+		.prepare(
+			`SELECT r.depuis AS date, r.statut AS http, d.jour AS avant_jour, d.sha256 AS avant, a.collectivite, a.nature, a.objet, a.url FROM relecture r JOIN acte a ON a.recu = r.recu JOIN depot d ON d.recu = r.recu WHERE r.statut IN (${SOURCE_DISPARUE.join(', ')}) AND a.url IS NOT NULL ORDER BY r.depuis DESC, a.url LIMIT ?`
+		)
+		.bind(max)
+		.all();
+	const remplaces = await db
+		.prepare(
+			`SELECT * FROM (SELECT d.jour AS date, d.sha256 AS apres, LAG(d.jour) OVER suite AS avant_jour, LAG(d.sha256) OVER suite AS avant, LAG(a.nature) OVER suite AS nature, a.collectivite, a.objet, a.url FROM acte a JOIN depot d ON d.recu = a.recu WHERE a.url IS NOT NULL WINDOW suite AS (PARTITION BY a.collectivite, a.url ORDER BY d.jour, d.place)) WHERE avant IS NOT NULL ORDER BY date DESC, url LIMIT ?`
+		)
+		.bind(max)
+		.all();
+	return { disparus: disparus.results, remplaces: remplaces.results };
+}
