@@ -562,13 +562,20 @@ function ligneDeLaDateLue(date) {
 	return `<div><dt>Date lue</dt><dd><time datetime="${date.date}">${texte}</time>, ${OU_LUE[date.dans]}</dd></div>\n`;
 }
 
-/** L'etat de la source : remplacee par une version plus recente, sinon ce que la glane y a vu a son dernier passage. */
-function ligneDeLaSource(acte, versions, passage) {
+/** L'etat de la source : remplacee par une version plus recente, sinon ce que la glane y a vu a son dernier passage, et sa relecture. */
+function ligneDeLaSource(acte, versions, passage, relecture) {
 	const derniere = versions.at(-1);
 	if (derniere && derniere.recu !== acte.recu) return `<div><dt>À la source</dt><dd>Nouvelle version datée le <a href="${cheminDeLActe(derniere)}">${jourFr(derniere.jour)}</a></dd></div>\n`;
-	if (!passage) return '';
-	const vu = passage.etat === 'vue' ? 'Lien publié' : 'Lien non retrouvé';
-	return `<div><dt>À la source</dt><dd>${vu} au passage du ${jourFr(passage.jour)}</dd></div>\n`;
+	const vu = passage ? `<div><dt>À la source</dt><dd>${passage.etat === 'vue' ? 'Lien publié' : 'Lien non retrouvé'} au passage du ${jourFr(passage.jour)}</dd></div>\n` : '';
+	return `${vu}${ligneDeLaRelecture(relecture)}`;
+}
+
+/** La derniere relecture de la source (D-193) : les memes octets, ou une adresse qui ne sert plus le document depuis tel jour. */
+function ligneDeLaRelecture(relecture) {
+	if (!relecture) return '';
+	if (relecture.statut === 200) return `<div><dt>Relecture</dt><dd>Même document relu à la source le ${jourFr(relecture.jour)}</dd></div>\n`;
+	const encore = relecture.jour === relecture.depuis ? '' : `, relue le ${jourFr(relecture.jour)}`;
+	return `<div><dt>Relecture</dt><dd>L’adresse ne sert plus le document${NBSP}: réponse ${relecture.statut} depuis le ${jourFr(relecture.depuis)}${encore}</dd></div>\n`;
 }
 
 /**
@@ -577,7 +584,7 @@ function ligneDeLaSource(acte, versions, passage) {
  * meme source. `acte.objet` et `acte.url` arrivent deja gardes (null quand ils
  * pourraient nommer une personne).
  */
-export function pageAdresse({ acte, commune = null, versions = [], passage = null, date = null }) {
+export function pageAdresse({ acte, commune = null, versions = [], passage = null, relecture = null, date = null }) {
 	const e = EDITIONS.fr;
 	const chemin = cheminDeLActe(acte);
 	const adresse = `${e.adresse}${chemin}`;
@@ -601,7 +608,7 @@ export function pageAdresse({ acte, commune = null, versions = [], passage = nul
 <div><dt>${e.recu.registre}</dt><dd id="inscription">${e.recu.lecture}</dd></div>
 <div><dt>Reçu</dt><dd><a href="/recu/${acte.recu}">${acte.recu.slice(0, 12)}</a></dd></div>
 <div><dt>${e.recu.collectivite}</dt><dd><a href="/collectivite/${commune?.insee ?? acte.collectivite}">${nom}</a></dd></div>
-${ligneDeLaDateLue(date)}${source}${ligneDeLaSource(acte, versions, passage)}</dl>
+${ligneDeLaDateLue(date)}${source}${ligneDeLaSource(acte, versions, passage, relecture)}</dl>
 <p class="imprime">${e.hote}${chemin}</p>
 </article>
 ${tableDesVersions(acte, versions)}`
