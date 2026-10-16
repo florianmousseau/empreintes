@@ -7,6 +7,24 @@
 
 export const CHEMIN_OFFRE_MARCHES = '/marches-publics';
 
+/** L'offre des communes (D-195) : leurs actes dates le jour de leur mise en ligne. */
+export const CHEMIN_OFFRE_COMMUNES = '/publicite-des-actes';
+
+/** La page de chaque offre qui tient une liste d'attente (`src/attente.mjs`). */
+export const CHEMINS_DES_OFFRES = { 'marches-publics': CHEMIN_OFFRE_MARCHES, communes: CHEMIN_OFFRE_COMMUNES };
+
+/** Ce que le registre des communes tenait au jour de la page (`/collectivite`, 16/10/2026). */
+export const COUVERTURE_COMMUNES = { au: '2026-10-16', communes: 835, actes: 10006 };
+
+/** Un acte date par la glane, montre en exemple : sa page de preuve, lue en prod le 16/10/2026. */
+export const EXEMPLE_D_ACTE = {
+	commune: 'Amboise',
+	nature: 'Délibération',
+	objet: 'Liste des délibérations du Conseil Municipal du 16 janvier 2025',
+	jour: '2026-10-15',
+	adresse: '/actes/37003/2026-10-15/deliberation-916330351e01'
+};
+
 /** L'avis au BOAMP, par son numero : la seule adresse publique qui reste apres la cloture. */
 export const lienDeLAvis = (numero) => `https://www.boamp.fr/pages/avis/?q=idweb:${numero}`;
 

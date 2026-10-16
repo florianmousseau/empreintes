@@ -216,6 +216,9 @@ test('la page d une commune nomme son departement et invite la commune a dater s
 	assert.match(r.corps, /Code INSEE 17133, SIREN 211701339, <a href="\/collectivite\/departement\/17">Charente-Maritime<\/a>/);
 	assert.match(r.corps, /Cette page est celle de votre commune \? Datez vos actes le jour de leur mise en ligne\./);
 	assert.ok(r.corps.indexOf('votre commune') < r.corps.indexOf('href="/acte"'));
+	// L'offre des communes (D-195) se lie apres le geste du jour, jamais avant.
+	assert.match(r.corps, /Vos actes pourront se dater seuls, depuis votre outil de publication : <a href="\/publicite-des-actes">être prévenu à l’ouverture<\/a>\.<\/p>/);
+	assert.ok(r.corps.indexOf('href="/acte"') < r.corps.indexOf('href="/publicite-des-actes"'));
 	assert.match(r.corps, /sur le site officiel de la commune\. <a href="\/preuve">Valeur de preuve<\/a>/);
 	for (const page of [(await reponseCommunes({ db, commune })).corps, (await reponseDepartement({ db, code: '17', commune })).corps]) {
 		assert.match(page, /Votre commune n’y figure pas\u00A0\? Datez la mise en ligne d’un de ses actes\.<\/p>\n<p><a class="bouton principal" href="\/acte">/);

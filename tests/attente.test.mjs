@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { baseDeTest } from './d1.mjs';
-import { OFFRES, PLAFOND_DU_JOUR, PROFILS, comptesDAttente, inscrire, lireInscription } from '../src/attente.mjs';
-import { CHEMIN_OFFRE_MARCHES, COUVERTURE, ECHANTILLON, lienDeLAvis } from '../src/offre.mjs';
-import { ISSUES_DE_L_ATTENTE, pageAttente, pageOffreMarches } from '../src/pages.mjs';
+import { OFFRES, PLAFOND_DU_JOUR, PROFILS_DES_OFFRES, comptesDAttente, inscrire, lireInscription, offreConnue } from '../src/attente.mjs';
+import { CHEMIN_OFFRE_COMMUNES, CHEMIN_OFFRE_MARCHES, CHEMINS_DES_OFFRES, COUVERTURE, COUVERTURE_COMMUNES, ECHANTILLON, EXEMPLE_D_ACTE, lienDeLAvis } from '../src/offre.mjs';
+import { ISSUES_DE_L_ATTENTE, pageAttente, pageOffreCommunes, pageOffreMarches } from '../src/pages.mjs';
 import { decider } from '../src/hote.mjs';
 import { onRequestPost } from '../functions/api/attente.js';
 import { onRequestGet as sonde } from '../functions/health.js';
@@ -16,8 +16,16 @@ test("une inscription garde l'adresse en minuscules, l'offre et le profil, rien 
 	assert.deepEqual(lireInscription({ offre: 'marches-publics', adresse: '  Achats@Ville-Exemple.FR ', profil: 'acheteur' }), { offre: 'marches-publics', adresse: 'achats@ville-exemple.fr', profil: 'acheteur' });
 	assert.equal(lireInscription({ offre: 'marches-publics', adresse: 'a@b.fr', profil: 'inconnu' }).profil, 'autre');
 	assert.equal(lireInscription({ offre: 'marches-publics', adresse: 'a@b.fr' }).profil, 'autre');
-	assert.deepEqual(Object.keys(PROFILS), ['entreprise', 'acheteur', 'autre']);
-	assert.deepEqual(OFFRES, ['marches-publics']);
+	assert.deepEqual(Object.keys(PROFILS_DES_OFFRES['marches-publics']), ['entreprise', 'acheteur', 'autre']);
+	assert.deepEqual(Object.keys(PROFILS_DES_OFFRES.communes), ['commune', 'prestataire', 'autre']);
+	assert.deepEqual(OFFRES, ['marches-publics', 'communes']);
+	assert.deepEqual(Object.keys(CHEMINS_DES_OFFRES), OFFRES);
+	// Un profil se juge dans la liste de son offre : celui d'une autre offre devient `autre`.
+	assert.equal(lireInscription({ offre: 'communes', adresse: 'mairie@b.fr', profil: 'commune' }).profil, 'commune');
+	assert.equal(lireInscription({ offre: 'communes', adresse: 'mairie@b.fr', profil: 'acheteur' }).profil, 'autre');
+	assert.equal(offreConnue('communes'), 'communes');
+	assert.equal(offreConnue('toString'), null);
+	assert.equal(offreConnue(undefined), null);
 });
 
 test("une adresse illisible, une offre inconnue ou un champ cache rempli ne s'inscrivent pas", () => {
@@ -35,8 +43,8 @@ test('une adresse deja inscrite ne fait pas de seconde ligne, et la reponse est 
 		lignes(db).map((l) => ({ ...l })),
 		[{ offre: 'marches-publics', adresse: 'a@b.fr', profil: 'entreprise', jour: '2026-10-16' }]
 	);
-	assert.deepEqual(await comptesDAttente(db), { 'marches-publics': 1 });
-	assert.deepEqual(await comptesDAttente(baseDeTest()), { 'marches-publics': 0 });
+	assert.deepEqual(await comptesDAttente(db), { 'marches-publics': 1, communes: 0 });
+	assert.deepEqual(await comptesDAttente(baseDeTest()), { 'marches-publics': 0, communes: 0 });
 });
 
 test('au plafond du jour, une offre refuse les inscriptions jusqu’au lendemain', async () => {
@@ -71,7 +79,53 @@ test("chaque page de reponse dit l'issue et ne s'indexe pas", () => {
 		assert.match(html, /<meta name="robots" content="noindex">/);
 		assert.ok(html.includes(`<h1>${titre}</h1>`), issue);
 		assert.match(html, /href="\/marches-publics"/);
+		assert.match(pageAttente(issue, 'communes'), /<a class="bouton" href="\/publicite-des-actes">Revenir à l’offre<\/a>/);
 	}
+});
+
+test("la liste des communes s'inscrit a part, et sa reponse renvoie a son offre", async () => {
+	const db = baseDeTest();
+	const ok = await envoyer({ DEPOTS: db }, { offre: 'communes', adresse: 'Mairie@Commune.FR', profil: 'commune' });
+	assert.equal(ok.status, 200);
+	assert.match(await ok.text(), /href="\/publicite-des-actes">Revenir/);
+	await envoyer({ DEPOTS: db }, { offre: 'marches-publics', adresse: 'mairie@commune.fr', profil: 'acheteur' });
+	assert.deepEqual(
+		lignes(db)
+			.map(({ offre, adresse, profil }) => ({ offre, adresse, profil }))
+			.sort((a, b) => a.offre.localeCompare(b.offre)),
+		[
+			{ offre: 'communes', adresse: 'mairie@commune.fr', profil: 'commune' },
+			{ offre: 'marches-publics', adresse: 'mairie@commune.fr', profil: 'acheteur' }
+		]
+	);
+	assert.deepEqual(await comptesDAttente(db), { 'marches-publics': 1, communes: 1 });
+	const mauvaise = await envoyer({ DEPOTS: db }, { offre: 'communes', adresse: 'pas une adresse' });
+	assert.equal(mauvaise.status, 400);
+	assert.match(await mauvaise.text(), /href="\/publicite-des-actes">Revenir/);
+	const inconnue = await envoyer({ DEPOTS: db }, { offre: 'inconnue', adresse: 'a@b.fr' });
+	assert.match(await inconnue.text(), /href="\/marches-publics">Revenir/);
+});
+
+test("la page de l'offre des communes ne dit aucun prix, porte le formulaire et le geste du jour", () => {
+	const html = pageOffreCommunes();
+	const texte = texteDe(html);
+	for (const interdit of [/€/, /\beuros?\b/i, /tarif/i, /abonnement/i, /gratuit/i, /payant/i, /\bHT\b/, /qualifi/i, /certifi/i, /vaut publication/i]) assert.doesNotMatch(texte, interdit);
+	assert.deepEqual(texte.match(/[^\S ][:;?!»%]/g), null, 'deux-points soudes');
+	assert.deepEqual(texte.match(/«[^ ]/g), null, 'guillemet ouvrant soude');
+	assert.match(html, /<link rel="canonical" href="https:\/\/temoinpublic.fr\/publicite-des-actes">/);
+	assert.match(html, /<input type="hidden" name="offre" value="communes">/);
+	assert.match(html, /<input type="radio" name="profil" value="commune" checked> Commune ou intercommunalité/);
+	assert.match(html, /<input type="radio" name="profil" value="prestataire"> Éditeur ou prestataire des collectivités/);
+	assert.doesNotMatch(html, /value="entreprise"/);
+	assert.doesNotMatch(html, /<script/);
+	assert.ok(texte.includes(`Au 16/10/2026, 835 communes ont 10 006 actes datés`) || texte.includes('Au 16/10/2026, 835 communes ont 10 006 actes datés'), texte.slice(0, 3000));
+	assert.ok(html.includes(`<a href="${EXEMPLE_D_ACTE.adresse}">Délibération, Amboise, en ligne le 15/10/2026</a>`));
+	assert.match(EXEMPLE_D_ACTE.adresse, /^\/actes\/\d{5}\/\d{4}-\d{2}-\d{2}\/deliberation-[0-9a-f]{12}$/);
+	assert.match(html, /<a class="bouton principal" href="\/acte">/);
+	assert.match(html, /<a class="bouton" href="\/collectivite">Voir les communes<\/a>/);
+	assert.equal(CHEMIN_OFFRE_COMMUNES, '/publicite-des-actes');
+	assert.equal(COUVERTURE_COMMUNES.au, '2026-10-16');
+	assert.deepEqual(decider('https://datumszeuge.de/publicite-des-actes'), { action: 'redirection', vers: 'https://temoinpublic.fr/publicite-des-actes' });
 });
 
 test("la page de l'offre ne dit aucun prix, montre l'echantillon et porte le formulaire", () => {
@@ -105,7 +159,7 @@ test('la sonde compte les adresses en attente, et reste a 200 sans base ou quand
 	assert.equal((await lire({ ASSETS: assets })).attente, null);
 	const db = baseDeTest();
 	await inscrire(db, { offre: 'marches-publics', adresse: 'a@b.fr', profil: 'autre' }, '2026-10-16');
-	assert.deepEqual((await lire({ ASSETS: assets, DEPOTS: db })).attente, { 'marches-publics': 1 });
+	assert.deepEqual((await lire({ ASSETS: assets, DEPOTS: db })).attente, { 'marches-publics': 1, communes: 0 });
 	const lie = {
 		bind: () => lie,
 		all: async () => {
