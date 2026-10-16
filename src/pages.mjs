@@ -8,7 +8,7 @@ import { nomDuDepartement } from './departements.mjs';
 import { BESOINS } from './besoins.mjs';
 import { EDITIONS, cheminsDe, planDe } from './edition.mjs';
 import { ADRESSES, FORMULES } from './documentation.mjs';
-import { CHEMIN_OFFRE_ASSUREURS, CHEMIN_OFFRE_COMMUNES, CHEMIN_OFFRE_EDITEURS, CHEMIN_OFFRE_MARCHES, CHEMINS_DES_OFFRES, COUVERTURE, COUVERTURE_COMMUNES, COUVERTURE_DU_REGISTRE, ECHANTILLON, EXEMPLE_D_ACTE, EXEMPLE_DE_REGISTRE, OFFRES_DE_L_ACCUEIL, lienDeLAvis } from './offre.mjs';
+import { CHEMIN_OFFRE_ASSUREURS, CHEMIN_OFFRE_COMMUNES, CHEMIN_OFFRE_EDITEURS, CHEMIN_OFFRE_MARCHES, CHEMIN_OFFRE_NOTAIRES, CHEMINS_DES_OFFRES, COUVERTURE, COUVERTURE_COMMUNES, COUVERTURE_DU_REGISTRE, ECHANTILLON, EXEMPLE_D_ACTE, EXEMPLE_DE_REGISTRE, OFFRES_DE_L_ACCUEIL, lienDeLAvis } from './offre.mjs';
 import { PROFILS_DES_OFFRES } from './attente.mjs';
 
 const NBSP = '\u00A0';
@@ -1149,6 +1149,33 @@ ${formulaireDAttente('assureurs')}
 <p><a class="bouton principal" href="${ACTES.dater.chemin}">Dater une pièce</a> <a class="bouton" href="${BESOINS[0].chemin}">Dater une page web</a></p>
 <h2>Ce que la date ne dit pas</h2>
 <p>Le reçu prouve qu’une pièce existait telle quelle à cette date. Il ne dit ni qui l’a prise, ni où, ni ce qu’elle montre.</p>`
+	});
+}
+
+/* ------------------------------------------------------------ l'offre des notaires (D-195) */
+
+/** Chaque version d'un projet d'acte datee quand elle circule : l'offre, ce qui existe deja sans compte, la liste d'attente. Sans prix. */
+export function pageOffreNotaires(couverture = COUVERTURE_DU_REGISTRE) {
+	const titre = 'Chaque version d’un projet d’acte, datée le jour où elle circule';
+	return gabarit(EDITIONS.fr, {
+		titre,
+		description: 'Chaque version d’un projet d’acte et chaque pièce reçue datées le jour où elles circulent, chacune avec son reçu, vérifiable par tous. Liste d’attente ouverte.',
+		chemin: CHEMIN_OFFRE_NOTAIRES,
+		corps: `<section class="une une-page"><h1>${titre}</h1>
+<p class="chapeau">Un projet d’acte change de main en main avant la signature. Témoin public date chaque version au registre public, le jour où elle part, sans que le fichier quitte votre poste, et remet un reçu à classer au dossier.</p></section>
+${formulaireDAttente('notaires')}
+<h2>Ce que l’offre ajoutera</h2>
+<ul>
+<li>Chaque version est datée depuis votre logiciel de rédaction, au moment où elle est envoyée.</li>
+<li>Les reçus d’un dossier se regroupent sous sa référence, de la première version à l’acte signé.</li>
+<li>Une version reçue se compare en un geste aux versions datées du dossier.</li>
+<li>Vous recevez le relevé de vos versions datées, mois par mois.</li>
+</ul>
+<h2>Déjà en ligne, sans compte</h2>
+<p>Au ${jourFr(couverture.au)}, le registre porte ${nombre(couverture.dates)} dates enregistrées depuis le ${jourFr(couverture.depuis)}.</p>
+<p><a class="bouton principal" href="${ACTES.dater.chemin}">Dater une version</a> <a class="bouton" href="${ACTES.verifier.chemin}">Vérifier une version reçue</a></p>
+<h2>Ce que la date ne dit pas</h2>
+<p>Le reçu prouve qu’une version existait telle quelle à cette date. Il ne donne pas date certaine à un acte sous seing privé${NBSP}: l’enregistrement ou l’acte authentique restent nécessaires.</p>`
 	});
 }
 
