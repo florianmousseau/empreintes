@@ -7,7 +7,6 @@
 // fichier, le PDF n'est pas depose (une page courte vaut mieux qu'une nature
 // fausse). Un objet qui nommerait une personne devient « Sans objet ».
 
-import { constants as zlib } from 'node:zlib';
 import { surSiteOfficiel } from './acte.mjs';
 import { nommeUnePersonne } from './personne.mjs';
 
@@ -348,6 +347,9 @@ const OBJET_FLATE = /\/FlateDecode/;
 // scannee se decompresse en dizaines de Mo, et la glane mourait en tas plein (D-178).
 const FLUX_LU_OCTETS = 256 * 1024;
 const FLUX_CLAIR_MAX = 4 * 1024 * 1024;
+// La valeur de `zlib.constants.Z_SYNC_FLUSH` : ce module est lu par les Functions,
+// ou `node:zlib` n'existe pas (le deploiement du 2026-10-16 a echoue sur l'import).
+const Z_SYNC_FLUSH = 2;
 const TEXTE_PDF = /\/Font\b|\/ToUnicode\b|\bBT\b[\s\S]{0,400}?\bT[jJ]\b/;
 
 /**
@@ -367,7 +369,7 @@ export function coucheTexte(octets, { tronque = false, inflate } = {}) {
 		if (!OBJET_FLATE.test(brut.slice(Math.max(0, m.index - 300), m.index))) continue;
 		let clair;
 		try {
-			clair = inflate(Buffer.from(brut.slice(debut, Math.min(fin, debut + FLUX_LU_OCTETS)), 'latin1'), { finishFlush: zlib.Z_SYNC_FLUSH, maxOutputLength: FLUX_CLAIR_MAX }).toString('latin1');
+			clair = inflate(Buffer.from(brut.slice(debut, Math.min(fin, debut + FLUX_LU_OCTETS)), 'latin1'), { finishFlush: Z_SYNC_FLUSH, maxOutputLength: FLUX_CLAIR_MAX }).toString('latin1');
 		} catch {
 			continue;
 		}
