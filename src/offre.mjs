@@ -13,14 +13,21 @@ export const CHEMIN_OFFRE_COMMUNES = '/publicite-des-actes';
 /** L'offre des editeurs (D-195, D-170) : chaque version de leurs articles datee a sa mise en ligne. */
 export const CHEMIN_OFFRE_EDITEURS = '/date-de-publication';
 
+/** L'offre des assureurs (D-195) : les pieces d'un dossier de sinistre datees le jour ou elles sont prises. */
+export const CHEMIN_OFFRE_ASSUREURS = '/dossier-de-sinistre';
+
 /** La page de chaque offre qui tient une liste d'attente (`src/attente.mjs`). */
-export const CHEMINS_DES_OFFRES = { 'marches-publics': CHEMIN_OFFRE_MARCHES, communes: CHEMIN_OFFRE_COMMUNES, editeurs: CHEMIN_OFFRE_EDITEURS };
+export const CHEMINS_DES_OFFRES = { 'marches-publics': CHEMIN_OFFRE_MARCHES, communes: CHEMIN_OFFRE_COMMUNES, editeurs: CHEMIN_OFFRE_EDITEURS, assureurs: CHEMIN_OFFRE_ASSUREURS };
+
+/** Ce que le registre tenait au jour de la page (accueil de temoinpublic.fr, 16/10/2026). */
+export const COUVERTURE_DU_REGISTRE = { au: '2026-10-16', dates: 5999, depuis: '2026-10-11' };
 
 /** Les offres liees de l'accueil, dans l'ordre de la phrase : la page et son milieu (D-200, D-195). */
 export const OFFRES_DE_L_ACCUEIL = [
 	{ chemin: CHEMIN_OFFRE_MARCHES, nom: 'les marchés publics' },
 	{ chemin: CHEMIN_OFFRE_COMMUNES, nom: 'les communes' },
-	{ chemin: CHEMIN_OFFRE_EDITEURS, nom: 'les éditeurs' }
+	{ chemin: CHEMIN_OFFRE_EDITEURS, nom: 'les éditeurs' },
+	{ chemin: CHEMIN_OFFRE_ASSUREURS, nom: 'les assureurs' }
 ];
 
 /** Un flux suivi, montre en exemple : son registre public (ni adresse ni titre), lu en prod le 16/10/2026. */

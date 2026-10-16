@@ -8,7 +8,7 @@ import { nomDuDepartement } from './departements.mjs';
 import { BESOINS } from './besoins.mjs';
 import { EDITIONS, cheminsDe, planDe } from './edition.mjs';
 import { ADRESSES, FORMULES } from './documentation.mjs';
-import { CHEMIN_OFFRE_COMMUNES, CHEMIN_OFFRE_EDITEURS, CHEMIN_OFFRE_MARCHES, CHEMINS_DES_OFFRES, COUVERTURE, COUVERTURE_COMMUNES, ECHANTILLON, EXEMPLE_D_ACTE, EXEMPLE_DE_REGISTRE, OFFRES_DE_L_ACCUEIL, lienDeLAvis } from './offre.mjs';
+import { CHEMIN_OFFRE_ASSUREURS, CHEMIN_OFFRE_COMMUNES, CHEMIN_OFFRE_EDITEURS, CHEMIN_OFFRE_MARCHES, CHEMINS_DES_OFFRES, COUVERTURE, COUVERTURE_COMMUNES, COUVERTURE_DU_REGISTRE, ECHANTILLON, EXEMPLE_D_ACTE, EXEMPLE_DE_REGISTRE, OFFRES_DE_L_ACCUEIL, lienDeLAvis } from './offre.mjs';
 import { PROFILS_DES_OFFRES } from './attente.mjs';
 
 const NBSP = '\u00A0';
@@ -346,7 +346,7 @@ const lignePour = (e) => (e.actes.acte ? `<p class="suite">Pour ${BESOINS.map((b
 const ligneDesOffres = (e) => {
 	if (!e.actes.acte || !OFFRES_DE_L_ACCUEIL.length) return '';
 	const liens = OFFRES_DE_L_ACCUEIL.map((o) => `<a href="${o.chemin}">${o.nom}</a>`);
-	return `<p class="suite">Trois offres ouvriront bientôt, pour ${liens.slice(0, -1).join(', ')} et ${liens.at(-1)}.</p>\n`;
+	return `<p class="suite">Des offres ouvriront bientôt, pour ${liens.slice(0, -1).join(', ')} et ${liens.at(-1)}.</p>\n`;
 };
 
 /** Dater un acte de collectivite : l'adresse ou il est publie, la collectivite, la nature. */
@@ -1122,6 +1122,33 @@ ${formulaireDAttente('editeurs')}
 <p><a class="bouton principal" href="${BESOINS[0].chemin}">Dater un article</a> <a class="bouton" href="${ACTES.documentation.chemin}">Suivre un flux</a></p>
 <h2>Ce que la date ne dit pas</h2>
 <p>Le registre prouve qu’une version existait à cette date. Il ne dit ni qui l’a écrite, ni si elle dit vrai.</p>`
+	});
+}
+
+/* ------------------------------------------------------------ l'offre des assureurs (D-195) */
+
+/** Les pieces d'un dossier de sinistre datees le jour ou elles sont prises : l'offre, ce qui existe deja sans compte, la liste d'attente. Sans prix. */
+export function pageOffreAssureurs(couverture = COUVERTURE_DU_REGISTRE) {
+	const titre = 'Les pièces d’un dossier de sinistre, datées le jour où elles sont prises';
+	return gabarit(EDITIONS.fr, {
+		titre,
+		description: 'Photos, rapports et pages web d’un sinistre datés au moment où ils sont pris, chacun avec son reçu, vérifiable par tous. Liste d’attente ouverte.',
+		chemin: CHEMIN_OFFRE_ASSUREURS,
+		corps: `<section class="une une-page"><h1>${titre}</h1>
+<p class="chapeau">Une photo, un rapport d’expertise ou une page web prouvent l’état d’un bien ou d’un site à une date. Témoin public date chacune au registre public, le jour même, sans que le fichier quitte votre appareil, et remet un reçu à classer au dossier.</p></section>
+${formulaireDAttente('assureurs')}
+<h2>Ce que l’offre ajoutera</h2>
+<ul>
+<li>Chaque pièce est datée depuis votre outil de gestion des sinistres, au moment où elle entre au dossier.</li>
+<li>Les reçus d’un dossier se regroupent sous son numéro, à joindre en une fois.</li>
+<li>Une page web se relit chaque jour pendant la durée que vous fixez, chaque version datée.</li>
+<li>Vous recevez le relevé de vos pièces datées, mois par mois.</li>
+</ul>
+<h2>Déjà en ligne, sans compte</h2>
+<p>Au ${jourFr(couverture.au)}, le registre porte ${nombre(couverture.dates)} dates enregistrées depuis le ${jourFr(couverture.depuis)}.</p>
+<p><a class="bouton principal" href="${ACTES.dater.chemin}">Dater une pièce</a> <a class="bouton" href="${BESOINS[0].chemin}">Dater une page web</a></p>
+<h2>Ce que la date ne dit pas</h2>
+<p>Le reçu prouve qu’une pièce existait telle quelle à cette date. Il ne dit ni qui l’a prise, ni où, ni ce qu’elle montre.</p>`
 	});
 }
 
