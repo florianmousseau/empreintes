@@ -28,7 +28,7 @@ export const SEGMENTS = [
 /** Les regles de resolution, dans l'ordre ou le resolveur les applique. */
 export const RESOLUTION = [
 	{ cas: 'Forme canonique', statut: 200, rend: 'La page de l’acte, ou sa fiche JSON (Accept: application/json)' },
-	{ cas: `Préfixe d’empreinte de ${HEX_MINIMUM} à 63 caractères, nature absente ou en capitales, code en minuscules`, statut: 301, rend: 'La forme canonique' },
+	{ cas: `Autre écriture du même acte : préfixe d’empreinte d’au moins ${HEX_MINIMUM} caractères ou empreinte entière, nature absente ou en capitales, code en minuscules`, statut: 301, rend: 'La forme canonique' },
 	{ cas: 'Préfixe partagé par plusieurs actes du même jour et de la même collectivité', statut: 300, rend: `Les adresses canoniques, ${AMBIGUS_MAX} au plus` },
 	{ cas: `Segment hors motif, nature inconnue, moins de ${HEX_MINIMUM} caractères, aucun acte`, statut: 404, rend: 'Rien' }
 ];

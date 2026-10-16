@@ -337,3 +337,9 @@ test('au-dela de la limite d un fichier, le plan des actes devient un index de p
 	assert.equal(loc(await servi.text()).length, 3);
 	assert.equal((await planDesActesGet({ env: { DEPOTS: db }, request: new Request('https://temoinpublic.fr/sitemap-actes.xml?page=2') })).status, 404);
 });
+
+test('la regle de renvoi du schema couvre l empreinte entiere que le resolveur renvoie', async () => {
+	const { db } = await base();
+	assert.equal((await repondre(db, `/actes/17133/2026-10-11/deliberation-${A}`)).statut, 301);
+	assert.match(SCHEMA.RESOLUTION.find((r) => r.statut === 301).cas, /empreinte entière/);
+});
