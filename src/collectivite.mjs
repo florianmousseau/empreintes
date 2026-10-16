@@ -13,7 +13,7 @@ import { pourraitNommer } from './glane.mjs';
 import { nommeUnePersonne } from './personne.mjs';
 import { EDITIONS } from './edition.mjs';
 import { pageAdresse, pageAdresses, pageCollectivite, pageCommunes, pageDepartement, pageIntrouvable } from './pages.mjs';
-import { actesAuPrefixe, actesParCollectivite, adressesDesActes, adressePublique, nombreDActes, PLAN_DES_ACTES_MAX, passageDeLActe, serieDeLaCollectivite, versionsDeLaSource } from './service.mjs';
+import { actesAuPrefixe, actesParCollectivite, adressesDesActes, adressePublique, nombreDActes, PLAN_DES_ACTES_MAX, passageDeLActe, relectureDeLActe, serieDeLaCollectivite, versionsDeLaSource } from './service.mjs';
 
 const HTML = { 'content-type': 'text/html; charset=utf-8' };
 const LISTE = { ...HTML, 'cache-control': 'public, max-age=300' };
@@ -175,7 +175,7 @@ export async function reponseAdresse({ db, segments, commune, json = false }) {
 	const acte = garde(r.acte);
 	const corps = json
 		? enJson(ficheDeLActe({ adresse: `${EDITIONS.fr.adresse}${cheminDeLActe(acte)}`, acte, versions, passage, date: dateLue(acte), cheminDe: cheminDeLActe }))
-		: pageAdresse({ acte, commune: await commune(r.acte.collectivite), versions, passage, date: dateLue(acte) });
+		: pageAdresse({ acte, commune: await commune(r.acte.collectivite), versions, passage, relecture: await relectureDeLActe({ db, recu: r.acte.recu }), date: dateLue(acte) });
 	return { statut: 200, corps, entetes: { ...forme.entetes, 'cache-control': 'public, max-age=300' } };
 }
 

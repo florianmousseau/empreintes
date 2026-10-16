@@ -200,3 +200,11 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   de l'adresse, retrait sur un droit instruit par `docs/legal/demandes.md` du cockpit), avec une empreinte
   d'avant presente dans l'index du journal publie ; la preuve est `/verifier?empreinte=<sha256>`. `retire` se
   dit « Sorti de la liste », jamais supprime (un test le refuse).
+- La relecture des actes de la glane (D-193) : avant les communes, chaque passage redemande la datation des
+  actes deja dates les plus anciennement lus (`aRelire`, `--relectures` 3 000 par passage, tous les 7 jours ;
+  l'etat garde nature et libelle pour cela). Le TEMOIN du service relit la source, jamais la glane : les memes
+  octets un autre jour donnent 200 et `relecture.statut` 200 ; un 404 ou 410 donne 422 et `relecture.statut`
+  404/410 pour les actes de cette adresse, `depuis` au premier jour de ce statut ; d'autres octets datent une
+  version nouvelle. Table `relecture` (appliquer `SCHEMA` AVANT le merge). Le plafond de la flotte ne compte que
+  les actes nouveaux : il se juge APRES la lecture, une relecture passe au plafond. La page de l'acte le dit
+  (« Relecture ») ; la fiche JSON ne le porte pas encore (champ requis = version 2 du schema).

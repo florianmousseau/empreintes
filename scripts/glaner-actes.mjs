@@ -6,6 +6,7 @@
 //
 //   JETON_FLOTTE=... node scripts/glaner-actes.mjs --departements 17,37 --etat <dossier>
 //     [--base https://temoinpublic.fr] [--paralleles 6] [--par-commune 40] [--communes-max N] [--communes 17245,37031] [--sec]
+//     [--relectures 3000] [--relecture-jours 7]
 //
 // L'etat (`glane.json` : robots.txt lus, PDF deja deposes) et le releve du jour
 // (`glane-<jour>.tsv`, une ligne par commune) vivent dans `--etat`, hors du depot.
@@ -14,13 +15,17 @@
 // Elle releve aussi, sans les deposer, les documents budgetaires (D-185) des pages
 // d'actes et des pages « budget / finances » : genre, exercice, budget, couche
 // texte, dans `glane-<jour>-budgets.jsonl` ; chaque document n'est lu qu'une fois.
+// Avant les communes, elle redemande la datation des actes deja dates les plus
+// anciennement lus (D-193, `--relectures` par passage, tous les `--relecture-jours`) :
+// le temoin du service relit la source, note les memes octets ou une adresse en
+// 404/410, et date une version nouvelle ; releve dans `glane-<jour>-relectures.jsonl`.
 
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { inflateSync } from 'node:zlib';
 import { DEPARTEMENTS } from '../src/departements.mjs';
-import { AGENT_GLANE, acteDuLien, coucheTexte, documentBudgetaireDe, liensDe, pagesBudget, pagesCandidates, pdfsDe, reglesRobots, robotsPermet, telechargementsDe } from '../src/glane.mjs';
+import { AGENT_GLANE, aRelire, acteDuLien, coucheTexte, documentBudgetaireDe, issueDeRelecture, liensDe, pagesBudget, pagesCandidates, pdfsDe, reglesRobots, robotsPermet, telechargementsDe } from '../src/glane.mjs';
 
 const { values: options } = parseArgs({
 	options: {
@@ -31,6 +36,8 @@ const { values: options } = parseArgs({
 		'par-commune': { type: 'string', default: '40' },
 		'communes-max': { type: 'string', default: '0' },
 		communes: { type: 'string' },
+		relectures: { type: 'string', default: '3000' },
+		'relecture-jours': { type: 'string', default: '7' },
 		sec: { type: 'boolean', default: false }
 	}
 });
@@ -193,7 +200,8 @@ async function deposer(code, acte) {
 	const corps = await r.json().catch(() => ({}));
 	if (r.status === 401) throw new Error('jeton refuse');
 	if (r.status === 429) plafondAtteint = true;
-	if (r.status === 201 || r.status === 200) etat.pdfs[acte.url] = { jour, id: corps.id, code };
+	// La nature et le libelle restent pour redemander la datation a la relecture ; le jour est celui de la datation.
+	if (r.status === 201 || r.status === 200) etat.pdfs[acte.url] = { jour: corps.jour ?? jour, id: corps.id, code, nature: acte.nature, ...(acte.libelle ? { libelle: acte.libelle } : {}) };
 	else if (r.status !== 409 && r.status !== 429) etat.pdfs[acte.url] = { jour, statut: r.status, essais: (deja?.essais ?? 0) + 1, erreur: corps.erreur };
 	return r.status === 201 ? 'depose' : String(r.status);
 }
@@ -306,6 +314,65 @@ async function glanerCommune(code, [hote, prefixe]) {
 	return ligne;
 }
 
+/** Redemande la datation d'un acte deja date : le service relit sa source (D-193). */
+async function relire(url, e) {
+	const hote = new URL(url).hostname;
+	if (refuses.has(hote)) return 'refuse';
+	if (!(await permis(url))) return 'robots';
+	await tourDe(hote);
+	let r;
+	try {
+		r = await fetch(`${options.base}/api/depots`, {
+			method: 'POST',
+			headers: { 'content-type': 'application/json', authorization: `Bearer ${JETON}`, 'user-agent': AGENT_GLANE },
+			body: JSON.stringify({ type: 'acte', url, collectivite: e.code, nature: e.nature, ...(e.libelle ? { libelle: e.libelle } : {}) })
+		});
+	} catch {
+		return 'reseau';
+	}
+	const corps = await r.json().catch(() => ({}));
+	if (r.status === 401) throw new Error('jeton refuse');
+	const issue = issueDeRelecture(r.status, corps);
+	if (!issue) return String(r.status);
+	e.relu = jour;
+	if (issue === 'remplace' || (issue === 'inchange' && corps.id)) e.id = corps.id;
+	return issue;
+}
+
+/** Les actes nommes dans les releves des passages, pour ceux que l'etat garde sans leur nature. */
+function completerLesNatures() {
+	// Une nature absente des releves reste null : l'acte ne se relit pas et les releves ne se relisent pas a chaque passage.
+	const sans = Object.values(etat.pdfs).filter((e) => e.id && e.nature === undefined);
+	if (!sans.length) return;
+	for (const nom of fs.readdirSync(options.etat).filter((n) => /^glane-\d{4}-\d{2}-\d{2}-actes\.jsonl$/.test(n)))
+		for (const ligne of fs.readFileSync(path.join(options.etat, nom), 'utf8').split('\n')) {
+			if (!ligne) continue;
+			const a = JSON.parse(ligne);
+			const e = etat.pdfs[a.url];
+			if (e?.id && !e.nature) Object.assign(e, { nature: a.nature, ...(a.libelle ? { libelle: a.libelle } : {}), code: e.code ?? a.code });
+		}
+	for (const e of sans) e.nature ??= null;
+}
+
+const relectures = {};
+if (!options.sec && Number(options.relectures) > 0) {
+	completerLesNatures();
+	const file = aRelire(etat.pdfs, { jour, jours: Number(options['relecture-jours']), max: Number(options.relectures) });
+	const detailRelectures = path.join(options.etat, `glane-${jour}-relectures.jsonl`);
+	let i = 0;
+	const relecteur = async () => {
+		while (i < file.length) {
+			const [url, e] = file[i++];
+			const issue = await relire(url, e);
+			fs.appendFileSync(detailRelectures, `${JSON.stringify({ code: e.code, url, recu: e.id, issue })}\n`);
+			relectures[issue] = (relectures[issue] ?? 0) + 1;
+		}
+	};
+	await Promise.all(Array.from({ length: Number(options.paralleles) }, relecteur));
+	sauver();
+	console.log(JSON.stringify({ relectures }));
+}
+
 const communes = [];
 const seules = options.communes ? new Set(options.communes.split(',').map((c) => c.trim())) : null;
 const departements = options.departements === 'tous' ? Object.keys(DEPARTEMENTS) : options.departements.split(',').map((d) => d.trim());
@@ -351,4 +418,4 @@ async function ouvrier() {
 }
 await Promise.all(Array.from({ length: Number(options.paralleles) }, ouvrier));
 sauver();
-console.log(JSON.stringify({ ...totaux, plafondAtteint }));
+console.log(JSON.stringify({ ...totaux, relectures, plafondAtteint }));

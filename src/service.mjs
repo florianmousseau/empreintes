@@ -28,7 +28,10 @@ export const SCHEMA = [
 	'CREATE INDEX IF NOT EXISTS depot_recu ON depot (recu)',
 	'CREATE INDEX IF NOT EXISTS depot_sha256 ON depot (sha256)',
 	// D-205 : la source d'un acte au dernier passage de la glane, `vue` (le lien y est encore publie) ou `absente`.
-	'CREATE TABLE IF NOT EXISTS passage (recu TEXT PRIMARY KEY, jour TEXT NOT NULL, etat TEXT NOT NULL) WITHOUT ROWID'
+	'CREATE TABLE IF NOT EXISTS passage (recu TEXT PRIMARY KEY, jour TEXT NOT NULL, etat TEXT NOT NULL) WITHOUT ROWID',
+	// D-193 : la derniere relecture de la source d'un acte par le temoin, quand la glane la redemande : `statut` 200
+	// (les memes octets), 404 ou 410 ; `depuis`, le premier jour de ce statut.
+	'CREATE TABLE IF NOT EXISTS relecture (recu TEXT PRIMARY KEY, jour TEXT NOT NULL, depuis TEXT NOT NULL, statut INTEGER NOT NULL) WITHOUT ROWID'
 ];
 
 const JSON_UTF8 = { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', 'access-control-allow-origin': '*' };
@@ -166,7 +169,9 @@ export async function deposer({ db, corps, adresse, maintenant = new Date(), tem
 		((await un(db, 'SELECT n FROM compte WHERE jour = ? AND adresse = ?', jour, CLE_DE_LA_FLOTTE))?.n ?? 0);
 	const deCetteAdresse = (await un(db, 'SELECT n FROM compte WHERE jour = ? AND adresse = ?', jour, cle))?.n ?? 0;
 	const limite = plafond({ deCetteAdresse, duJour, instant, flotte });
-	if (!limite.ok) return refus(429, limite.motif, [], { 'retry-after': String(limite.apres) });
+	const auPlafond = () => refus(429, limite.motif, [], { 'retry-after': String(limite.apres) });
+	// La glane relit aussi ses actes deja dates (D-193) : son plafond ne compte que les actes nouveaux, il se juge apres la lecture.
+	if (!limite.ok && !flotte) return auPlafond();
 
 	let empreinte = demande.sha256;
 	let lu = null;
@@ -180,6 +185,9 @@ export async function deposer({ db, corps, adresse, maintenant = new Date(), tem
 		try {
 			lu = await temoin(admise);
 		} catch (erreur) {
+			// Une source qui ne sert plus un acte deja date pour sa commune : la relecture le note, la reponse reste un refus.
+			if (flotte && demande.acte && SOURCE_DISPARUE.includes(erreur?.statut))
+				await noterRelecture(db, { jour, statut: erreur.statut, ou: 'collectivite = ? AND url = ?', args: [demande.acte.collectivite, adressePublique(admise.url)] });
 			return refus(422, 'lecture impossible', [String(erreur?.message ?? erreur)]);
 		}
 		empreinte = lu.sha256;
@@ -194,8 +202,9 @@ export async function deposer({ db, corps, adresse, maintenant = new Date(), tem
 
 	const acte = demande.acte ? { ...demande.acte, rattachement: await rattachement({ acte: demande.acte, demandee: demande.url, lue: lu.url, annuaire }) } : null;
 	if (flotte) {
-		const refusDeLaGlane = await jugerLaGlane(db, { acte, empreinte });
+		const refusDeLaGlane = await jugerLaGlane(db, { acte, empreinte, lue: adressePublique(lu.url), jour });
 		if (refusDeLaGlane) return refusDeLaGlane;
+		if (!limite.ok) return auPlafond();
 	}
 	const recu = recuDe({ sha256: empreinte, instant, libelle: demande.libelle, url: demande.url, temoin: lu, acte, affichage: demande.affichage ?? null, signature: signature && { valeur: demande.signature, certificat: signature.certificat.empreinte, sujet: signature.certificat.sujet, emetteur: signature.certificat.emetteur, autorite: signature.certificat.autorite } });
 	const id = await idDuRecu(recu);
@@ -214,11 +223,33 @@ const FICHIER = /^(\d{4}-\d{2}-\d{2})\.jsonl$/;
  * commune (il n'irait sur aucune page), ou deja date pour elle (meme empreinte) ;
  * alors son recu existant. Null quand l'acte est a deposer.
  */
-async function jugerLaGlane(db, { acte, empreinte }) {
+async function jugerLaGlane(db, { acte, empreinte, lue, jour }) {
 	if (acte.rattachement !== 'site-officiel') return refus(422, 'hors du site officiel', [acte.collectivite]);
-	const deja = await un(db, 'SELECT d.jour, d.place, d.recu FROM acte a JOIN depot d ON d.recu = a.recu WHERE d.sha256 = ? AND a.collectivite = ? ORDER BY d.jour LIMIT 1', empreinte, acte.collectivite);
-	return deja ? reponse(200, { deja: true, jour: deja.jour, place: Number(deja.place), id: deja.recu }) : null;
+	const deja = await un(db, 'SELECT d.jour, d.place, d.recu, a.url FROM acte a JOIN depot d ON d.recu = a.recu WHERE d.sha256 = ? AND a.collectivite = ? ORDER BY d.jour LIMIT 1', empreinte, acte.collectivite);
+	if (!deja) return null;
+	// Les memes octets relus a l'adresse de l'acte, un autre jour : sa source le sert toujours.
+	if (lue && deja.url === lue && deja.jour < jour) await noterRelecture(db, { jour, statut: 200, ou: 'recu = ?', args: [deja.recu] });
+	return reponse(200, { deja: true, jour: deja.jour, place: Number(deja.place), id: deja.recu });
 }
+
+/** Les reponses d'une source qui ne sert plus le document (D-193). */
+export const SOURCE_DISPARUE = [404, 410];
+
+/** Note la relecture du jour pour les actes que `ou` designe ; `depuis` ne bouge que quand le statut change. */
+async function noterRelecture(db, { jour, statut, ou, args }) {
+	if (args.includes(null)) return;
+	await faire(
+		db,
+		`INSERT INTO relecture (recu, jour, depuis, statut) SELECT recu, ?, ?, ? FROM acte WHERE ${ou} ON CONFLICT (recu) DO UPDATE SET depuis = CASE WHEN relecture.statut = excluded.statut THEN relecture.depuis ELSE excluded.jour END, jour = excluded.jour, statut = excluded.statut`,
+		jour,
+		jour,
+		statut,
+		...args
+	);
+}
+
+/** La derniere relecture de la source d'un acte, `{ jour, depuis, statut }`, ou null. */
+export const relectureDeLActe = ({ db, recu }) => un(db, 'SELECT jour, depuis, statut FROM relecture WHERE recu = ?', recu);
 
 /** Le fichier public d'un jour : ses lignes dans l'ordre des places, rien d'autre. */
 export async function fichierDuJour({ db, nom, maintenant = new Date() }) {

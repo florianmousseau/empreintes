@@ -343,3 +343,15 @@ test('la regle de renvoi du schema couvre l empreinte entiere que le resolveur r
 	assert.equal((await repondre(db, `/actes/17133/2026-10-11/deliberation-${A}`)).statut, 301);
 	assert.match(SCHEMA.RESOLUTION.find((r) => r.statut === 301).cas, /empreinte entière/);
 });
+
+test("la page dit la relecture de la source : le meme document, ou l'adresse qui ne le sert plus depuis son premier jour", () => {
+	const acte = { collectivite: '17133', jour: '2026-10-11', place: 1, nature: 'deliberation', sha256: A, recu: 'b'.repeat(64), objet: null, url: 'https://www.cravans.fr/pv.pdf' };
+	const meme = pageAdresse({ acte, passage: { jour: '2026-10-20', etat: 'vue' }, relecture: { jour: '2026-10-20', depuis: '2026-10-20', statut: 200 } });
+	assert.match(meme, /<dd>Lien publié au passage du 20\/10\/2026<\/dd><\/div>\n<div><dt>Relecture<\/dt><dd>Même document relu à la source le 20\/10\/2026<\/dd>/);
+	const partie = pageAdresse({ acte, relecture: { jour: '2026-10-30', depuis: '2026-10-23', statut: 404 } });
+	assert.match(partie, /<dd>L’adresse ne sert plus le document : réponse 404 depuis le 23\/10\/2026, relue le 30\/10\/2026<\/dd>/);
+	assert.doesNotMatch(partie, /À la source/);
+	assert.match(pageAdresse({ acte, relecture: { jour: '2026-10-23', depuis: '2026-10-23', statut: 410 } }), /réponse 410 depuis le 23\/10\/2026<\/dd>/);
+	const remplacee = pageAdresse({ acte, versions: [{ ...acte }, { ...acte, recu: 'c'.repeat(64), jour: '2026-10-20', sha256: B }], relecture: { jour: '2026-10-30', depuis: '2026-10-23', statut: 404 } });
+	assert.doesNotMatch(remplacee, /Relecture/, 'une version plus recente l emporte');
+});

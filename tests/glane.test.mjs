@@ -149,3 +149,31 @@ test('un acte qui pourrait nommer une personne n est pas depose, son adresse ser
 	pas('a8.pdf', 'ARRETE TEMPORAIRE DE CIRCULATION RUE DES ACACIAS');
 	garde('CR-CM-16-02-2026.pdf', 'Cliquez', 'deliberation');
 });
+
+import { aRelire, issueDeRelecture } from '../src/glane.mjs';
+
+test('la glane relit ses actes les plus anciennement lus, apres leur delai, quand elle sait les redemander', () => {
+	const pdfs = {
+		a: { jour: '2026-10-16', id: 'r1', code: '17133', nature: 'deliberation' },
+		b: { jour: '2026-10-08', id: 'r2', code: '17133', nature: 'arrete', relu: '2026-10-09' },
+		c: { jour: '2026-10-02', id: 'r3', code: '17133', nature: 'deliberation' },
+		d: { jour: '2026-10-01', id: 'r4', code: '17133' },
+		e: { jour: '2026-10-01', statut: 422, essais: 1 },
+		f: { jour: '2026-10-01', id: 'r6', nature: 'deliberation' },
+		g: { jour: '2026-10-09', id: 'r7', code: '17133', nature: 'decision', relu: '2026-10-16' }
+	};
+	assert.deepEqual(aRelire(pdfs, { jour: '2026-10-16', jours: 7, max: 10 }).map(([u]) => u), ['c', 'b']);
+	assert.deepEqual(aRelire(pdfs, { jour: '2026-10-16', jours: 7, max: 1 }).map(([u]) => u), ['c']);
+	assert.deepEqual(aRelire(pdfs, { jour: '2026-10-16', jours: 0, max: 10 }).map(([u]) => u), ['c', 'b', 'a', 'g']);
+});
+
+test('la reponse du service a une relecture dit le meme document, une version nouvelle, une disparition, ou de reessayer', () => {
+	assert.equal(issueDeRelecture(200, { deja: true }), 'inchange');
+	assert.equal(issueDeRelecture(201), 'remplace');
+	assert.equal(issueDeRelecture(422, { erreur: 'lecture impossible', details: ['la source a repondu 404'] }), 'disparu-404');
+	assert.equal(issueDeRelecture(422, { details: ['la source a repondu 410'] }), 'disparu-410');
+	assert.equal(issueDeRelecture(422, { details: ['la source a repondu 4040'] }), 'illisible');
+	assert.equal(issueDeRelecture(422, { details: ['la source a repondu 500'] }), 'illisible');
+	assert.equal(issueDeRelecture(422), 'illisible');
+	for (const s of [409, 429, 500, 503]) assert.equal(issueDeRelecture(s), null);
+});

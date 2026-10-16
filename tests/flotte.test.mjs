@@ -72,3 +72,54 @@ test('la glane s arrete a son plafond du jour', async () => {
 	assert.equal(r.statut, 429);
 	assert.match(corpsDe(r).erreur, /plafond de la flotte/);
 });
+
+import { relectureDeLActe } from '../src/service.mjs';
+
+const jourDe = (j) => new Date(`2026-10-${j}T12:00:00Z`);
+const disparue = (statut) => async () => {
+	throw Object.assign(new Error(`la source a repondu ${statut}`), { statut });
+};
+
+test('la glane relit un acte deja date : les memes octets un autre jour, puis une adresse qui ne le sert plus', async () => {
+	const db = baseDeTest();
+	const { id } = corpsDe(await glaner(db, acte(3)));
+	assert.equal(await relectureDeLActe({ db, recu: id }), null, 'le jour du depot, rien a relire');
+	const meme = await glaner(db, acte(3), { maintenant: jourDe(20) });
+	assert.equal(meme.statut, 200);
+	assert.equal(corpsDe(meme).id, id);
+	assert.deepEqual({ ...(await relectureDeLActe({ db, recu: id })) }, { jour: '2026-10-20', depuis: '2026-10-20', statut: 200 });
+	const partie = await glaner(db, acte(3), { maintenant: jourDe(23), temoin: disparue(404) });
+	assert.equal(partie.statut, 422);
+	assert.deepEqual({ ...(await relectureDeLActe({ db, recu: id })) }, { jour: '2026-10-23', depuis: '2026-10-23', statut: 404 });
+	await glaner(db, acte(3), { maintenant: jourDe(30), temoin: disparue(404) });
+	assert.deepEqual({ ...(await relectureDeLActe({ db, recu: id })) }, { jour: '2026-10-30', depuis: '2026-10-23', statut: 404 }, 'depuis ne bouge pas');
+	await glaner(db, acte(3), { maintenant: jourDe(31) });
+	assert.deepEqual({ ...(await relectureDeLActe({ db, recu: id })) }, { jour: '2026-10-31', depuis: '2026-10-31', statut: 200 }, 'revenue');
+});
+
+test("la relecture ne note rien pour une erreur passagere, une autre adresse ou un depot qui n'est pas de la glane", async () => {
+	const db = baseDeTest();
+	const { id } = corpsDe(await glaner(db, acte(4)));
+	assert.equal((await glaner(db, acte(4), { maintenant: jourDe(20), temoin: disparue(500) })).statut, 422);
+	assert.equal(await relectureDeLActe({ db, recu: id }), null, 'un 500 ne prouve rien');
+	const ailleurs = temoinDe(() => '4'.padStart(64, '0'));
+	assert.equal((await glaner(db, acte(9), { maintenant: jourDe(21), temoin: ailleurs })).statut, 200);
+	assert.equal(await relectureDeLActe({ db, recu: id }), null, 'les memes octets sous une autre adresse ne relisent pas celle-ci');
+	const exterieur = await deposer({ db, corps: acte(4), adresse: '198.51.100.1', maintenant: jourDe(22), temoin: disparue(404), annuaire });
+	assert.equal(exterieur.statut, 422);
+	assert.equal(await relectureDeLActe({ db, recu: id }), null, 'seule la glane relit');
+});
+
+test('au plafond du jour, la glane relit encore ses actes, mais ne date rien de nouveau', async () => {
+	const db = baseDeTest();
+	const { id } = corpsDe(await glaner(db, acte(5)));
+	db.sqlite.prepare('INSERT INTO compte (jour, adresse, n) VALUES (?, ?, ?)').run('2026-10-20', CLE_DE_LA_FLOTTE, ACTES_DE_LA_FLOTTE_PAR_JOUR);
+	assert.equal((await glaner(db, acte(5), { maintenant: jourDe(20) })).statut, 200);
+	assert.equal((await relectureDeLActe({ db, recu: id })).statut, 200);
+	assert.equal((await glaner(db, acte(6), { maintenant: jourDe(20), temoin: disparue(410) })).statut, 422);
+	const change = await glaner(db, acte(5), { maintenant: jourDe(20), temoin: temoinDe(() => 'f'.repeat(64)) });
+	assert.equal(change.statut, 409, 'une adresse ne se lit qu une fois par jour');
+	const neuf = await glaner(db, acte(7), { maintenant: jourDe(20) });
+	assert.equal(neuf.statut, 429);
+	assert.equal(db.sqlite.prepare('SELECT COUNT(*) AS n FROM depot').get().n, 1);
+});
