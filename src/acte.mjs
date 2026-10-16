@@ -15,6 +15,9 @@ export const NATURES = { deliberation: 'délibération', arrete: 'arrêté', dec
 const INSEE = /^(?:0[1-9]|1\d|2[1-9AB]|[3-8]\d|9[0-8])\d{3}$/;
 const SIREN = /^\d{9}$/;
 
+/** Le motif d'un code de collectivite, INSEE ou SIREN, tel que le schema des adresses le publie. */
+export const MOTIF_COLLECTIVITE = `${INSEE.source}|${SIREN.source}`;
+
 /** Vrai pour un code commune INSEE a 5 caracteres. */
 export const estUnInsee = (code) => INSEE.test(code);
 

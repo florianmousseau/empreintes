@@ -11,8 +11,9 @@ import { execFileSync } from 'node:child_process';
 import { FICHIER_PUBLIE, ID_DE_TOUR, PREUVE_PUBLIEE, indexDesEmpreintes, resumeDe } from '../src/journal.mjs';
 import { BESOINS } from '../src/besoins.mjs';
 import { entreesDe, sitesDe } from '../src/disparus.mjs';
-import { CHEMIN_DISPARUS, cheminDuSite, fluxDisparus, pageDisparus, pageDisparusDuSite, pageAccueil, pageActe, pageBesoin, pageDeposer, pageDocumentation, pageIntrouvable, pageJournal, pageMentions, pagePreuve, pageRoles, pageSections, pageVerifier, TEXTES_DE_L_ARCHIVAGE, planDuSite, robots } from '../src/pages.mjs';
+import { CHEMIN_DISPARUS, cheminDuSite, fluxDisparus, pageDisparus, pageDisparusDuSite, pageAccueil, pageActe, pageBesoin, pageDeposer, pageDocumentation, pageIntrouvable, pageJournal, pageMentions, pagePreuve, pageRoles, pageSections, pageSchemaAdresse, pageVerifier, TEXTES_DE_L_ARCHIVAGE, planDuSite, robots } from '../src/pages.mjs';
 import { EDITIONS, dossierDe, planDe } from '../src/edition.mjs';
+import * as SCHEMA from '../src/schemaadresse.mjs';
 
 const RACINE = path.resolve(import.meta.dirname, '..');
 const DONNEES = path.join(RACINE, 'donnees', 'empreintes');
@@ -72,11 +73,14 @@ for (const [langue, e] of Object.entries(EDITIONS)) {
 	dans(`${e.actes.conditions.chemin.slice(1)}.html`, pageSections('conditions', langue));
 	dans(`${e.actes.roles.chemin.slice(1)}.html`, pageRoles(langue));
 	for (const acte of TEXTES_DE_L_ARCHIVAGE) dans(`${e.actes[acte].chemin.slice(1)}.html`, pageSections(acte, langue));
-	dans('sitemap.xml', planDuSite(langue === 'fr' ? [...planDe(langue), ...(entrees.length ? [CHEMIN_DISPARUS] : []), ...sites.map((x) => cheminDuSite(x.site))] : planDe(langue), langue));
+	dans('sitemap.xml', planDuSite(langue === 'fr' ? [...planDe(langue), SCHEMA.CHEMIN_DE_LA_PAGE, ...(entrees.length ? [CHEMIN_DISPARUS] : []), ...sites.map((x) => cheminDuSite(x.site))] : planDe(langue), langue));
 	dans('robots.txt', robots(langue));
 	dans('llms.txt', e.llms);
 }
 ecrire('acte.html', pageActe());
+// Le schema ouvert des adresses d'actes (D-205) : sa page, et le fichier versionne qui ne change jamais en place.
+ecrire(`${SCHEMA.CHEMIN_DE_LA_PAGE.slice(1)}.html`, pageSchemaAdresse(SCHEMA));
+ecrire(SCHEMA.CHEMIN_DU_SCHEMA.slice(1), `${JSON.stringify(SCHEMA.schemaDeLAdresse(), null, 1)}\n`);
 ecrire('disparus.html', pageDisparus({ entrees, sites }));
 ecrire('disparus.xml', fluxDisparus(entrees));
 for (const { site } of sites) ecrire(`${cheminDuSite(site).slice(1)}.html`, pageDisparusDuSite({ site, entrees: entrees.filter((d) => d.site === site) }));

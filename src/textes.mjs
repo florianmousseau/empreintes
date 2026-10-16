@@ -239,6 +239,7 @@ export const TEXTES = {
 			indexCommunes: { fr: 'les départements dont au moins une commune a un acte daté, avec leurs comptes', de: undefined },
 			departement: { fr: 'les communes d’un département qui ont un acte daté, avec leur compte', de: undefined },
 			collectivite: { fr: 'les actes d’une commune lus sur son site officiel\u00A0: date, nature, empreinte, reçu\u00A0; le SIREN y renvoie', de: undefined },
+			adresseActe: { fr: 'l’adresse pérenne d’un acte\u00A0: sa page, ou sa fiche JSON avec <code>Accept: application/json</code>. Schéma\u00A0: <a href="/adresse-des-actes">adresse des actes</a>', de: undefined },
 			communes: { fr: 'le nom de chaque commune, code INSEE ou SIREN vers <code>[nom, INSEE, SIREN]</code>', de: undefined },
 			sites: {
 				fr: 'les sites officiels des communes, code INSEE ou SIREN vers <code>[hôte, préfixe]</code>. Source\u00A0: <a href="https://www.data.gouv.fr/datasets/service-public-fr-annuaire-de-l-administration-base-de-donnees-locales/">Annuaire de l’administration, Service-Public.fr</a> (DILA), <a href="https://www.etalab.gouv.fr/licence-ouverte-open-licence/">Licence Ouverte 2.0</a>',
@@ -586,6 +587,7 @@ export const TEXTES = {
 - Dater un document : https://temoinpublic.fr/deposer (empreinte calculée dans le navigateur, ou adresse publique lue par le service ; un lien sur le site officiel d’une commune propose d’en faire un acte)
 - Dater la mise en ligne d’un acte de collectivité (délibération, arrêté, décision), lu à son adresse : https://temoinpublic.fr/acte
 - Adresse pérenne de chaque acte daté, à citer : https://temoinpublic.fr/actes/<code INSEE>/<jour de la datation>/<nature>-<12 premiers caractères de l’empreinte> (un préfixe d’au moins 8 caractères y renvoie) ; toutes les adresses : https://temoinpublic.fr/sitemap-actes.xml
+- Schéma ouvert de cette adresse (segments, résolution, fiche JSON servie avec Accept: application/json, profil local d’ELI) : https://temoinpublic.fr/adresse-des-actes et https://temoinpublic.fr/schema/adresse-des-actes/1.json
 - Vérifier un document ou un reçu : https://temoinpublic.fr/verifier
 - Registre public des dates : https://temoinpublic.fr/journal
 - API et formules de vérification sans le site : https://temoinpublic.fr/documentation

@@ -183,6 +183,13 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   `POST /api/passages` (jeton de la flotte) les recus encore lies (`vue`) et non
   retrouves (`absente`), table `passage` ; une version plus recente a la meme
   source l'emporte sur la page.
+- Le schema ouvert de l'adresse (D-205, morceau 5) : `src/schemaadresse.mjs` (pur) le
+  construit depuis les constantes du resolveur, jamais recopie ; la construction ecrit
+  `dist/schema/adresse-des-actes/<version>.json` (JSON Schema de la fiche, forme et
+  resolution en `x-`) et la page `/adresse-des-actes`. Un fichier de version publie ne
+  change jamais en place : un changement de forme ou de champ requis fait une version
+  neuve. La meme adresse sert la page ou la fiche JSON (`Accept: application/json`,
+  `vary: accept`), l'objet et la source gardes comme sur la page.
 - Ce qui a disparu (D-193) : `/disparus` (les sites, les plus recents), `/disparus/<hote, points en tirets>`
   et le flux `/disparus.xml`, construits depuis `donnees/disparus/<jour>.json`. L'entrepot les ecrit en jouant
   `scripts/disparus.mjs` de CE depot sur ses `deltas/<jour>.json` prives, avant chaque copie : le filtre

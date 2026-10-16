@@ -931,3 +931,45 @@ ${items}
 </rss>
 `;
 }
+
+/**
+ * La page du schema ouvert des adresses d'actes (D-205) : forme, segments,
+ * resolution, invariants, fiche JSON, API. `s` est le module `schemaadresse.mjs`.
+ */
+export function pageSchemaAdresse(s) {
+	const ligne = (cellules) => `<tr>${cellules.map((c) => `<td>${c}</td>`).join('')}</tr>`;
+	const table = (entetes, lignes) => `<table>
+<thead><tr>${entetes.map((t) => `<th>${t}</th>`).join('')}</tr></thead>
+<tbody>
+${lignes.map(ligne).join('\n')}
+</tbody>
+</table>`;
+	const code = (t) => `<code>${echapper(t)}</code>`;
+	// Le fichier de schema reste plat (une donnee) ; la page soude ce qu'elle en affiche.
+	const souder = (t) => t.replace(/ ([:;?!])/g, `${NBSP}$1`);
+	return gabarit(EDITIONS.fr, {
+		titre: `Adresse pérenne d’un acte local, version ${s.VERSION_DU_SCHEMA}`,
+		description: `Schéma ouvert de l’adresse pérenne d’un acte de collectivité${NBSP}: forme, segments, règles de résolution, fiche JSON, profil local d’ELI.`,
+		chemin: s.CHEMIN_DE_LA_PAGE,
+		corps: `<h1>Adresse pérenne d’un acte local</h1>
+<p class="sous-titre">Version ${s.VERSION_DU_SCHEMA}, licence ouverte Etalab 2.0, <a href="${s.CHEMIN_DU_SCHEMA}">${s.CHEMIN_DU_SCHEMA}</a></p>
+<p><code class="racine">${echapper(s.GABARIT)}</code></p>
+<p><a href="${s.EXEMPLE}">${s.EXEMPLE}</a></p>
+<h2>Segments</h2>
+${table(['Segment', 'Motif', 'Valeur', 'ELI'], s.SEGMENTS.map((g) => [code(`{${g.nom}}`), code(g.motif), souder(g.porte), code(g.eli)]))}
+<h2>Résolution</h2>
+${table(['Adresse demandée', 'Statut', 'Réponse'], s.RESOLUTION.map((r) => [souder(r.cas), String(r.statut), souder(echapper(r.rend))]))}
+<h2>Invariants</h2>
+<ul>
+${s.INVARIANTS.map((i) => `<li>${souder(i)}</li>`).join('\n')}
+</ul>
+<h2>Fiche JSON</h2>
+${table(['Champ', 'Type', 'Valeur'], s.CHAMPS.map(([nom, type, porte]) => [code(nom), code(type), souder(porte)]))}
+<h2>API</h2>
+${table(['Adresse', 'Champ', 'Valeur'], s.API.map(([adresse, champ, porte]) => [code(adresse), code(champ), souder(porte)]))}
+<h2>Résolveurs</h2>
+<ul>
+<li><a href="${EDITIONS.fr.adresse}/sitemap-actes.xml">${EDITIONS.fr.adresse}</a></li>
+</ul>`
+	});
+}

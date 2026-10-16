@@ -28,6 +28,7 @@
 		"/annuaire/*",
 		"/confiance/*",
 		"/attestations/*",
-		"/preuves/*"
+		"/preuves/*",
+		"/schema/*"
 	]
 }
