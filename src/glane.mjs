@@ -389,14 +389,15 @@ function formatDe(debut) {
 /**
  * Les actes deja dates a relire ce passage (D-193) : ceux dont la derniere
  * lecture (relecture, sinon datation) date d'au moins `jours`, les plus anciens
- * d'abord, `max` au plus. Il faut le recu, la commune et la nature pour
- * redemander la datation ; `[url, entree]` dans l'ordre de relecture.
+ * d'abord, `max` au plus. Il faut le recu, la commune, la nature et l'objet
+ * (requis pour un acte) pour redemander la datation ; `[url, entree]` dans
+ * l'ordre de relecture.
  */
 export function aRelire(pdfs, { jour, jours, max }) {
 	const limite = new Date(Date.parse(`${jour}T00:00:00Z`) - jours * 864e5).toISOString().slice(0, 10);
 	const dernier = ([, e]) => e.relu ?? e.jour;
 	return Object.entries(pdfs)
-		.filter(([, e]) => e.id && e.code && e.nature && dernier([, e]) <= limite)
+		.filter(([, e]) => e.id && e.code && e.nature && e.libelle && dernier([, e]) <= limite)
 		.sort((a, b) => (dernier(a) < dernier(b) ? -1 : dernier(a) > dernier(b) ? 1 : 0))
 		.slice(0, max);
 }
@@ -404,12 +405,14 @@ export function aRelire(pdfs, { jour, jours, max }) {
 /**
  * Ce que dit la reponse du service a une relecture : `inchange` (les memes
  * octets), `remplace` (une version nouvelle datee), `disparu-404` ou
- * `disparu-410`, `illisible` (autre refus de lecture) ; null quand il faut
+ * `disparu-410`, `illisible` (autre refus de lecture, ou demande refusee :
+ * reessayer ne la changerait pas, elle ne doit pas garder la tete de la file) ; null quand il faut
  * reessayer a un autre passage (deja lu ce jour, plafond, erreur du service).
  */
 export function issueDeRelecture(statut, corps = {}) {
 	if (statut === 200) return 'inchange';
 	if (statut === 201) return 'remplace';
+	if (statut === 400) return 'illisible';
 	if (statut === 422) {
 		const disparu = (corps.details ?? []).join(' ').match(/repondu (404|410)\b/);
 		return disparu ? `disparu-${disparu[1]}` : 'illisible';
