@@ -7,6 +7,7 @@
 // fichier, le PDF n'est pas depose (une page courte vaut mieux qu'une nature
 // fausse). Un objet qui nommerait une personne devient « Sans objet ».
 
+import { constants as zlib } from 'node:zlib';
 import { surSiteOfficiel } from './acte.mjs';
 import { nommeUnePersonne } from './personne.mjs';
 
@@ -343,6 +344,10 @@ function budgetDe(textes) {
 }
 
 const OBJET_FLATE = /\/FlateDecode/;
+// Un flux se juge sur son debut, borne des deux cotes : un flux d'image d'une page
+// scannee se decompresse en dizaines de Mo, et la glane mourait en tas plein (D-178).
+const FLUX_LU_OCTETS = 256 * 1024;
+const FLUX_CLAIR_MAX = 4 * 1024 * 1024;
 const TEXTE_PDF = /\/Font\b|\/ToUnicode\b|\bBT\b[\s\S]{0,400}?\bT[jJ]\b/;
 
 /**
@@ -362,7 +367,7 @@ export function coucheTexte(octets, { tronque = false, inflate } = {}) {
 		if (!OBJET_FLATE.test(brut.slice(Math.max(0, m.index - 300), m.index))) continue;
 		let clair;
 		try {
-			clair = inflate(Buffer.from(brut.slice(debut, fin), 'latin1')).toString('latin1');
+			clair = inflate(Buffer.from(brut.slice(debut, Math.min(fin, debut + FLUX_LU_OCTETS)), 'latin1'), { finishFlush: zlib.Z_SYNC_FLUSH, maxOutputLength: FLUX_CLAIR_MAX }).toString('latin1');
 		} catch {
 			continue;
 		}
