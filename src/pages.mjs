@@ -8,7 +8,7 @@ import { nomDuDepartement } from './departements.mjs';
 import { BESOINS } from './besoins.mjs';
 import { EDITIONS, cheminsDe, planDe } from './edition.mjs';
 import { ADRESSES, FORMULES } from './documentation.mjs';
-import { CHEMIN_OFFRE_COMMUNES, CHEMIN_OFFRE_MARCHES, CHEMINS_DES_OFFRES, COUVERTURE, COUVERTURE_COMMUNES, ECHANTILLON, EXEMPLE_D_ACTE, lienDeLAvis } from './offre.mjs';
+import { CHEMIN_OFFRE_COMMUNES, CHEMIN_OFFRE_EDITEURS, CHEMIN_OFFRE_MARCHES, CHEMINS_DES_OFFRES, COUVERTURE, COUVERTURE_COMMUNES, ECHANTILLON, EXEMPLE_D_ACTE, EXEMPLE_DE_REGISTRE, lienDeLAvis } from './offre.mjs';
 import { PROFILS_DES_OFFRES } from './attente.mjs';
 
 const NBSP = '\u00A0';
@@ -1087,6 +1087,34 @@ ${formulaireDAttente('communes')}
 <p>Au ${jourFr(couverture.au)}, ${nombre(couverture.communes)} communes ont ${nombre(couverture.actes)} actes datés, lus sur leur site officiel.</p>
 <p>Un exemple${NBSP}: <a href="${exemple.adresse}">${echapper(exemple.nature)}, ${echapper(exemple.commune)}, en ligne le ${jourFr(exemple.jour)}</a>, «${NBSP}${echapper(exemple.objet)}${NBSP}».</p>
 <p><a class="bouton principal" href="${ACTES.acte.chemin}">${ACTES.acte.titre}</a> <a class="bouton" href="${ACTES.communes.chemin}">Voir les communes</a></p>`
+	});
+}
+
+/* ------------------------------------------------------------ l'offre des editeurs (D-195, D-170) */
+
+/** Chaque version des articles d'un editeur datee a sa mise en ligne : l'offre, ce qui existe deja sans compte, la liste d'attente. Sans prix. */
+export function pageOffreEditeurs(exemple = EXEMPLE_DE_REGISTRE) {
+	const titre = 'La date de chaque version de vos articles';
+	return gabarit(EDITIONS.fr, {
+		titre,
+		description: 'Chaque article d’un flux RSS ou Atom daté à sa mise en ligne, et chaque modification datée à son tour, avec son reçu. Liste d’attente ouverte.',
+		chemin: CHEMIN_OFFRE_EDITEURS,
+		corps: `<section class="une une-page"><h1>${titre}</h1>
+<p class="chapeau">Le délai pour agir contre un article court du jour de sa première mise en ligne. Témoin public lit le flux de votre site chaque heure et date chaque article nouveau ou modifié, à son adresse.</p></section>
+${formulaireDAttente('editeurs')}
+<h2>Ce que l’offre ajoutera</h2>
+<ul>
+<li>Chaque modification d’un article est datée, même plusieurs fois le même jour.</li>
+<li>Le texte de chaque version est gardé avec sa date, pour la retrouver après une correction.</li>
+<li>Vous êtes averti quand un article quitte votre site.</li>
+<li>Vous recevez le relevé de vos versions datées, mois par mois.</li>
+</ul>
+<h2>Déjà en ligne, sans compte</h2>
+<p>Le suivi d’un flux RSS ou Atom est ouvert${NBSP}: chaque heure, chaque article nouveau ou modifié est lu et daté, une version par jour au plus. Le registre public du flux ne montre ni adresse ni titre${NBSP}; les adresses et les reçus restent dans son registre privé.</p>
+<p>Un exemple${NBSP}: <a href="/editeur/${exemple.id}">le registre d’un site suivi depuis le ${jourFr(exemple.depuis)}</a>, ${nombre(exemple.articles)} articles datés.</p>
+<p><a class="bouton principal" href="${BESOINS[0].chemin}">Dater un article</a> <a class="bouton" href="${ACTES.documentation.chemin}">Suivre un flux</a></p>
+<h2>Ce que la date ne dit pas</h2>
+<p>Le registre prouve qu’une version existait à cette date. Il ne dit ni qui l’a écrite, ni si elle dit vrai.</p>`
 	});
 }
 

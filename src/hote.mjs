@@ -10,7 +10,7 @@ export { HOTES_ALLEMANDS } from './edition.mjs';
 export const FONCTIONS = ['/api/', '/recu/', '/editeur/', '/depots/', '/health', '/mcp'];
 
 /** Ce qui n'existe qu'en francais : l'edition allemande y renvoie. */
-const FRANCAIS = ['/acte', '/actes', '/adresse-des-actes', '/besoin', '/collectivite', '/disparus', '/disparus.xml', '/marches-publics', '/mentions-legales', '/publicite-des-actes', '/sitemap-communes.xml', '/sitemap-actes.xml'];
+const FRANCAIS = ['/acte', '/actes', '/adresse-des-actes', '/besoin', '/collectivite', '/date-de-publication', '/disparus', '/disparus.xml', '/marches-publics', '/mentions-legales', '/publicite-des-actes', '/sitemap-communes.xml', '/sitemap-actes.xml'];
 
 const FICHIERS = new Set(['/sitemap.xml', '/robots.txt', '/llms.txt']);
 

@@ -10,7 +10,8 @@
  */
 export const PROFILS_DES_OFFRES = {
 	'marches-publics': { entreprise: 'Entreprise qui répond aux marchés', acheteur: 'Collectivité ou acheteur public', autre: 'Autre' },
-	communes: { commune: 'Commune ou intercommunalité', prestataire: 'Éditeur ou prestataire des collectivités', autre: 'Autre' }
+	communes: { commune: 'Commune ou intercommunalité', prestataire: 'Éditeur ou prestataire des collectivités', autre: 'Autre' },
+	editeurs: { presse: 'Éditeur de presse ou rédaction', site: 'Site, blog ou administration qui publie', autre: 'Autre' }
 };
 
 export const OFFRES = Object.keys(PROFILS_DES_OFFRES);
