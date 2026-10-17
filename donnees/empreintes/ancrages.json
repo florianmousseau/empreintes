@@ -1,5 +1,5 @@
 {
- "dernier": "20261017T060634Z",
+ "dernier": "20261017T101453Z",
  "tours": {
   "20261011T041935Z": {
    "ots": "bitcoin",
@@ -518,11 +518,11 @@
    "bloc": 971780
   },
   "20261017T041038Z": {
-   "ots": "calendrier",
+   "ots": "bitcoin",
    "detail": "https://a.pool.opentimestamps.org https://b.pool.opentimestamps.org https://a.pool.eternitywall.com https://ots.btc.catallaxy.com",
    "racine": "e88085d875dd7e11e66704a0e140294f0ca018c00f85060e5f9cab7cf6639075",
    "feuilles": 7227,
-   "maj": "2026-10-17T05:51:15.432Z",
+   "maj": "2026-10-17T10:41:06.673Z",
    "signature": {
     "etat": "signe",
     "certificat": "5263feba5fc71c4725c93328c0c75a94fc4e1b632bb9ff01574239551ab34b80",
@@ -541,18 +541,41 @@
     "signataire": "DirName:/C=ES/O=Sectigo (Europe) SL/CN=Sectigo Qualified Time Stamping Signer #3",
     "prestataire": "timestamp.sectigo.com",
     "verifie": true
-   }
+   },
+   "bloc": 971817
   },
   "20261017T060634Z": {
-   "ots": "calendrier",
+   "ots": "bitcoin",
    "detail": "https://a.pool.opentimestamps.org https://b.pool.opentimestamps.org https://a.pool.eternitywall.com https://ots.btc.catallaxy.com",
    "racine": "8ce92cc119d96ce49baf0794fc0692c5b66d13c3e644ad3305c87f21ab34d8c5",
    "feuilles": 7620,
-   "maj": "2026-10-17T06:38:26.926Z",
+   "maj": "2026-10-17T10:41:06.673Z",
    "signature": {
     "etat": "signe",
     "certificat": "5263feba5fc71c4725c93328c0c75a94fc4e1b632bb9ff01574239551ab34b80",
     "sigT": "2026-10-17T06:38:26Z"
+   },
+   "signatureSlh": {
+    "etat": "signe",
+    "cle": "c1eccce60b9e07019b60e86f8c65836332a302f5140e09df54e7c762bc989f9c",
+    "octets": 7856
+   },
+   "horodatage": {
+    "etat": "deja",
+    "tour": "20261017T041038Z"
+   },
+   "bloc": 971835
+  },
+  "20261017T101453Z": {
+   "ots": "calendrier",
+   "detail": "https://a.pool.opentimestamps.org https://b.pool.opentimestamps.org https://a.pool.eternitywall.com https://ots.btc.catallaxy.com",
+   "racine": "8511883f6e567afd773d01666e52bbbc692dc898a1430a889401ca38902d52d7",
+   "feuilles": 7910,
+   "maj": "2026-10-17T10:41:06.673Z",
+   "signature": {
+    "etat": "signe",
+    "certificat": "5263feba5fc71c4725c93328c0c75a94fc4e1b632bb9ff01574239551ab34b80",
+    "sigT": "2026-10-17T10:41:06Z"
    },
    "signatureSlh": {
     "etat": "signe",
