@@ -28,8 +28,10 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   SLH-DSA-SHA2-128s (FIPS 205) pure, contexte vide, 7 856 octets bruts, sur le
   texte hexadecimal de la racine (le meme message que la charge du JWS). Elle se
   relit dans `src/slh.mjs`, sans dependance et synchrone (WebCrypto n'a pas
-  SLH-DSA) ; le test est contre des signatures d'OpenSSL figees
-  (`tests/fixtures/slh/`). La cle publique est servie en
+  SLH-DSA) ; le test est contre des signatures d'OpenSSL figees et les vecteurs
+  ACVP du NIST de ce jeu, cas valides et refuses (`tests/fixtures/slh/`, la
+  source et son commit dans le fichier). Le contexte et l'interface interne ne
+  servent qu'a relire ces vecteurs : le journal signe sans contexte. La cle publique est servie en
   `/empreintes/cle-slh-dsa.pub` (32 octets bruts, poussee par l'entrepot) et
   EPINGLEE par son sha256 dans `CLES_SLH_DU_JOURNAL`, avec le premier tour
   qu'elle signe : tant que la liste est vide rien n'est exige ; ensuite `/health`
