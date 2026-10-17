@@ -216,17 +216,32 @@ export function cleBrute(octets) {
 	return null;
 }
 
+const CONTEXTE_VIDE = new Uint8Array(0);
+
 /**
- * Verifie une signature SLH-DSA-SHA2-128s pure, contexte vide (FIPS 205,
- * algorithmes 20 et 24). `message`, `signature` et `cle` sont des octets ; la
- * cle est brute (32 octets) ou en SubjectPublicKeyInfo. Rend un booleen.
+ * Le message que l'interface externe pure signe reellement (FIPS 205,
+ * algorithme 24) : 0, la longueur du contexte, le contexte, puis le message.
+ * Un contexte de plus de 255 octets n'existe pas ; null le dit.
  */
-export function verifierSlhDsa(message, signature, cle) {
+function messageExterne(message, contexte) {
+	if (contexte.length > 255) return null;
+	return concat(Uint8Array.of(0, contexte.length), contexte, message);
+}
+
+/**
+ * Verifie une signature SLH-DSA-SHA2-128s pure (FIPS 205, algorithmes 20 et
+ * 24). `message`, `signature` et `cle` sont des octets ; la cle est brute
+ * (32 octets) ou en SubjectPublicKeyInfo. Le journal signe sans contexte ;
+ * `contexte` (au plus 255 octets) et `interne` (le message tel quel, algorithme
+ * 20 seul) servent a relire les vecteurs du NIST. Rend un booleen.
+ */
+export function verifierSlhDsa(message, signature, cle, { contexte = CONTEXTE_VIDE, interne = false } = {}) {
 	const pk = cleBrute(cle);
 	if (!pk || signature?.length !== TAILLE_SIGNATURE) return false;
+	const m = interne ? message : messageExterne(message, contexte);
+	if (!m) return false;
 	const graine = pk.subarray(0, N);
 	const racine = pk.subarray(N);
-	const m = concat(Uint8Array.of(0, 0), message);
 	const r = signature.subarray(0, N);
 	const condense = mgf1(concat(r, graine, sha256Sync(concat(r, graine, racine, m))), 30);
 	let arbre = entier(condense.subarray(21, 28)) & ((1n << 54n) - 1n);
