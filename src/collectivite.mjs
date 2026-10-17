@@ -13,12 +13,13 @@ import { pourraitNommer } from './glane.mjs';
 import { nommeUnePersonne } from './personne.mjs';
 import { EDITIONS } from './edition.mjs';
 import { entreesDesActes } from './disparusactes.mjs';
-import { avecLesActes, pageAdresse, pageAdresses, pageCollectivite, pageCommunes, pageDepartement, pageIntrouvable, sectionDesActes } from './pages.mjs';
+import { avecLesActes, itemsDesActes, pageAdresse, pageAdresses, pageCollectivite, pageCommunes, pageDepartement, pageIntrouvable, sectionDesActes } from './pages.mjs';
 import { actesAuPrefixe, actesDisparus, actesParCollectivite, DISPARUS_DES_ACTES_MAX, adressesDesActes, adressePublique, nombreDActes, PLAN_DES_ACTES_MAX, passageDeLActe, relectureDeLActe, serieDeLaCollectivite, versionsDeLaSource } from './service.mjs';
 
 const HTML = { 'content-type': 'text/html; charset=utf-8' };
 const LISTE = { ...HTML, 'cache-control': 'public, max-age=300' };
 const XML = { 'content-type': 'application/xml; charset=utf-8', 'cache-control': 'public, max-age=3600' };
+const FLUX = { 'content-type': 'application/rss+xml; charset=utf-8', 'cache-control': 'public, max-age=300' };
 const introuvable = () => ({ statut: 404, corps: pageIntrouvable(), entetes: { ...HTML, 'cache-control': 'public, max-age=300' } });
 const renvoi = (location) => ({ statut: 301, corps: '', entetes: { location, 'cache-control': 'public, max-age=3600' } });
 
@@ -205,11 +206,17 @@ export function veutDuJson(accept) {
  * la section des actes des communes disparus ou remplaces a sa place.
  * `commune(code)` rend `{ nom }` ou null.
  */
-export async function reponseDisparus({ db, publiee, commune }) {
+export const reponseDisparus = ({ db, publiee, commune }) => avecLesActesDeLaBase({ db, publiee, commune, rendre: sectionDesActes, entetes: LISTE });
+
+/** La reponse a `/disparus.xml` (D-193) : le flux publie, les actes des communes a la place de leur marque. */
+export const reponseFluxDisparus = ({ db, publiee, commune }) => avecLesActesDeLaBase({ db, publiee, commune, rendre: itemsDesActes, entetes: FLUX });
+
+/** Le document publie, `rendre({ entrees, nomDe })` des actes disparus ou remplaces a la place de `MARQUE_DES_ACTES`. */
+async function avecLesActesDeLaBase({ db, publiee, commune, rendre, entetes }) {
 	if (!publiee.ok) return { statut: publiee.status, corps: await publiee.text(), entetes: Object.fromEntries(publiee.headers) };
-	const html = await publiee.text();
+	const texte = await publiee.text();
 	const entrees = await entreesDesActes(await actesDisparus({ db }), DISPARUS_DES_ACTES_MAX);
 	const codes = [...new Set(entrees.map((e) => e.collectivite))];
 	const noms = new Map(await Promise.all(codes.map(async (code) => [code, (await commune(code))?.nom ?? null])));
-	return { statut: 200, corps: avecLesActes(html, sectionDesActes({ entrees, nomDe: (code) => noms.get(code) })), entetes: LISTE };
+	return { statut: 200, corps: avecLesActes(texte, rendre({ entrees, nomDe: (code) => noms.get(code) })), entetes };
 }

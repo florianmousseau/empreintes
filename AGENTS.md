@@ -255,6 +255,8 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   filtre est `src/disparusactes.mjs` (pur) : adresse que `adresseNommante` refuse ou retenue (`RETENUES`, sha256
   de l'adresse, partages avec `disparus.mjs` par `src/retenues.mjs`, sans `node:`) ne parait pas, objet qui
   pourrait nommer ne s'affiche pas ; la preuve est l'adresse perenne de la version d'avant.
+  Le flux `/disparus.xml` suit le meme chemin (`functions/disparus.xml.js`, `itemsDesActes`) : un item par acte a
+  la place de la marque du flux statique, servi en `application/rss+xml`.
 - Les offres pas encore ouvertes (D-195, D-200) : une page statique par milieu, en francais
   seulement, SANS PRIX (le prix est a Florian) : `/marches-publics`, `/publicite-des-actes`, `/date-de-publication`, `/dossier-de-sinistre`, `/versions-d-un-acte`, `/documents-du-personnel`
   (les communes, les editeurs, les assureurs, les notaires, les DRH). Une seule liste d'attente pour toutes : `src/attente.mjs`

@@ -4,10 +4,11 @@ import { baseDeTest } from './d1.mjs';
 import { entreesDesActes } from '../src/disparusactes.mjs';
 import { RETENUES } from '../src/retenues.mjs';
 import { sha256 } from '../src/chaine.mjs';
-import { reponseDisparus } from '../src/collectivite.mjs';
+import { reponseDisparus, reponseFluxDisparus } from '../src/collectivite.mjs';
 import { actesDisparus } from '../src/service.mjs';
-import { MARQUE_DES_ACTES, avecLesActes, pageDisparus, sectionDesActes } from '../src/pages.mjs';
+import { MARQUE_DES_ACTES, avecLesActes, fluxDisparus, itemsDesActes, pageDisparus, sectionDesActes } from '../src/pages.mjs';
 import { onRequestGet } from '../functions/disparus.js';
+import { onRequestGet as fluxGet } from '../functions/disparus.xml.js';
 
 const hex = (c) => c.repeat(64);
 const SITE = 'https://www.cravans.fr/docs';
@@ -103,4 +104,29 @@ test('GET /disparus sert la page publiee avec les actes, et laisse passer une pa
 	const commune = async (code) => (code === '17133' ? { nom: 'Cravans' } : null);
 	const nommee = await reponseDisparus({ db, publiee: new Response(page), commune });
 	assert.match(nommee.corps, />Cravans</);
+});
+
+test('GET /disparus.xml sert le flux publie avec un item par acte, aucune personne', async () => {
+	const db = base(ACTES);
+	const flux = fluxDisparus([]);
+	assert.ok(flux.includes(MARQUE_DES_ACTES));
+	assert.equal(itemsDesActes({ entrees: [] }), '');
+	const env = (statut) => ({
+		DEPOTS: db,
+		ASSETS: { fetch: async (u) => (String(u).includes('/annuaire/') ? new Response('{}', { status: 404 }) : new Response(statut === 200 ? flux : 'absent', { status: statut })) }
+	});
+	const r = await fluxGet({ env: env(200), request: new Request('https://temoinpublic.fr/disparus.xml') });
+	assert.equal(r.status, 200);
+	assert.equal(r.headers.get('content-type'), 'application/rss+xml; charset=utf-8');
+	const xml = await r.text();
+	assert.ok(!xml.includes(MARQUE_DES_ACTES));
+	assert.equal((xml.match(/<item>/g) ?? []).length, 3);
+	assert.match(xml, /<title>Remplacé à la même adresse, 17133, Travaux de voirie, version corrigee<\/title>/);
+	assert.match(xml, /<link>https:\/\/temoinpublic\.fr\/actes\/17133\/2026-10-15\/deliberation-a{12}<\/link>/);
+	assert.match(xml, /<guid isPermaLink="false">acte:disparu:a{64}:/);
+	assert.match(xml, /HTTP 404, version du 15\/10\/2026/);
+	assert.doesNotMatch(xml, /SIMON|maingot/i);
+	assert.equal((await fluxGet({ env: env(404), request: new Request('https://temoinpublic.fr/disparus.xml') })).status, 404);
+	const commune = async (code) => (code === '17133' ? { nom: 'Cravans' } : null);
+	assert.match((await reponseFluxDisparus({ db, publiee: new Response(flux), commune })).corps, /<title>Disparu, Cravans, /);
 });
