@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { ACTES, SCEAU, pageAdresse, pageAdresses, TEXTES_DU_REGISTRE, TEXTES_DE_L_ARCHIVAGE, pageRoles, pageSections, DONNEES_STRUCTUREES, PLAN, planDuSite, pageMentions, pageActe, pageCollectivite, pageCommunes, pageDepartement, pageEditeur, pageDocumentation, pageIntrouvable, ancrageDe, dateHeure, echapper, pageAccueil, pageDeposer, pageJournal, pageVerifier, pagePreuve, premierHorodatageQualifie, COPIES } from '../src/pages.mjs';
+import { ACTES, SCEAU, pageAdresse, pageAdresses, TEXTES_DU_REGISTRE, TEXTES_DE_L_ARCHIVAGE, pageRoles, pageSections, DONNEES_STRUCTUREES, PLAN, planDuSite, pageMentions, pageActe, pageCollectivite, pageCommunes, pageDepartement, pageEditeur, pageDocumentation, pageIntrouvable, ancrageDe, dateHeure, echapper, pageAccueil, pageDeposer, pageJournal, pageVerifier, pagePreuve, premierHorodatageQualifie, premiereSignaturePostQuantique, COPIES } from '../src/pages.mjs';
 
 const t = { id: '20261012T101314Z', instant: '2026-10-12T10:13:14Z', objets: 2018, racine: 'f'.repeat(64), ots: 'bitcoin', bloc: 971045, fichiers: ['20261012T101314Z.json', '20261012T101314Z.racine.ots'] };
 const pages = [pageJournal([t, { ...t, id: '20261012T121314Z', ots: 'calendrier', bloc: null }]), pageVerifier(), pageJournal([]), pageDeposer(), pageAccueil([t]), pageAccueil([]), pageIntrouvable(), pageMentions(), pagePreuve([t]), pageActe(), pageDocumentation(), pageEditeur({ flux: { id: '0123456789abcdef', inscrit: '2026-10-12T00:00:00Z', retire: null }, total: 1, versions: [{ article: 'e'.repeat(64), jour: '2026-10-12', place: 4, sha256: 'c'.repeat(64), recu: 'd'.repeat(64) }] }), pageCollectivite({ code: '17133', commune: { nom: 'Cravans', insee: '17133', siren: '211701339' }, serie: { total: 1, actes: [{ jour: '2026-10-12', place: 3, sha256: 'c'.repeat(64), recu: 'd'.repeat(64), nature: 'deliberation' }] }, departement: '17' }), pageCommunes({ departements: [{ code: '17', nom: 'Charente-Maritime', communes: 1, actes: 2 }] }), pageDepartement({ code: '17', nom: 'Charente-Maritime', communes: [{ insee: '17133', nom: 'Cravans', actes: 2 }] }), pageSections('pratiques'), pageSections('conditions'), pageRoles(), pageSections('archivage'), pageSections('conditionsArchivage'), pageAdresse({ acte: { collectivite: '17133', jour: '2026-10-12', place: 3, nature: 'deliberation', sha256: 'c'.repeat(64), recu: 'd'.repeat(64), objet: 'Budget primitif', url: 'https://www.cravans.fr/pv.pdf' }, commune: { nom: 'Cravans', insee: '17133', siren: null }, versions: [{ collectivite: '17133', jour: '2026-10-12', place: 3, nature: 'deliberation', sha256: 'c'.repeat(64), recu: 'd'.repeat(64) }] }), pageAdresses([{ collectivite: '17133', jour: '2026-10-12', nature: 'arrete', sha256: 'c'.repeat(64) }])];
@@ -153,6 +153,27 @@ test("les mentions legales nomment l'editeur, l'hebergeur et ce qui est garde", 
 	assert.match(html, /Cloudflare, Inc\./);
 	assert.match(html, /mailto:contact@florianmousseau.com/);
 	assert.match(html, /Aucun cookie/);
+});
+
+test('la valeur de preuve dit ce qui tient dans trente ans, et la signature post-quantique seulement depuis le premier tour qui en porte (D-201)', () => {
+	const slh = { ...t, id: '20261016T161252Z', instant: '2026-10-16T16:12:52Z', fichiers: ['20261016T161252Z.racine.slh'] };
+	assert.equal(premiereSignaturePostQuantique([t]), null);
+	assert.equal(premiereSignaturePostQuantique([t, slh]), '16/10/2026');
+	assert.equal(premiereSignaturePostQuantique([t, slh], 'de'), '16.10.2026');
+	const sans = pagePreuve([t]);
+	assert.match(sans, /<h2>Dans trente ans<\/h2>/);
+	assert.match(sans, /ne sait pas défaire une empreinte SHA-256/);
+	assert.doesNotMatch(sans, /SLH-DSA/);
+	const avec = pagePreuve([t, slh]);
+	assert.match(avec, /Depuis le 16\/10\/2026, chaque racine est aussi signée en SLH-DSA \(FIPS 205\)/);
+	assert.match(avec, /La page <a href="\/verifier">Vérifier<\/a> relit les deux signatures/);
+	const de = pagePreuve([t, slh], undefined, 'de');
+	assert.match(de, /<h2>In dreißig Jahren<\/h2>/);
+	assert.match(de, /mit SLH-DSA \(FIPS 205\) signiert/);
+	assert.match(de, /href="\/pruefen"/);
+	// La section vient avant « Si ce site disparait », apres les textes.
+	assert.ok(avec.indexOf('Dans trente ans') > avec.indexOf('<h2>Textes</h2>'));
+	assert.ok(avec.indexOf('Dans trente ans') < avec.indexOf('Si ce site disparaît'));
 });
 
 test('la valeur de preuve dit l’horodatage qualifie seulement quand un tour en porte, et nomme chaque copie', () => {

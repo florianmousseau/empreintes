@@ -337,6 +337,28 @@ export const TEXTES = {
 				'<a href="https://eur-lex.europa.eu/legal-content/DE/TXT/?uri=CELEX:32014R0910">eIDAS-Verordnung, Artikel 41</a>: Einem elektronischen Zeitstempel darf die Beweiskraft nicht allein deshalb abgesprochen werden, weil er in elektronischer Form vorliegt.'
 			]
 		},
+		// D-201 : ce qui tient quand les signatures d'aujourd'hui deviennent falsifiables.
+		dureeTitre: { fr: 'Dans trente ans', de: 'In dreißig Jahren' },
+		duree: {
+			fr: 'Un ordinateur quantique pourrait un jour contrefaire les signatures d’aujourd’hui, à courbes elliptiques ou RSA, dont celle d’un horodatage eIDAS. Il ne sait pas défaire une empreinte SHA-256 ni une chaîne d’empreintes.',
+			de: 'Ein Quantencomputer könnte eines Tages die heutigen Signaturen fälschen, auf elliptischen Kurven oder RSA, auch die eines eIDAS-Zeitstempels. Eine SHA-256-Prüfsumme oder eine Kette von Prüfsummen kann er nicht umkehren.'
+		},
+		signeePq: {
+			fr: (j, verifier) => `Depuis le ${j}, chaque racine est aussi signée en SLH-DSA (FIPS 205), une signature bâtie sur les seules fonctions de hachage. La page ${verifier} relit les deux signatures.`,
+			de: (j, verifier) => `Seit dem ${j} wird jede Wurzel zusätzlich mit SLH-DSA (FIPS 205) signiert, einer Signatur, die nur auf Hashfunktionen beruht. Die Seite ${verifier} liest beide Signaturen.`
+		},
+		chaineDuree: {
+			fr: `Le registre est une chaîne d’empreintes${NBSP}: chaque racine est liée à celle du tour précédent, et modifier un tour change toutes les racines suivantes.`,
+			de: 'Das Register ist eine Kette von Prüfsummen: Jede Wurzel ist mit der der vorherigen Runde verknüpft, und wer eine Runde ändert, ändert alle folgenden Wurzeln.'
+		},
+		bitcoinDuree: {
+			fr: `L’ancrage dans Bitcoin ne dépend d’aucune clé${NBSP}: la preuve OpenTimestamps est une suite d’empreintes qui mène à un bloc.`,
+			de: 'Die Verankerung in Bitcoin hängt von keinem Schlüssel ab: Der OpenTimestamps-Beweis ist eine Folge von Prüfsummen, die zu einem Block führt.'
+		},
+		doublent: {
+			fr: 'Ces preuves s’ajoutent à la signature du journal et à l’horodatage eIDAS, sans les remplacer.',
+			de: 'Diese Beweise ergänzen die Signatur des Journals und den eIDAS-Zeitstempel, ohne sie zu ersetzen.'
+		},
 		disparait: { fr: 'Si ce site disparaît', de: 'Wenn diese Website verschwindet' },
 		suffisent: {
 			fr: (documentation) => `Le document et son reçu suffisent${NBSP}: les formules sont publiques (${documentation}). Copies du registre${NBSP}:`,
