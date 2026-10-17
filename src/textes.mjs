@@ -222,7 +222,7 @@ export const TEXTES = {
 				de: '20 Datierungen pro Tag und Adresse, 2.000 pro Tag, <code>retry-after</code> bis Mitternacht UTC'
 			},
 			unJour: { fr: 'une même adresse en ligne lue une fois par jour', de: 'dieselbe Internetadresse wird einmal pro Tag gelesen' },
-			illisible: { fr: 'lecture impossible\u00A0: 20 Mo, 30 s, 5 redirections au plus, adresses publiques seulement', de: 'Lesen nicht möglich: höchstens 20 MB, 30 s, 5 Weiterleitungen, nur öffentliche Adressen' }
+			illisible: { fr: 'lecture impossible\u00A0: 20 Mo, 30 s, 5 redirections au plus, adresses publiques seulement ; refusée aussi quand le site renvoie autre chose que le document (page web à la place d’un PDF, page de connexion, vérification anti-robot, moins de 512 octets)', de: 'Lesen nicht möglich: höchstens 20 MB, 30 s, 5 Weiterleitungen, nur öffentliche Adressen; auch abgelehnt, wenn die Website etwas anderes als das Dokument liefert (Webseite statt PDF, Anmeldeseite, Roboterprüfung, weniger als 512 Byte)' }
 		},
 		agents: {
 			mcp: {
