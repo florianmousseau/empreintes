@@ -120,3 +120,9 @@ export async function registreDesAutorites(lectures, lu) {
 	}
 	return { lu, illisibles: illisibles.sort(), autorites };
 }
+
+/** Le registre des autorites publie avec le site, lu par la liaison `ASSETS` d'une Function ; null s'il n'a pas ete construit. */
+export const autoritesDesActifs = (env, base) => async () => {
+	const r = await env.ASSETS.fetch(new URL('/confiance/autorites.json', base));
+	return r.ok ? r.json() : null;
+};

@@ -266,3 +266,11 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   sans script poste a `/api/attente`, la page de reponse renvoie a son offre
   (`CHEMINS_DES_OFFRES`, `src/offre.mjs`). Une offre nouvelle s'ajoute aux deux tables, pas
   a une seconde liste. `/health` compte les adresses par offre.
+- L'API des offres (D-195) : `src/client.mjs` (pur) et `docs/api-des-offres.md`. FERMEE tant
+  que `OFFRE_API` ne vaut pas `ouverte` (absente en production, `/health` dit
+  `apiDesOffres.etat`). Ouverte : `Bearer <cle>` d'un client du registre `CLIENTS_API`
+  (sha256 de la cle, offre, plafond) depose sous son plafond, hors du plafond public et du
+  bilan (cle de compte `client:<id>`), et la reponse porte `portee` ; `POST /api/verifications`
+  relit un recu (identifiant, ligne, inscription au journal, signature). `PORTEE_DU_RECU` ne
+  promet ni date certaine ni qualification : elle ne change qu'avec les pages d'offre et les
+  conditions, jamais avant la liste de confiance.
