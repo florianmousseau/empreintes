@@ -448,3 +448,17 @@ export function refusDeDepot(statut, corps = {}) {
 	const trouvee = CLASSES_DE_LECTURE.find(([, , re]) => re.test(motif));
 	return trouvee ? { classe: trouvee[0], definitif: trouvee[1] } : { classe: 'transitoire', definitif: false };
 }
+
+/**
+ * Les communes deja inscrites au releve d'un jour (`glane-<jour>.tsv`, en-tete
+ * compris) : un passage relance le meme jour reprend apres elles.
+ */
+export function communesDuReleve(tsv) {
+	return new Set(
+		tsv
+			.split('\n')
+			.slice(1)
+			.map((ligne) => ligne.split('\t')[0])
+			.filter(Boolean)
+	);
+}
