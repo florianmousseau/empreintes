@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { SANS_OBJET, acteDuLien, liensDe, natureDe, normaliser, objetDe, pagesCandidates, pdfsDe, reglesRobots, robotsPermet, scoreDePage, texteDuHtml } from '../src/glane.mjs';
+import { SANS_OBJET, acteDuLien, communesDuReleve, liensDe, natureDe, normaliser, objetDe, pagesCandidates, pdfsDe, reglesRobots, robotsPermet, scoreDePage, texteDuHtml } from '../src/glane.mjs';
 
 const ICI = 'https://www.ville-echillais.fr/';
 const sites = [['ville-echillais.fr', '']];
@@ -203,4 +203,10 @@ test('un refus de lecture se classe sur son motif, et seul un refus transitoire 
 	assert.deepEqual(refusDeDepot(422, { erreur: 'hors du site officiel', details: ['17146'] }), { classe: 'hors-site', definitif: true });
 	assert.deepEqual(refusDeDepot(400, { erreur: 'demande illisible' }), { classe: 'refus', definitif: true });
 	assert.deepEqual(refusDeDepot(422), { classe: 'refus', definitif: true });
+});
+
+test('le releve du jour dit les communes deja lues, sans son en-tete ni ligne vide', () => {
+	const tsv = 'code\tsite\taccueil\n44150\tsaint-aignan-grandlieu.fr\t200\n2A004\tajaccio.fr\trobots\n\n';
+	assert.deepEqual([...communesDuReleve(tsv)], ['44150', '2A004']);
+	assert.equal(communesDuReleve('code\tsite\n').size, 0);
 });

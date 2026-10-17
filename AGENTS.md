@@ -169,6 +169,13 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   `.timer` (toutes les communes, `--departements tous`, memoire bornee a
   512 Mo), clone public a jour avant chaque passage, jeton dans
   `/etc/glane-actes.env`. Releve du jour : `/var/lib/glane-actes/etat/glane-<jour>.tsv`.
+  Chaque lecture, chaque appel au service et chaque commune (30 min) ont leur
+  echeance tenue par leur propre horloge (`sousEcheance`, `src/echeance.mjs`) : la
+  nuit du 2026-10-17, 29 ouvriers sur 30 sont restes deux heures sur une page malgre
+  le delai du `fetch` ; `accueil` dit `echeance` au releve quand c'est elle qui tombe.
+  Le repartiteur de `fetch` se renouvelle toutes les 500 communes
+  (`src/connexions.mjs`) : il gardait 16 Ko par origine, 203 Mo pour 12 366 origines.
+  Relance le meme jour, un passage reprend apres les communes deja au releve.
 - Un refus de lecture du temoin (422 `lecture impossible`) se classe sur son motif
   (`refusDeDepot`, `src/glane.mjs`) et se compte au releve par classe (`422-disparu`,
   `422-contenu`, `422-trop-gros`, `422-adresse`, `422-source-4xx` : definitifs ;

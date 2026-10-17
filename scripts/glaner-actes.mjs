@@ -19,13 +19,17 @@
 // anciennement lus (D-193, `--relectures` par passage, tous les `--relecture-jours`) :
 // le temoin du service relit la source, note les memes octets ou une adresse en
 // 404/410, et date une version nouvelle ; releve dans `glane-<jour>-relectures.jsonl`.
+// Chaque lecture et chaque commune ont leur echeance propre (`src/echeance.mjs`) ; un
+// passage relance le meme jour reprend apres les communes deja au releve.
 
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { inflateSync } from 'node:zlib';
+import { renouvelerLesConnexions } from '../src/connexions.mjs';
 import { DEPARTEMENTS } from '../src/departements.mjs';
-import { AGENT_GLANE, aRelire, acteDuLien, coucheTexte, documentBudgetaireDe, issueDeRelecture, liensDe, pagesBudget, pagesCandidates, pdfsDe, refusDeDepot, reglesRobots, robotsPermet, telechargementsDe } from '../src/glane.mjs';
+import { EcheanceDepassee, sousEcheance } from '../src/echeance.mjs';
+import { AGENT_GLANE, aRelire, acteDuLien, communesDuReleve, coucheTexte, documentBudgetaireDe, issueDeRelecture, liensDe, pagesBudget, pagesCandidates, pdfsDe, refusDeDepot, reglesRobots, robotsPermet, telechargementsDe } from '../src/glane.mjs';
 
 const { values: options } = parseArgs({
 	options: {
@@ -53,6 +57,12 @@ if (!JETON && !options.sec) {
 
 const INTERVALLE_MS = 5000;
 const DELAI_MS = 20000;
+const DOC_DELAI_MS = 60000;
+const POST_DELAI_MS = 90000;
+// L'echeance propre d'une lecture tombe MARGE_MS apres celle du fetch ; une commune entiere a COMMUNE_MS.
+const MARGE_MS = 10000;
+const COMMUNE_MS = 30 * 60000;
+const COMMUNES_PAR_REPARTITEUR = 500;
 const OCTETS_MAX = 3e6;
 const ROBOTS_DUREE_MS = 7 * 24 * 3600 * 1000;
 const REFUS = new Set([403, 418, 429, 503]);
@@ -76,13 +86,30 @@ async function tourDe(hote) {
 	await new Promise((r) => setTimeout(r, Math.max(0, t - Date.now())));
 }
 
+/**
+ * Une lecture reseau sous l'echeance de sa propre horloge, `MARGE_MS` apres le
+ * delai du `fetch` : `{ statut: 'echeance' }` quand le `fetch` n'a pas tenu le sien.
+ */
+async function sousSonEcheance(ms, url, lecture) {
+	try {
+		return await sousEcheance(ms + MARGE_MS, url, (arret) => lecture(AbortSignal.any([AbortSignal.timeout(ms), arret])));
+	} catch (e) {
+		if (e instanceof EcheanceDepassee) return { statut: 'echeance' };
+		throw e;
+	}
+}
+
 async function lireTexte(url) {
 	const hote = new URL(url).hostname;
 	if (refuses.has(hote)) return { statut: 'refuse' };
 	await tourDe(hote);
+	return sousSonEcheance(DELAI_MS, url, (signal) => recevoirTexte(url, hote, signal));
+}
+
+async function recevoirTexte(url, hote, signal) {
 	let r;
 	try {
-		r = await fetch(url, { headers: { 'user-agent': AGENT_GLANE, accept: 'text/html,text/plain;q=0.9' }, redirect: 'follow', signal: AbortSignal.timeout(DELAI_MS) });
+		r = await fetch(url, { headers: { 'user-agent': AGENT_GLANE, accept: 'text/html,text/plain;q=0.9' }, redirect: 'follow', signal });
 	} catch (e) {
 		return { statut: String(e.cause?.code ?? e.name ?? 'reseau') };
 	}
@@ -144,9 +171,13 @@ async function lireDocument(url) {
 	const hote = new URL(url).hostname;
 	if (refuses.has(hote)) return { statut: 'refuse' };
 	await tourDe(hote);
+	return sousSonEcheance(DOC_DELAI_MS, url, (signal) => recevoirDocument(url, hote, signal));
+}
+
+async function recevoirDocument(url, hote, signal) {
 	let r;
 	try {
-		r = await fetch(url, { headers: { 'user-agent': AGENT_GLANE, accept: 'application/pdf,*/*;q=0.8' }, redirect: 'follow', signal: AbortSignal.timeout(60000) });
+		r = await fetch(url, { headers: { 'user-agent': AGENT_GLANE, accept: 'application/pdf,*/*;q=0.8' }, redirect: 'follow', signal });
 	} catch (e) {
 		return { statut: String(e.cause?.code ?? e.name ?? 'reseau') };
 	}
@@ -185,6 +216,19 @@ async function releverBudget(code, doc, nouveaux) {
 	return { ...doc, ...etat.budgets[doc.url], issue: 'lu' };
 }
 
+/** Un appel au service sous le jeton de la flotte, borne : `{ status, corps }`, ou un rejet a l'echeance. */
+function poster(chemin, corps) {
+	return sousEcheance(POST_DELAI_MS, chemin, async (signal) => {
+		const r = await fetch(`${options.base}${chemin}`, {
+			method: 'POST',
+			headers: { 'content-type': 'application/json', authorization: `Bearer ${JETON}`, 'user-agent': AGENT_GLANE },
+			body: JSON.stringify(corps),
+			signal
+		});
+		return { status: r.status, corps: await r.json().catch(() => ({})) };
+	});
+}
+
 let plafondAtteint = false;
 async function deposer(code, acte) {
 	const deja = etat.pdfs[acte.url];
@@ -193,12 +237,14 @@ async function deposer(code, acte) {
 	if (options.sec || plafondAtteint) return 'a-deposer';
 	if (!(await permis(acte.url))) return 'robots';
 	await tourDe(new URL(acte.url).hostname);
-	const r = await fetch(`${options.base}/api/depots`, {
-		method: 'POST',
-		headers: { 'content-type': 'application/json', authorization: `Bearer ${JETON}`, 'user-agent': AGENT_GLANE },
-		body: JSON.stringify({ type: 'acte', url: acte.url, collectivite: code, nature: acte.nature, libelle: acte.libelle })
-	});
-	const corps = await r.json().catch(() => ({}));
+	let r;
+	try {
+		r = await poster('/api/depots', { type: 'acte', url: acte.url, collectivite: code, nature: acte.nature, libelle: acte.libelle });
+	} catch (e) {
+		// Sans reponse, rien ne s'ecrit : le meme acte se redemande au passage suivant (200 s'il a ete date entre-temps).
+		return e instanceof EcheanceDepassee ? 'echeance' : 'reseau';
+	}
+	const corps = r.corps;
 	if (r.status === 401) throw new Error('jeton refuse');
 	if (r.status === 429) plafondAtteint = true;
 	// La nature et le libelle restent pour redemander la datation a la relecture ; le jour est celui de la datation.
@@ -229,12 +275,7 @@ async function noterLePassage(code, site, pdfs, lus) {
 	const { vus, absents } = passageDe(code, site, pdfs);
 	if (vus.length + absents.length === 0) return 'passage-vide';
 	try {
-		const r = await fetch(`${options.base}/api/passages`, {
-			method: 'POST',
-			headers: { 'content-type': 'application/json', authorization: `Bearer ${JETON}`, 'user-agent': AGENT_GLANE },
-			body: JSON.stringify({ vus: vus.slice(0, 400), absents: absents.slice(0, 100) })
-		});
-		await r.body?.cancel();
+		const r = await poster('/api/passages', { vus: vus.slice(0, 400), absents: absents.slice(0, 100) });
 		return `passage-${r.status}`;
 	} catch {
 		// Le passage d'une commune perdu ne coute que son etat d'un jour : la glane continue.
@@ -324,15 +365,11 @@ async function relire(url, e) {
 	await tourDe(hote);
 	let r;
 	try {
-		r = await fetch(`${options.base}/api/depots`, {
-			method: 'POST',
-			headers: { 'content-type': 'application/json', authorization: `Bearer ${JETON}`, 'user-agent': AGENT_GLANE },
-			body: JSON.stringify({ type: 'acte', url, collectivite: e.code, nature: e.nature, ...(e.libelle ? { libelle: e.libelle } : {}) })
-		});
+		r = await poster('/api/depots', { type: 'acte', url, collectivite: e.code, nature: e.nature, ...(e.libelle ? { libelle: e.libelle } : {}) });
 	} catch {
 		return 'reseau';
 	}
-	const corps = await r.json().catch(() => ({}));
+	const corps = r.corps;
 	if (r.status === 401) throw new Error('jeton refuse');
 	const issue = issueDeRelecture(r.status, corps);
 	if (!issue) return String(r.status);
@@ -386,9 +423,13 @@ for (const dep of departements) {
 	}
 	for (const [code, sites] of Object.entries(await r.json())) if (!seules || seules.has(code)) communes.push([code, sites[0]]);
 }
-const max = Number(options['communes-max']);
-const file = max > 0 ? communes.slice(0, max) : communes;
 const releve = path.join(options.etat, `glane-${jour}.tsv`);
+// Un passage relance le meme jour reprend apres les communes deja inscrites au releve.
+const dejaLues = fs.existsSync(releve) ? communesDuReleve(fs.readFileSync(releve, 'utf8')) : new Set();
+if (dejaLues.size) console.log(JSON.stringify({ reprise: dejaLues.size }));
+const aLire = communes.filter(([code]) => !dejaLues.has(code));
+const max = Number(options['communes-max']);
+const file = max > 0 ? aLire.slice(0, max) : aLire;
 const detail = path.join(options.etat, `glane-${jour}-actes.jsonl`);
 const detailBudgets = path.join(options.etat, `glane-${jour}-budgets.jsonl`);
 if (!fs.existsSync(releve)) fs.writeFileSync(releve, 'code\tsite\taccueil\tpage\tpdfs\tactes\tdeposes\tautres\tbudgets\tgenres\tpage_budget\n');
@@ -399,10 +440,10 @@ async function ouvrier() {
 		const [code, site] = file[suivant++];
 		let ligne;
 		try {
-			ligne = await glanerCommune(code, site);
+			ligne = await sousEcheance(COMMUNE_MS, `commune ${code}`, () => glanerCommune(code, site));
 		} catch (e) {
 			if (e.message === 'jeton refuse') throw e;
-			ligne = { code, site: site.join(''), accueil: 'erreur', page: '', pdfs: 0, actes: 0, deposes: 0, autres: String(e.message).slice(0, 80), budgets: 0, genres: '', pageBudget: '' };
+			ligne = { code, site: site.join(''), accueil: e instanceof EcheanceDepassee ? 'echeance' : 'erreur', page: '', pdfs: 0, actes: 0, deposes: 0, autres: String(e.message).slice(0, 80), budgets: 0, genres: '', pageBudget: '' };
 		}
 		fs.appendFileSync(releve, `${[ligne.code, ligne.site, ligne.accueil, ligne.page, ligne.pdfs, ligne.actes, ligne.deposes, ligne.autres, ligne.budgets, ligne.genres, ligne.pageBudget].join('\t')}\n`);
 		totaux.communes++;
@@ -412,6 +453,7 @@ async function ouvrier() {
 		totaux.deposes += ligne.deposes;
 		totaux.avecBudgets += ligne.budgets ? 1 : 0;
 		totaux.budgets += ligne.budgets;
+		if (totaux.communes % COMMUNES_PAR_REPARTITEUR === 0) renouvelerLesConnexions();
 		if (totaux.communes % 20 === 0) {
 			sauver();
 			console.log(JSON.stringify(totaux));
