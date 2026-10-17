@@ -218,10 +218,11 @@ export async function estLaFlotte(entete, jeton) {
 
 /**
  * Le verdict des plafonds : `{ ok: true }`, ou le motif et le `retry-after` en
- * secondes. La glane de la flotte n'a que le sien, `deCetteAdresse` est alors
- * son propre compte du jour.
+ * secondes. La glane de la flotte et un client des offres (D-195) n'ont que le
+ * leur, `deCetteAdresse` est alors leur propre compte du jour.
  */
-export function plafond({ deCetteAdresse, duJour, instant, flotte = false }) {
+export function plafond({ deCetteAdresse, duJour, instant, flotte = false, client = null }) {
+	if (client) return deCetteAdresse >= client.plafond ? { ok: false, motif: 'plafond du client atteint', apres: secondesAvantDemain(instant) } : { ok: true };
 	if (flotte)
 		return deCetteAdresse >= ACTES_DE_LA_FLOTTE_PAR_JOUR ? { ok: false, motif: 'plafond de la flotte atteint', apres: secondesAvantDemain(instant) } : { ok: true };
 	if (duJour >= DEPOTS_PAR_JOUR) return { ok: false, motif: 'plafond du jour atteint', apres: secondesAvantDemain(instant) };
