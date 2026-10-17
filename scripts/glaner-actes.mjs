@@ -25,7 +25,7 @@ import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { inflateSync } from 'node:zlib';
 import { DEPARTEMENTS } from '../src/departements.mjs';
-import { AGENT_GLANE, aRelire, acteDuLien, coucheTexte, documentBudgetaireDe, issueDeRelecture, liensDe, pagesBudget, pagesCandidates, pdfsDe, reglesRobots, robotsPermet, telechargementsDe } from '../src/glane.mjs';
+import { AGENT_GLANE, aRelire, acteDuLien, coucheTexte, documentBudgetaireDe, issueDeRelecture, liensDe, pagesBudget, pagesCandidates, pdfsDe, refusDeDepot, reglesRobots, robotsPermet, telechargementsDe } from '../src/glane.mjs';
 
 const { values: options } = parseArgs({
 	options: {
@@ -188,7 +188,8 @@ async function releverBudget(code, doc, nouveaux) {
 let plafondAtteint = false;
 async function deposer(code, acte) {
 	const deja = etat.pdfs[acte.url];
-	if (deja && (deja.id || deja.statut === 422 || deja.essais >= ESSAIS_MAX)) return 'connu';
+	// Un refus de lecture transitoire (delai, reseau, 5xx, motif inconnu) se redemande a un autre passage, ESSAIS_MAX fois.
+	if (deja && (deja.id || deja.essais >= ESSAIS_MAX || (deja.statut === 422 && refusDeDepot(422, { erreur: deja.erreur, details: deja.detail ? [deja.detail] : [] }).definitif))) return 'connu';
 	if (options.sec || plafondAtteint) return 'a-deposer';
 	if (!(await permis(acte.url))) return 'robots';
 	await tourDe(new URL(acte.url).hostname);
@@ -202,8 +203,9 @@ async function deposer(code, acte) {
 	if (r.status === 429) plafondAtteint = true;
 	// La nature et le libelle restent pour redemander la datation a la relecture ; le jour est celui de la datation.
 	if (r.status === 201 || r.status === 200) etat.pdfs[acte.url] = { jour: corps.jour ?? jour, id: corps.id, code, nature: acte.nature, ...(acte.libelle ? { libelle: acte.libelle } : {}) };
-	else if (r.status !== 409 && r.status !== 429) etat.pdfs[acte.url] = { jour, statut: r.status, essais: (deja?.essais ?? 0) + 1, erreur: corps.erreur };
-	return r.status === 201 ? 'depose' : String(r.status);
+	else if (r.status !== 409 && r.status !== 429) etat.pdfs[acte.url] = { jour, statut: r.status, essais: (deja?.essais ?? 0) + 1, erreur: corps.erreur, ...(corps.details?.[0] ? { detail: String(corps.details[0]).slice(0, 200) } : {}) };
+	// Un refus se compte par sa classe au releve (422-contenu, 422-delai...) : c'est la que se lit l'effet du temoin.
+	return r.status === 201 ? 'depose' : r.status === 422 ? `422-${refusDeDepot(422, corps).classe}` : String(r.status);
 }
 
 /**
