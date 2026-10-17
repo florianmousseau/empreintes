@@ -162,7 +162,7 @@ test('la valeur de preuve dit ce qui tient dans trente ans, et la signature post
 	assert.equal(premiereSignaturePostQuantique([t, slh], 'de'), '16.10.2026');
 	const sans = pagePreuve([t]);
 	assert.match(sans, /<h2>Dans trente ans<\/h2>/);
-	assert.match(sans, /ne sait pas défaire une empreinte SHA-256/);
+	assert.match(sans, /<h2>Dans trente ans<\/h2>\n<ul>\n<li>Le registre est une chaîne d’empreintes SHA-256/, 'une liste sous le titre, aucun paragraphe entre les deux');
 	assert.doesNotMatch(sans, /SLH-DSA/);
 	const avec = pagePreuve([t, slh]);
 	assert.match(avec, /Depuis le 16\/10\/2026, chaque racine est aussi signée en SLH-DSA \(FIPS 205\)/);

@@ -824,9 +824,7 @@ ${elements(e.preuve.limites)}
 <h2>${e.preuve.textes}</h2>
 ${elements(e.preuve.lois)}
 <h2>${e.preuve.dureeTitre}</h2>
-<p>${e.preuve.duree}</p>
 ${elements([...(postQuantique ? [e.preuve.signeePq(postQuantique, lien(e, 'verifier'))] : []), e.preuve.chaineDuree, e.preuve.bitcoinDuree])}
-<p>${e.preuve.doublent}</p>
 <h2>${e.preuve.disparait}</h2>
 <p>${e.preuve.suffisent(lien(e, 'documentation'))}</p>
 ${elements(copies.map((c, i) => `<a href="${c.adresse}">${e.preuve.copies[i] ?? c.nom}</a>`))}
