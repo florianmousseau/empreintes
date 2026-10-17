@@ -798,12 +798,19 @@ export function premierHorodatageQualifie(tours, langue = 'fr') {
 	return tour ? EDITIONS[langue].jour(tour.instant.slice(0, 10)) : null;
 }
 
+/** Le premier jour d'une signature post-quantique des racines (D-201), null tant qu'aucun tour n'en porte. */
+export function premiereSignaturePostQuantique(tours, langue = 'fr') {
+	const tour = tours.find((t) => t.fichiers.some((f) => f.endsWith('.racine.slh')));
+	return tour ? EDITIONS[langue].jour(tour.instant.slice(0, 10)) : null;
+}
+
 const elements = (lignes) => `<ul>\n${lignes.map((l) => `<li>${l}</li>`).join('\n')}\n</ul>`;
 
 /** Ce qu'un recu prouve, ce qu'il ne prouve pas, les textes, et ce qui reste si le site disparait. */
 export function pagePreuve(tours, copies = COPIES, langue = 'fr') {
 	const e = EDITIONS[langue];
 	const qualifie = premierHorodatageQualifie(tours, langue);
+	const postQuantique = premiereSignaturePostQuantique(tours, langue);
 	return gabarit(e, {
 		titre: e.actes.preuve.titre,
 		description: e.preuve.description,
@@ -816,6 +823,10 @@ ${elements([e.preuve.existait, e.preuve.lien, qualifie ? e.preuve.ancrageQualifi
 ${elements(e.preuve.limites)}
 <h2>${e.preuve.textes}</h2>
 ${elements(e.preuve.lois)}
+<h2>${e.preuve.dureeTitre}</h2>
+<p>${e.preuve.duree}</p>
+${elements([...(postQuantique ? [e.preuve.signeePq(postQuantique, lien(e, 'verifier'))] : []), e.preuve.chaineDuree, e.preuve.bitcoinDuree])}
+<p>${e.preuve.doublent}</p>
 <h2>${e.preuve.disparait}</h2>
 <p>${e.preuve.suffisent(lien(e, 'documentation'))}</p>
 ${elements(copies.map((c, i) => `<a href="${c.adresse}">${e.preuve.copies[i] ?? c.nom}</a>`))}
