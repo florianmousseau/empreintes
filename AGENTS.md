@@ -54,7 +54,12 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   `src/depot.mjs`, et l'entrepot le relit (feuille `depots:<n>`) : il ne
   change que par une version de recu nouvelle, jamais en place. Les gardes du
   temoin d'URL sont dans `src/temoin.mjs`, pures ; la Function ne fait que les
-  brancher.
+  brancher. Pour un DEPOT (pas pour un flux suivi), `contenuAdmis` refuse aussi
+  ce qui n'est pas le document : moins de 512 octets, page web a la place d'un
+  fichier annonce par l'extension (jugee sur les octets, pas l'en-tete), `.pdf`
+  sans `%PDF-`, defi anti-robot, captcha ou mot de passe dans une page mince
+  (moins de 3 000 caracteres de texte). Le service ne juge jamais le FOND d'un
+  document : il atteste qu'il existait tel quel.
 - Le depot vit dans une Function (`functions/api/depots.js`, POST) et la base
   D1 `empreintes-depots` (liaison `DEPOTS`, `wrangler.toml`) ; le schema est
   `SCHEMA` dans `src/service.mjs`, rejouable, applique par l'API D1 `query`.

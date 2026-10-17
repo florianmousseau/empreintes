@@ -7,7 +7,7 @@ import { nommeUnePersonne } from './personne.mjs';
 import { sha256 } from './chaine.mjs';
 import { CLE_DE_LA_FLOTTE, cleDAdresse, idDuRecu, jourDe, ligneDe, lireDemande, plafond, recuDe, secondesAvantDemain, selAleatoire } from './depot.mjs';
 import { verifierSignatureDuDeposant } from './origine.mjs';
-import { AGENT, DELAI_MS, cleDeLecture, estUneIp, ipsDoH, lireBorne, resolutionAdmise, sautSuivant, urlAdmise } from './temoin.mjs';
+import { AGENT, DELAI_MS, cleDeLecture, contenuAdmis, estUneIp, ipsDoH, lireBorne, resolutionAdmise, sautSuivant, urlAdmise } from './temoin.mjs';
 
 /** Le schema de la base `empreintes-depots` ; rejouable. */
 export const SCHEMA = [
@@ -64,13 +64,18 @@ export async function resoudreParDoH(hote, { fetch: f = fetch, resolveur = 'http
 	return [...(await lire('A')), ...(await lire('AAAA'))];
 }
 
-/** Ce que le temoin a lu d'une reponse finale ; leve avec `statut` si elle n'est pas un succes. */
-async function lireReponse(r, { url, debut, maintenant, garder }) {
+/**
+ * Ce que le temoin a lu d'une reponse finale ; leve avec `statut` si elle n'est
+ * pas un succes, et avec `contenu` quand `juger` refuse ce qui a ete servi.
+ */
+async function lireReponse(r, { url, demandee, debut, maintenant, garder, juger }) {
 	if (!r.ok) {
 		await r.body?.cancel();
 		throw Object.assign(new Error(`la source a repondu ${r.status}`), { statut: r.status });
 	}
 	const octets = r.body ? await lireBorne(r.body.getReader(), { debut, maintenant }) : new Uint8Array(0);
+	const verdict = juger ? contenuAdmis({ annoncees: [demandee, url], type: r.headers.get('content-type'), octets }) : { ok: true };
+	if (verdict.refus) throw Object.assign(new Error(verdict.refus), { contenu: true });
 	const lu = { url, taille: octets.byteLength, type: r.headers.get('content-type'), lu: new Date(maintenant()).toISOString(), sha256: await sha256(octets) };
 	return garder ? { ...lu, octets } : lu;
 }
@@ -79,8 +84,10 @@ async function lireReponse(r, { url, debut, maintenant, garder }) {
  * Le temoin : lit l'URL lui-meme, chaque saut regarde (protocole, port, hote,
  * resolution), dans ses bornes, et rend ce qu'il a lu (les octets aussi avec
  * `garder`). Leve avec le motif, et `statut` quand la source a repondu.
+ * `juger` refuse aussi ce qui n'est pas le document (`contenuAdmis`) : pour un
+ * depot, pas pour un flux suivi, dont les pages portent souvent une connexion.
  */
-export async function temoigner(admise, { fetch: f = fetch, resoudre = (h) => resoudreParDoH(h), maintenant = () => Date.now(), garder = false } = {}) {
+export async function temoigner(admise, { fetch: f = fetch, resoudre = (h) => resoudreParDoH(h), maintenant = () => Date.now(), garder = false, juger = false } = {}) {
 	const debut = maintenant();
 	let courante = admise;
 	for (let sauts = 0; ; sauts++) {
@@ -96,7 +103,7 @@ export async function temoigner(admise, { fetch: f = fetch, resoudre = (h) => re
 			courante = suite;
 			continue;
 		}
-		return lireReponse(r, { url: courante.url, debut, maintenant, garder });
+		return lireReponse(r, { url: courante.url, demandee: admise.url, debut, maintenant, garder, juger });
 	}
 }
 
@@ -185,7 +192,7 @@ export async function deposer({ db, corps, adresse, maintenant = new Date(), tem
 		const nouvelle = await faire(db, 'INSERT INTO lecture (cle, jour) VALUES (?, ?) ON CONFLICT (cle) DO NOTHING', cleLue, jour);
 		if (nouvelle.meta.changes === 0) return refus(409, 'url deja lue aujourd hui', [], { 'retry-after': String(secondesAvantDemain(instant)) });
 		try {
-			lu = await temoin(admise);
+			lu = await temoin(admise, { juger: true });
 		} catch (erreur) {
 			// Une source qui ne sert plus un acte deja date pour sa commune : la relecture le note, la reponse reste un refus.
 			if (flotte && demande.acte && SOURCE_DISPARUE.includes(erreur?.statut))

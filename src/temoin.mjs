@@ -165,3 +165,77 @@ async function abandonner(lecteur, motif) {
 
 /** La cle de la lecture d'une URL un jour (une seule par URL et par jour), sans garder l'URL. */
 export const cleDeLecture = (url, jour) => sha256(`temoin\n${jour}\n${url}`);
+
+// Les gardes du contenu (2026-10-16) : un 200 peut servir autre chose que le
+// document (page d'erreur, connexion, defi anti-robot, page vide). Le temoin
+// les refuse avant de deposer, sans modele, la raison dans la reponse.
+
+export const OCTETS_MIN = 512;
+const DEBUT_LU = 512 * 1024;
+const TEXTE_MINCE = 3000;
+
+/** Les extensions qui annoncent un fichier, jamais une page web. */
+const FICHIERS_ANNONCES = new Set(['pdf', 'csv', 'json', 'geojson', 'xml', 'txt', 'zip', 'gz', 'odt', 'ods', 'odp', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'rtf', 'epub', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'tif', 'tiff', 'mp3', 'mp4']);
+
+/** Les marques d'une page de defi servie a la place du document, toujours refusees. */
+const DEFIS = ['/cdn-cgi/challenge-platform/', 'cf-chl-', 'cf_chl_opt', '<title>just a moment...</title>', 'attention required! | cloudflare', 'captcha-delivery.com', 'px-captcha', '_incapsula_resource', 'ddos-guard', 'awswafcaptcha'];
+/** Un captcha ou une connexion dans une page MINCE : une page de contenu peut en porter un en marge. */
+const CAPTCHAS = ['class="g-recaptcha"', 'class="h-captcha"', 'class="cf-turnstile"', 'challenges.cloudflare.com/turnstile'];
+const CHAMP_MOT_DE_PASSE = /<input\b[^>]*\btype\s*=\s*["']?password\b/;
+
+export const MOTIFS_DU_CONTENU = {
+	vide: `document de moins de ${OCTETS_MIN} octets`,
+	page: 'page web servie a la place du fichier annonce',
+	pasUnPdf: 'fichier annonce en pdf, octets d un autre format',
+	defi: 'verification anti-robot servie a la place du document',
+	captcha: 'captcha servi a la place du document',
+	connexion: 'page de connexion servie a la place du document'
+};
+
+/** L'extension que porte le chemin d'une URL, en minuscules, ou null. */
+export function extensionDe(url) {
+	let chemin;
+	try {
+		chemin = new URL(url).pathname;
+	} catch {
+		return null;
+	}
+	const nom = chemin.slice(chemin.lastIndexOf('/') + 1);
+	const point = nom.lastIndexOf('.');
+	return point > 0 ? nom.slice(point + 1).toLowerCase() : null;
+}
+
+function sansBlocs(html, balise) {
+	let reste = html;
+	for (let i = reste.indexOf(`<${balise}`); i !== -1; i = reste.indexOf(`<${balise}`, i)) {
+		const fin = reste.indexOf(`</${balise}>`, i);
+		reste = reste.slice(0, i) + (fin === -1 ? '' : reste.slice(fin + balise.length + 3));
+	}
+	return reste;
+}
+
+/** Le texte lisible d'une page, sans scripts, styles ni balises. */
+export const texteDeLaPage = (html) => sansBlocs(sansBlocs(html, 'script'), 'style').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+
+const octetsHtml = (debut) => /^\s*<(?:!doctype html|html|head|body)\b/i.test(debut.slice(0, 1024));
+
+/**
+ * Le verdict sur ce qu'un temoin a recu : `{ ok: true }` ou `{ refus }`.
+ * `annoncees` : les adresses demandee puis lue, la premiere qui porte une
+ * extension annonce le fichier attendu.
+ */
+export function contenuAdmis({ annoncees, type, octets }) {
+	if (octets.byteLength < OCTETS_MIN) return { refus: MOTIFS_DU_CONTENU.vide };
+	const debut = new TextDecoder('utf-8').decode(octets.subarray(0, DEBUT_LU));
+	const extension = annoncees.map(extensionDe).find(Boolean) ?? null;
+	// Un fichier annonce se juge sur ses octets : un serveur mal regle l'envoie parfois en text/html.
+	if (FICHIERS_ANNONCES.has(extension) && octetsHtml(debut)) return { refus: MOTIFS_DU_CONTENU.page };
+	if (extension === 'pdf' && !debut.slice(0, 1024).includes('%PDF-')) return { refus: MOTIFS_DU_CONTENU.pasUnPdf };
+	if (!octetsHtml(debut) && !/html/i.test(type ?? '')) return { ok: true };
+	const page = debut.toLowerCase();
+	if (DEFIS.some((m) => page.includes(m))) return { refus: MOTIFS_DU_CONTENU.defi };
+	if (texteDeLaPage(page).length >= TEXTE_MINCE) return { ok: true };
+	if (CAPTCHAS.some((m) => page.includes(m))) return { refus: MOTIFS_DU_CONTENU.captcha };
+	if (CHAMP_MOT_DE_PASSE.test(page)) return { refus: MOTIFS_DU_CONTENU.connexion };
+	return { ok: true };
+}

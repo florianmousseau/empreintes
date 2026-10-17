@@ -38,6 +38,12 @@ const TEXTES = {
 			'nom d hote non public': { fr: 'Seules les adresses publiques sont acceptées.', de: 'Nur öffentliche Adressen sind zulässig.' },
 			'hote sans adresse': { fr: 'Ce site n’existe pas.', de: 'Diese Website existiert nicht.' },
 			'sha256 : 64 caracteres hexadecimaux': { fr: 'Une empreinte SHA-256 compte 64 caractères, chiffres et lettres de a à f.', de: 'Eine SHA-256-Prüfsumme hat 64 Zeichen, Ziffern und Buchstaben von a bis f.' },
+			'document de moins de 512 octets': { fr: 'Le fichier reçu est presque vide, moins de 512 octets.', de: 'Die empfangene Datei ist fast leer, weniger als 512 Byte.' },
+			'page web servie a la place du fichier annonce': { fr: 'Le lien annonce un fichier, mais le site a renvoyé une page web.', de: 'Der Link kündigt eine Datei an, die Website hat aber eine Webseite geliefert.' },
+			'fichier annonce en pdf, octets d un autre format': { fr: 'Le lien annonce un PDF, mais le fichier reçu n’en est pas un.', de: 'Der Link kündigt ein PDF an, die empfangene Datei ist aber keines.' },
+			'verification anti-robot servie a la place du document': { fr: 'Le site a renvoyé une vérification anti-robot à la place du document.', de: 'Die Website hat statt des Dokuments eine Roboterprüfung geliefert.' },
+			'captcha servi a la place du document': { fr: 'Le site a renvoyé un captcha à la place du document.', de: 'Die Website hat statt des Dokuments ein Captcha geliefert.' },
+			'page de connexion servie a la place du document': { fr: 'Le site a renvoyé une page de connexion à la place du document.', de: 'Die Website hat statt des Dokuments eine Anmeldeseite geliefert.' },
 			'collectivite : code commune INSEE (5 caracteres) ou SIREN (9 chiffres)': { fr: 'Le code INSEE de la commune a 5 caractères, le SIREN de la collectivité 9 chiffres.', de: 'Der INSEE-Code der Gemeinde hat 5 Zeichen, die SIREN der Körperschaft 9 Ziffern.' },
 			'libelle : aucun nom de personne': { fr: 'Le nom ou l’objet ne doit nommer personne.', de: 'Name oder Gegenstand dürfen keine Person nennen.' }
 		},
