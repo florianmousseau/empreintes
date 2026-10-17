@@ -179,3 +179,28 @@ test('la reponse du service a une relecture dit le meme document, une version no
 	assert.equal(issueDeRelecture(400, { erreur: 'demande illisible' }), 'illisible', 'une demande refusee ne garde pas la tete de la file');
 	for (const s of [409, 429, 500, 503]) assert.equal(issueDeRelecture(s), null);
 });
+
+import { refusDeDepot } from '../src/glane.mjs';
+
+test('un refus de lecture se classe sur son motif, et seul un refus transitoire se redemande a un autre passage', () => {
+	const lecture = (motif) => refusDeDepot(422, { erreur: 'lecture impossible', details: motif === undefined ? [] : [motif] });
+	assert.deepEqual(lecture('la source a repondu 404'), { classe: 'disparu', definitif: true });
+	assert.deepEqual(lecture('la source a repondu 410'), { classe: 'disparu', definitif: true });
+	assert.deepEqual(lecture('la source a repondu 403'), { classe: 'source-4xx', definitif: true });
+	assert.deepEqual(lecture('page web servie a la place du fichier annonce'), { classe: 'contenu', definitif: true });
+	assert.deepEqual(lecture('fichier annonce en pdf, octets d un autre format'), { classe: 'contenu', definitif: true });
+	assert.deepEqual(lecture('document de moins de 512 octets'), { classe: 'contenu', definitif: true });
+	assert.deepEqual(lecture('verification anti-robot servie a la place du document'), { classe: 'contenu', definitif: true });
+	assert.deepEqual(lecture('document au-dela de 20971520 octets'), { classe: 'trop-gros', definitif: true });
+	assert.deepEqual(lecture('hote resolu en adresse privee, locale ou reservee (fe80::1)'), { classe: 'adresse', definitif: true });
+	assert.deepEqual(lecture('plus de 5 redirections'), { classe: 'adresse', definitif: true });
+	assert.deepEqual(lecture('la source a repondu 503'), { classe: 'source-5xx', definitif: false });
+	assert.deepEqual(lecture('la source a repondu 429'), { classe: 'source-5xx', definitif: false });
+	assert.deepEqual(lecture('lecture au-dela de 30 s'), { classe: 'delai', definitif: false });
+	assert.deepEqual(lecture('The operation was aborted due to timeout'), { classe: 'delai', definitif: false });
+	assert.deepEqual(lecture('TypeError: fetch failed'), { classe: 'transitoire', definitif: false });
+	assert.deepEqual(lecture(undefined), { classe: 'transitoire', definitif: false }, 'un etat ancien sans motif se redemande pour l apprendre');
+	assert.deepEqual(refusDeDepot(422, { erreur: 'hors du site officiel', details: ['17146'] }), { classe: 'hors-site', definitif: true });
+	assert.deepEqual(refusDeDepot(400, { erreur: 'demande illisible' }), { classe: 'refus', definitif: true });
+	assert.deepEqual(refusDeDepot(422), { classe: 'refus', definitif: true });
+});

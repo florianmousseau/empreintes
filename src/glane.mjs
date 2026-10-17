@@ -419,3 +419,32 @@ export function issueDeRelecture(statut, corps = {}) {
 	}
 	return null;
 }
+
+/**
+ * Les familles d'un refus de lecture du temoin, de la plus precise a la plus
+ * large ; la premiere qui reconnait le motif donne la classe. `definitif` : la
+ * meme adresse relue un autre jour rendrait le meme refus.
+ */
+const CLASSES_DE_LECTURE = [
+	['disparu', true, /repondu (?:404|410)\b/],
+	['source-4xx', true, /repondu 4(?!08|29)\d\d\b/],
+	['contenu', true, /a la place d|d un autre format|de moins de \d+ octets/],
+	['trop-gros', true, /au-dela de \d+ octets/],
+	['adresse', true, /adresse privee|non public|redirection|location|seulement|identifiants|url illisible/],
+	['source-5xx', false, /repondu (?:5\d\d|408|429)\b/],
+	['delai', false, /au-dela de \d+ s\b|timeout|timed out|aborted/i]
+];
+
+/**
+ * Ce qu'est un refus du service a un depot de la glane : `{ classe, definitif }`.
+ * Un refus de lecture se classe sur son motif (`details`) ; un refus de
+ * lecture sans motif connu (reseau, resolution, motif absent d'un etat ancien)
+ * est `transitoire` et se redemande a un autre passage, dans la limite des essais.
+ * Tout autre refus (hors du site officiel, demande refusee) est definitif.
+ */
+export function refusDeDepot(statut, corps = {}) {
+	if (statut !== 422 || corps.erreur !== 'lecture impossible') return { classe: corps.erreur === 'hors du site officiel' ? 'hors-site' : 'refus', definitif: true };
+	const motif = (corps.details ?? []).join(' ');
+	const trouvee = CLASSES_DE_LECTURE.find(([, , re]) => re.test(motif));
+	return trouvee ? { classe: trouvee[0], definitif: trouvee[1] } : { classe: 'transitoire', definitif: false };
+}

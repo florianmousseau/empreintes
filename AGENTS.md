@@ -169,6 +169,13 @@ Surface publique et miroir du journal des empreintes de l'entrepot (D-158).
   `.timer` (toutes les communes, `--departements tous`, memoire bornee a
   512 Mo), clone public a jour avant chaque passage, jeton dans
   `/etc/glane-actes.env`. Releve du jour : `/var/lib/glane-actes/etat/glane-<jour>.tsv`.
+- Un refus de lecture du temoin (422 `lecture impossible`) se classe sur son motif
+  (`refusDeDepot`, `src/glane.mjs`) et se compte au releve par classe (`422-disparu`,
+  `422-contenu`, `422-trop-gros`, `422-adresse`, `422-source-4xx` : definitifs ;
+  `422-delai`, `422-source-5xx`, `422-transitoire` : redemandes a un autre passage,
+  `ESSAIS_MAX` fois). L'etat garde le motif (`detail`). Mesure du 2026-10-17 : sur 186
+  refus de la nuit, 57 liens morts, 3 fichiers de plus de 20 Mo, 1 DNS en `fe80::`, et
+  ~125 PDF lisibles depuis un poste que le service n'a pas lus (14 hotes refuses en entier).
 - Les documents budgetaires (D-185) : la glane les RELEVE, elle ne les depose pas
   (un compte administratif n'est pas un acte du registre). `documentBudgetaireDe`
   (`src/glane.mjs`, pur) lit dans le libelle puis le nom du fichier le genre (CA,
