@@ -967,10 +967,27 @@ export function fluxDisparus(entrees) {
 <link>${e.adresse}${CHEMIN_DISPARUS}</link>
 <description>Documents disparus, remplacés ou sortis de leur liste sur les sites surveillés.</description>
 <language>fr</language>
+${MARQUE_DES_ACTES}
 ${items}
 </channel>
 </rss>
 `;
+}
+
+/** Les items RSS des actes des communes, a la place de `MARQUE_DES_ACTES` dans le flux ; `nomDe(code)` rend le nom de la commune ou null. */
+export function itemsDesActes({ entrees, nomDe = () => null }) {
+	const e = EDITIONS.fr;
+	return entrees
+		.map(
+			(d) => `<item>
+<title>${xml(`${EVENEMENTS[d.classe]}, ${nomDe(d.collectivite) ?? d.collectivite}, ${d.objet ?? nomDuDocument(d.url)}`)}</title>
+<link>${xml(`${e.adresse}${d.preuve}`)}</link>
+<guid isPermaLink="false">${xml(`acte:${d.classe}:${d.avant.sha256}:${d.url}`)}</guid>
+<pubDate>${dateRss(d.date)}</pubDate>
+<description>${xml(`${d.url}${d.http ? `, HTTP ${d.http}` : ''}, version du ${jourFr(d.avant.jour)}`)}</description>
+</item>`
+		)
+		.join('\n');
 }
 
 /**
